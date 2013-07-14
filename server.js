@@ -61,7 +61,7 @@ sonia.addListener('message', function (from, to, message) {
         // sonia.action(chan, 'Pokes '+from);
         var begin = message.match(/^(Sonia[:,]? |!)/i)?message.match(/^(Sonia[:,]? |!)/i)[1]:message.match(/(,? Sonia[.! ?]*?)$/i)[1];
         message = message.replace(begin, '');
-        message = message.replace('^What\'s the ', '');
+        message = message.replace('What\'s the ', '');
         if (message.match(/^s(?:ong| |$)/i)) {
             sonia.say(chan, 'Current Song: '+current.SHOUTCASTSERVER.SONGTITLE);
         } else if (message.match(/^l(?:isteners| |$)/i)) {
