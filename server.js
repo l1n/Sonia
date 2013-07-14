@@ -127,7 +127,7 @@ sonia.addListener('message', function (from, to, message) {
     }
 });
 
-setInterval(function(){client.send('PONG', 'empty');}, 5*60*1000);
+setInterval(function(){sonia.send('PONG', 'empty');}, 5*60*1000);
 
 setInterval(function() {
     request(ip+'stats?sid=1', function (error, response, body) {
