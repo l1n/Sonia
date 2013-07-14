@@ -21,7 +21,11 @@ if (!db.getItem('ElectricErger'.substring(0,12))) {
 if (!db.getItem('linaea'.substring(0,12))) {
     db.setItem('linaea'.substring(0,12), now);
 }
+if (!db.getItem('calls')) {
+    db.setItem('calls'.substring(0,12), {});
+}
 var current, rem;
+var feeling = 'like a robot';
 request(ip+'stats?sid=1', function (error, response, body) {
     if (!error && response.statusCode == 200) {
         parseString(body, function (err, result) {
@@ -70,7 +74,6 @@ sonia.addListener('message', function (from, to, message) {
                     notify = !notify;
                     sonia.say(chan, 'Notifications '+(notify?'on':'off'));
                 } else {
-                    console.log(info);
                     sonia.say(from, 'You\'re not an OP, I don\'t trust you ...');
                 }
             });
@@ -105,6 +108,9 @@ sonia.addListener('message', function (from, to, message) {
                     sonia.say(from, 'You\'re not an OP, I don\'t trust you ...');
                 }
             });
+        } else if (message.match(/^w(?:hen) \[(.*?)\],? s(?:ay) ? \[(.*?)\]/i)) {
+            var match = message.match(/^w(?:hen) \[(.*?)\],? s(?:ay) ? \[(.*?)\]/i);
+            db.getItem('calls')[match[1]] = match[2];
         } else if (message.match(/^g(?:etdata| |$)/i)) {
             var data = db.getItem((message.match(/ (.*)/i)?message.match(/ (.*)/i)[1]:current.SHOUTCASTSERVER.SONGTITLE)+"");
             if (!data) {
@@ -122,7 +128,6 @@ sonia.addListener('message', function (from, to, message) {
                         // order: 'rating',
                         part: 'snippet',
                         };
-                          console.log(client);
                     client.youtube.search.list(params).withApiKey(key).execute(function (err, response) {
                         response.items.forEach(function (item,a,b) {
                             sonia.say(chan, from+': Does this help? '+current.SHOUTCASTSERVER.SONGTITLE+' might be http://www.youtube.com/watch?v='+item.id.videoId);
@@ -154,10 +159,26 @@ sonia.addListener('message', function (from, to, message) {
         } else if (message=='PLEASE QUIT NAO') {
             process.exit();
         } else if (begin!='!') {
-            if (to!=config.botName) {
-                sonia.say(chan, message+' to you, too, '+from);
+            if (message.match(/thank you/i)) {
+                message = 'No problem!';
             } else {
-                sonia.say(from, message+' to you, too, '+from);
+                var matched = false;
+                Object.keys(db.getItem('calls')).forEach(function (item, a, b) {
+                    if (message.match(item)) {
+                        matched = true;
+                        message = db.getItem('calls')[item];
+                        message.replace(/<from>/g, from);
+                        message.replace(/<feeling>/g, feeling);
+                    }
+                });
+                if (!matched) {
+                    message = message+' you, too, '+from;
+                }
+            }
+            if (to!=config.botName) {
+                sonia.say(chan, message);
+            } else {
+                sonia.say(from, message);
             }
         }
     }
