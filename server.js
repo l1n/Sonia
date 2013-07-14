@@ -79,10 +79,10 @@ sonia.addListener('message', function (from, to, message) {
             sonia.action(chan, ' hugs '+from);
         } else if (message.match(/^p(?:oke| |$)/i) && message.match(/ (.*)/i)) {
             sonia.action(chan, ' pokes '+message.match(/ (.*)/i)[1]);
-        } else if (message.match(/^a(?:dd| |$)/i) && message.match(/ (.*)/i)) {
+        } else if (message.match(/^a(?:dd| |$)/i)) {
             sonia.whois(from, function (info) {
                 if (info.channels.indexOf('@#SonicRadioboom') >= 0 || info.channels.indexOf('~#SonicRadioboom') >= 0 || info.channels.indexOf('%#SonicRadioboom') >= 0) {
-                    db.setItem(current.SHOUTCASTSERVER.SONGTITLE+"", message.match(/ (.*)/i)[1]);
+                    db.setItem(current.SHOUTCASTSERVER.SONGTITLE+"", (message.match(/ (.*)/i)?message.match(/ (.*)/i)[1]:rem));
                     sonia.say(from, 'Set record for '+current.SHOUTCASTSERVER.SONGTITLE+' to '+db.getItem(current.SHOUTCASTSERVER.SONGTITLE));
                 } else {
                     sonia.say(from, 'You\'re not an OP, I don\'t trust you ...');
