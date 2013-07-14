@@ -5,7 +5,7 @@
         "googleapis": "*",
         "irc": "*",
         "moment": "*",
-        "nodejs-persist": "*",
+        "persist": "*",
         "request": "*",
         "xml2js": "*"
     },
