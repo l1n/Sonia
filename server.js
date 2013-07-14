@@ -24,7 +24,7 @@ if (!db.getItem('linaea'.substring(0,12))) {
 if (!db.getItem('calls')) {
     db.setItem('calls'.substring(0,12), {});
 }
-var calls= db.getItem('calls');
+var calls = db.getItem('calls');
 var current, rem;
 var feeling = 'like a robot';
 request(ip+'stats?sid=1', function (error, response, body) {
@@ -166,10 +166,10 @@ sonia.addListener('message', function (from, to, message) {
                 message = 'No problem!';
             } else {
                 var matched = false;
-                Object.keys(db.getItem('calls')).forEach(function (item, a, b) {
+                Object.keys(calls).forEach(function (item, a, b) {
                     if (message.match(item)) {
                         matched = true;
-                        message = db.getItem('calls')[item];
+                        message = calls[item];
                         message.replace(/<from>/g, from);
                         message.replace(/<feeling>/g, feeling);
                     }
