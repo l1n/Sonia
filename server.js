@@ -1,179 +1,166 @@
-#!/bin/env node
-//  OpenShift sample Node application
-var express = require('express');
-var fs      = require('fs');
+// Get the lib
+var irc = require("irc");
+var request = require('request');
+var moment = require('moment');
+var parseString = require('xml2js').parseString;
+var googleapis = require('googleapis');
+var db = require('node-persist');
 
 
-/**
- *  Define the sample application.
- */
-var SampleApp = function() {
+//Google API key
+var key = 'AIzaSyDPlGenbEo8T-sbeNHx_shvJSRCwOpCESc';
 
-    //  Scope.
-    var self = this;
+var ip = 'http://198.211.99.242:8020/';
+var chan = '#SonicRadioboom';
 
-
-    /*  ================================================================  */
-    /*  Helper functions.                                                 */
-    /*  ================================================================  */
-
-    /**
-     *  Set up server IP address and port # using env variables/defaults.
-     */
-    self.setupVariables = function() {
-        //  Set the environment variables we need.
-        self.ipaddress = process.env.OPENSHIFT_NODEJS_IP ||
-                         process.env.OPENSHIFT_INTERNAL_IP;
-        self.port      = process.env.OPENSHIFT_NODEJS_PORT   ||
-                         process.env.OPENSHIFT_INTERNAL_PORT || 8080;
-
-        if (typeof self.ipaddress === "undefined") {
-            //  Log errors on OpenShift but continue w/ 127.0.0.1 - this
-            //  allows us to run/test the app locally.
-            console.warn('No OPENSHIFT_*_IP var, using 127.0.0.1');
-            self.ipaddress = "127.0.0.1";
-        };
-    };
-
-
-    /**
-     *  Populate the cache.
-     */
-    self.populateCache = function() {
-        if (typeof self.zcache === "undefined") {
-            self.zcache = { 'index.html': '' };
-        }
-
-        //  Local cache for static content.
-        self.zcache['index.html'] = fs.readFileSync('./index.html');
-    };
-
-
-    /**
-     *  Retrieve entry (content) from cache.
-     *  @param {string} key  Key identifying content to retrieve from cache.
-     */
-    self.cache_get = function(key) { return self.zcache[key]; };
-
-
-    /**
-     *  terminator === the termination handler
-     *  Terminate server on receipt of the specified signal.
-     *  @param {string} sig  Signal to terminate on.
-     */
-    self.terminator = function(sig){
-        if (typeof sig === "string") {
-           console.log('%s: Received %s - terminating sample app ...',
-                       Date(Date.now()), sig);
-           process.exit(1);
-        }
-        console.log('%s: Node server stopped.', Date(Date.now()) );
-    };
-
-
-    /**
-     *  Setup termination handlers (for exit and a list of signals).
-     */
-    self.setupTerminationHandlers = function(){
-        //  Process on exit and signals.
-        process.on('exit', function() { self.terminator(); });
-
-        // Removed 'SIGPIPE' from the list - bugz 852598.
-        ['SIGHUP', 'SIGINT', 'SIGQUIT', 'SIGILL', 'SIGTRAP', 'SIGABRT',
-         'SIGBUS', 'SIGFPE', 'SIGUSR1', 'SIGSEGV', 'SIGUSR2', 'SIGTERM'
-        ].forEach(function(element, index, array) {
-            process.on(element, function() { self.terminator(element); });
+var now = new moment();
+db.initSync();
+if (!db.getItem('ElectricErger'.substring(0,12))) {
+    db.setItem('ElectricErger'.substring(0,12), now);
+}
+if (!db.getItem('linaea'.substring(0,12))) {
+    db.setItem('linaea'.substring(0,12), now);
+}
+var current;
+request(ip+'stats?sid=1', function (error, response, body) {
+    if (!error && response.statusCode == 200) {
+        parseString(body, function (err, result) {
+            current = result;
         });
-    };
+    }
+});
 
+// Create the configuration
+var config = {
+    channels: [chan],
+    server: "irc.canternet.org",
+	botName: "Sonia",
+    floodProtection: true,
+};
 
-    /*  ================================================================  */
-    /*  App server functions (main app logic here).                       */
-    /*  ================================================================  */
+var notify = false;
 
-    /**
-     *  Create the routing table entries + handlers for the application.
-     */
-    self.createRoutes = function() {
-        self.routes = { };
+// Create the bot name
+var sonia = new irc.Client(config.server, config.botName, {
+    channels: config.channels
+});
 
-        // Routes for /health, /asciimo, /env and /
-        self.routes['/health'] = function(req, res) {
-            res.send('1');
-        };
+sonia.addListener('message', function (from, to, message) {
+    // console.log(from + ' => ' + to + ': ' + message);
+    // if (message.match('bot')) sonia.say(from, "I heard that!");
+    if (message.match('Sonia: ')||message.match('^!')) {
+    // request('http://198.211.99.242:2199/api.php?xm=server.getstatus&f=json&a[username]=json&a[password]=secret', function (error, response, body) {http://198.211.99.242:8020/currentsong?sid=1
+        // sonia.action(chan, 'Pokes '+from);
+        var begin = message.match('(Sonia: |!)')[1];
+        message = message.match('(?:Sonia: |!)(.*)')[1];
+        if (message.match('^s(?:ong| |$)')) {
+            sonia.say(chan, 'Current Song: '+current.SHOUTCASTSERVER.SONGTITLE);
+        } else if (message.match('^l(?:isteners| |$)')) {
+            sonia.say(chan, 'Listeners: '+current.SHOUTCASTSERVER.CURRENTLISTENERS);
+        } else if (message.match('^lo(?:gin| |$)') && message.match(' (.*)')) {
+            sonia.say(chan, "Last login by "+message.match(' (.*)')[1]+": "+moment(db.getItem(message.match(' (.*)')[1].substring(0,12))).fromNow());
+        } else  if (message.match('^\\?')) {
+            sonia.say(chan,
+            'Commands: [s]ong, [l]isteners, [lo]gin, [h]ug, [p]oke, @add, [g]etdata, [n]ext, @[no]tify');
+        } else if (message.match('^no(?:tify| |$)')) {
+            sonia.whois(from, function (info) {
+                if (info.channels.indexOf('@#SonicRadioboom') >= 0 || info.channels.indexOf('~#SonicRadioboom') >= 0 || info.channels.indexOf('%#SonicRadioboom') >= 0) {
+                    notify = !notify;
+                    sonia.say(chan, 'Notifications '+(notify?'on':'off'));
+                } else {
+                    console.log(info);
+                    sonia.say(from, 'You\'re not an OP, I don\'t trust you ...');
+                }
+            });
 
-        self.routes['/asciimo'] = function(req, res) {
-            var link = "http://i.imgur.com/kmbjB.png";
-            res.send("<html><body><img src='" + link + "'></body></html>");
-        };
-
-        self.routes['/env'] = function(req, res) {
-            var content = 'Version: ' + process.version + '\n<br/>\n' +
-                          'Env: {<br/>\n<pre>';
-            //  Add env entries.
-            for (var k in process.env) {
-               content += '   ' + k + ': ' + process.env[k] + '\n';
+        } else if (message.match('^h(?:ug| |$)')) {
+            sonia.action(chan, ' hugs '+from);
+        } else if (message.match('^p(?:oke| |$)') && message.match(' (.*)')) {
+            sonia.action(chan, ' pokes '+message.match(' (.*)')[1]);
+        } else if (message.match('^a(?:dd| |$)') && message.match(' (.*)')) {
+            sonia.whois(from, function (info) {
+                if (info.channels.indexOf('@#SonicRadioboom') >= 0 || info.channels.indexOf('~#SonicRadioboom') >= 0 || info.channels.indexOf('%#SonicRadioboom') >= 0) {
+                    db.setItem(current.SHOUTCASTSERVER.SONGTITLE+"", message.match(' (.*)')[1]);
+                    sonia.say(from, 'Set record for '+current.SHOUTCASTSERVER.SONGTITLE+' to '+db.getItem(current.SHOUTCASTSERVER.SONGTITLE));
+                } else {
+                    sonia.say(from, 'You\'re not an OP, I don\'t trust you ...');
+                }
+            });
+        } else if (message.match('^s(?:ay| |$)') && message.match(' (.*)')) {
+            sonia.whois(from, function (info) {
+                if (info.channels.indexOf('@#SonicRadioboom') >= 0 || info.channels.indexOf('~#SonicRadioboom') >= 0 || info.channels.indexOf('%#SonicRadioboom') >= 0) {
+                    sonia.say(chan, message.match(' (.*)')[1]);
+                } else {
+                    sonia.say(from, 'You\'re not an OP, I don\'t trust you ...');
+                }
+            });
+        } else if (message.match('^g(?:etdata| |$)')) {
+            sonia.say(chan, from+': Does this help? '+current.SHOUTCASTSERVER.SONGTITLE+' is '+db.getItem(current.SHOUTCASTSERVER.SONGTITLE+""));
+        } else if (message.match('^n(?:ext| |$)')) {
+            googleapis.discover('calendar', 'v3').execute(function(err, client) {
+                var moments = message.match(' (.*)');
+                if (moments) {
+                    moments = moment(moments[1]);
+                    moments = moments.isValid()?moments:moment();
+                } else {
+                    moments = moment();
+                }
+                var params = {
+                      calendarId: 'sonicradioboom2013@gmail.com',
+                      maxResults: 1,
+                      timeMin: moments,
+                      singleEvents: true,
+                      orderBy: "startTime",
+                      };
+                client.calendar.events.list(params).withApiKey(key).execute(function (err, response) {
+                    response.items.forEach(function (item,a,b) {sonia.say(chan, 'Next event starts '+item.summary+' '+moment(item.start.dateTime).fromNow());});
+                })});
+        } else if (message=='PLEASE QUIT NAO') {
+            process.exit();
+        } else if (begin!='!') {
+            if (to!=config.botName) {
+                sonia.say(chan, message+' to you, too, '+from);
+            } else {
+                sonia.say(from, message+' to you, too, '+from);
             }
-            content += '}\n</pre><br/>\n'
-            res.send('<html>\n' +
-                     '  <head><title>Node.js Process Env</title></head>\n' +
-                     '  <body>\n<br/>\n' + content + '</body>\n</html>');
-        };
-
-        self.routes['/'] = function(req, res) {
-            res.set('Content-Type', 'text/html');
-            res.send(self.cache_get('index.html') );
-        };
-    };
-
-
-    /**
-     *  Initialize the server (express) and create the routes and register
-     *  the handlers.
-     */
-    self.initializeServer = function() {
-        self.createRoutes();
-        self.app = express();
-
-        //  Add handlers for the app (from the routes).
-        for (var r in self.routes) {
-            self.app.get(r, self.routes[r]);
         }
-    };
+    }
+});
 
+setInterval(function() {
+    request(ip+'stats?sid=1', function (error, response, body) {
+        if (!error && response.statusCode == 200) {
+            parseString(body, function (err, result) {
+                if (notify && current && (JSON.stringify(current.SHOUTCASTSERVER.SONGTITLE) != JSON.stringify(result.SHOUTCASTSERVER.SONGTITLE))) {
+                    sonia.say(chan, 'New Song: '+result.SHOUTCASTSERVER.SONGTITLE);
+                }
+                current = result;
+            });
+        }
+    });
+}, 1000);
 
-    /**
-     *  Initializes the sample application.
-     */
-    self.initialize = function() {
-        self.setupVariables();
-        self.populateCache();
-        self.setupTerminationHandlers();
+sonia.addListener('join', function(channel, nick, message) {
+    if (channel==chan && nick!=config.botName) {
+        sonia.say(chan, 'Hello '+nick+"!");
+        var record = db.getItem(nick.substring(0,12));
+        if (record) {
+            sonia.say(chan, 'Welcome back! Last login: '+moment(record).fromNow()+".");
+            
+        } else {
+            sonia.say(chan, 'Haven\'t seen you around before, care to introduce yourself?');
+            sonia.say(nick, 'Welcome to #'+chan+'! The radio stream is available at http://thunderlane.ponyvillelive.com/~srb/.');
+        }
+        db.setItem(nick.substring(0,12), moment());
+    }
+});
 
-        // Create the express server and routes.
-        self.initializeServer();
-    };
+sonia.addListener('quit', function(channel, nick, message) {
+    if (channel==chan && nick!=config.botName) {
+        db.setItem(nick.substring(0,12), moment());
+    }
+});
 
-
-    /**
-     *  Start the server (starts up the sample application).
-     */
-    self.start = function() {
-        //  Start the app on the specific interface (and port).
-        self.app.listen(self.port, self.ipaddress, function() {
-            console.log('%s: Node server started on %s:%d ...',
-                        Date(Date.now() ), self.ipaddress, self.port);
-        });
-    };
-
-};   /*  Sample Application.  */
-
-
-
-/**
- *  main():  Main code.
- */
-var zapp = new SampleApp();
-zapp.initialize();
-zapp.start();
-
+sonia.addListener('error', function(message) {
+    console.log('error: ', message);
+});
