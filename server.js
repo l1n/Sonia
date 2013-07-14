@@ -15,7 +15,7 @@ var chan = '#SonicRadioboom';
 
 var now = new moment();
 
-if (!db.names) db.names = [];
+if (!db.name) db.name = [];
 if (!db.say) db.say = [];
 if (!db.song) db.song = [];
 if (Object.keys(db.names).indexOf('ElectricErger') <= 0) {
