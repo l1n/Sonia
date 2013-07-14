@@ -38,7 +38,7 @@ var config = {
     floodProtection: true,
 };
 
-var notify = true;
+var notify = false;
 
 // Create the bot name
 var sonia = new irc.Client(config.server, config.botName, {

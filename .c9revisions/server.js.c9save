@@ -4,3 +4,4 @@
 {"ts":1373805806342,"patch":[[{"diffs":[[0,"ction(){"],[-1,"client"],[1,"sonia"],[0,".send('P"]],"start1":6055,"start2":6055,"length1":22,"length2":21}]],"length":7579,"saved":false}
 {"ts":1373806033024,"patch":[[{"diffs":[[0,"\r\n\r\n"],[-1,"setInterval(function(){sonia.send('PONG', 'empty');}, 5*60*1000);\r\n\r\n"],[0,"setI"]],"start1":6036,"start2":6036,"length1":77,"length2":8}]],"length":7510,"saved":false}
 {"contributors":[],"silentsave":false,"ts":1373808903665,"patch":[[{"diffs":[[0,"chan],\r\n"],[-1,"\t"],[1,"    "],[0,"server: "]],"start1":933,"start2":933,"length1":17,"length2":20}]],"length":7513,"saved":false}
+{"ts":1373809262462,"patch":[[{"diffs":[[0,"otify = "],[-1,"tru"],[1,"fals"],[0,"e;\r\n\r\n//"]],"start1":1034,"start2":1034,"length1":19,"length2":20}]],"length":7514,"saved":false}
