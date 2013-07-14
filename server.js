@@ -5,6 +5,7 @@ var moment = require('moment');
 var parseString = require('xml2js').parseString;
 var googleapis = require('googleapis');
 var Dirtle = require('dirtle');
+var fs = require('fs');
 var db = new Dirtle('../data/db.json').db;
 
 //Google API key
@@ -240,3 +241,10 @@ process.on('uncaughtException', function(err) {
   sonia.say('linaea', 'Caught exception: ' + err.stack);
   // sonia.say('ElectricErger', 'Caught exception: ' + err.stack);
 });
+
+var access = fs.createWriteStream('node.access.log', { flags: 'a' })
+      , error = fs.createWriteStream('node.error.log', { flags: 'a' });
+
+// redirect stdout / stderr
+proc.stdout.pipe(access);
+proc.stderr.pipe(error);
