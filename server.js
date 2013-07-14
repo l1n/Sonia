@@ -110,9 +110,8 @@ sonia.addListener('message', function (from, to, message) {
                     sonia.say(from, 'You\'re not an OP, I don\'t trust you ...');
                 }
             });
-        } else if (message.match(/^w(?:hen) (?:I say )?\[(.*?)\],?(?: you)? s(?:ay) ? \[(.*?)\]/i)) {
-            console.log(message);
-            var match = message.match(/^w(?:hen) (?:I say )?\[(.*?)\],?(?: you) s(?:ay) ? \[(.*?)\]/i);
+        } else if (message.match(/^w(?:hen) \[(.*?)\] s(?:ay) ?\[(.*?)\]/i)) {
+            var match = message.match(/^w(?:hen) \[(.*?)\] s(?:ay) ?\[(.*?)\]/i);
             db.say[match[1]] = match[2];
             sonia.say(chan, 'Got it!');
         } else if (message.match(/^g(?:etdata| |$)/i)) {
@@ -191,7 +190,7 @@ setInterval(function() {
         djNotified = true;
         setTimeout(function() {
             djNotified = false;
-        }, 5*60*1000)
+        }, 5*60*1000);
     }
     request(ip+'stats?sid=1', function (error, response, body) {
         if (!error && response.statusCode == 200) {
