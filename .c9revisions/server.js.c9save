@@ -161,3 +161,4 @@
 {"ts":1373833373129,"patch":[[{"diffs":[[0,"     db."],[-1,"calls"],[1,"say"],[0,"[match[1"]],"start1":5808,"start2":5808,"length1":21,"length2":19}]],"length":11379,"saved":false}
 {"ts":1373833386452,"patch":[[{"diffs":[[0,"ge = db."],[-1,"calls"],[1,"say"],[0,"[item];\r"]],"start1":8146,"start2":8146,"length1":21,"length2":19}]],"length":11377,"saved":false}
 {"ts":1373833405644,"patch":[[{"diffs":[[0,"];\r\n"],[-1,"if (!db.calls) db.calls = [];\r\n"],[0,"if ("]],"start1":483,"start2":483,"length1":39,"length2":8},{"diffs":[[0,"(db."],[-1,"calls"],[1,"say"],[0,").fo"]],"start1":7921,"start2":7921,"length1":13,"length2":11}]],"length":11344,"saved":false}
+{"ts":1373833669499,"patch":[[{"diffs":[[0,"/,? Sonia[.!"],[1," "],[0,"?]*?$/i)) {\r"]],"start1":1736,"start2":1736,"length1":24,"length2":25},{"diffs":[[0,"Sonia[.!"],[1," "],[0,"?]*?)$/i"]],"start1":2117,"start2":2117,"length1":16,"length2":17}]],"length":11346,"saved":false}
