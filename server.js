@@ -24,7 +24,7 @@ if (!db.getItem('linaea'.substring(0,12))) {
 }
 var calls = db.getItem('calls') || {'hello': 'Hi there'};
 db.setItem('calls', calls);
-var current, rem;
+var current, rem, next, djNotified;
 var feeling = 'like a robot';
 request(ip+'stats?sid=1', function (error, response, body) {
     if (!error && response.statusCode == 200) {
@@ -108,8 +108,8 @@ sonia.addListener('message', function (from, to, message) {
                     sonia.say(from, 'You\'re not an OP, I don\'t trust you ...');
                 }
             });
-        } else if (message.match(/^w(?:hen) \[(.*?)\],? s(?:ay) ? \[(.*?)\]/i)) {
-            var match = message.match(/^w(?:hen) \[(.*?)\],? s(?:ay) ? \[(.*?)\]/i);
+        } else if (message.match(/^w(?:hen) (?:I say )?\[(.*?)\],?(?: you)? s(?:ay) ? \[(.*?)\]/i)) {
+            var match = message.match(/^w(?:hen) (?:I say )?\[(.*?)\],?(?: you) s(?:ay) ? \[(.*?)\]/i);
             calls[match[1]] = match[2];
             db.setItem('calls', calls);
             sonia.say(chan, 'Got it!');
@@ -139,24 +139,11 @@ sonia.addListener('message', function (from, to, message) {
                 sonia.say(chan, from+': Does this help? '+current.SHOUTCASTSERVER.SONGTITLE+' is '+data);
             }
         } else if (message.match(/^n(?:ext| |$)/i)) {
-            googleapis.discover('calendar', 'v3').execute(function(err, client) {
-                var moments = message.match(/ (.*)/i);
-                if (moments) {
-                    moments = moment(moments[1]);
-                    moments = moments.isValid()?moments:moment();
-                } else {
-                    moments = moment();
-                }
-                var params = {
-                      calendarId: 'sonicradioboom2013@gmail.com',
-                      maxResults: 1,
-                      timeMin: moments,
-                      singleEvents: true,
-                      orderBy: "startTime",
-                      };
-                client.calendar.events.list(params).withApiKey(key).execute(function (err, response) {
-                    response.items.forEach(function (item,a,b) {sonia.say(chan, 'Next event starts '+item.summary+' '+moment(item.start.dateTime).fromNow());});
-                })});
+            if (!next || moment(next.start.dateTime).fromNow().match('ago')) {
+                updateNextShow();
+            } else {
+                sonia.say(chan, 'Next event '+next.summary+' starts '+moment(next.start.dateTime).fromNow());
+            }
         } else if (message=='PLEASE QUIT NAO') {
             process.exit();
         } else if (message=='sync') {
@@ -184,7 +171,28 @@ sonia.addListener('message', function (from, to, message) {
     }
 });
 
+function updateNextShow(message) {
+    googleapis.discover('calendar', 'v3').execute(function(err, client) {
+    var params = {
+          calendarId: 'sonicradioboom2013@gmail.com',
+          maxResults: 1,
+          timeMin: moment(),
+          singleEvents: true,
+          orderBy: "startTime",
+          };
+    client.calendar.events.list(params).withApiKey(key).execute(function (err, response) {
+        response.items.forEach(function (item,a,b) {next = item; sonia.say(chan, 'Next event '+item.summary+' starts '+moment(item.start.dateTime).fromNow());});
+    })});
+}
+
 setInterval(function() {
+    if (moment(next.start.dateTime).fromNow() == "in 5 minutes" && !djNotified) {
+        updateNextShow();
+        djNotified = true;
+        setTimeout(function() {
+            djNotified = false;
+        }, 5*60*1000)
+    }
     request(ip+'stats?sid=1', function (error, response, body) {
         if (!error && response.statusCode == 200) {
             parseString(body, function (err, result) {
