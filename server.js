@@ -24,6 +24,7 @@ if (!db.getItem('linaea'.substring(0,12))) {
 if (!db.getItem('calls')) {
     db.setItem('calls'.substring(0,12), {});
 }
+var calls= db.getItem('calls');
 var current, rem;
 var feeling = 'like a robot';
 request(ip+'stats?sid=1', function (error, response, body) {
@@ -110,8 +111,8 @@ sonia.addListener('message', function (from, to, message) {
             });
         } else if (message.match(/^w(?:hen) \[(.*?)\],? s(?:ay) ? \[(.*?)\]/i)) {
             var match = message.match(/^w(?:hen) \[(.*?)\],? s(?:ay) ? \[(.*?)\]/i);
-            db.getItem('calls')[match[1]] = match[2];
-            db.persistSync();
+            calls[match[1]] = match[2];
+            db.setItem('calls', calls);
             sonia.say(chan, 'Got it!');
         } else if (message.match(/^g(?:etdata| |$)/i)) {
             var data = db.getItem((message.match(/ (.*)/i)?message.match(/ (.*)/i)[1]:current.SHOUTCASTSERVER.SONGTITLE)+"");
