@@ -41,3 +41,4 @@
 {"ts":1373817011473,"patch":[[{"diffs":[[0,"             }\r\n"],[1,"                    if (db.getItem(result.SHOUTCASTSERVER.SONGTITLE+'[s')) {\r\n                        sonia.say(chan, db.getItem(result.SHOUTCASTSERVER.SONGTITLE+'[c'))\r\n                    }\r\n"],[0,"                "]],"start1":9759,"start2":9759,"length1":32,"length2":225}]],"length":11087,"saved":false}
 {"ts":1373817014341,"patch":[[{"diffs":[[0,"TITLE+'[c'))"],[1,";"],[0,"\r\n          "]],"start1":9931,"start2":9931,"length1":24,"length2":25}]],"length":11088,"saved":false}
 {"ts":1373817016401,"patch":[[{"diffs":[[0,")+'[c'))"],[1,";"],[0,"\r\n      "]],"start1":10518,"start2":10518,"length1":16,"length2":17}]],"length":11089,"saved":false}
+{"ts":1373817490571,"patch":[[{"diffs":[[0," match[2];\r\n"],[1,"            sonia.say(chan, 'Got it!');\r\n"],[0,"        } el"]],"start1":5730,"start2":5730,"length1":24,"length2":65}]],"length":11130,"saved":false}
