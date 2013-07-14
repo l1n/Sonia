@@ -14,7 +14,7 @@ var ip = 'http://198.211.99.242:8020/';
 var chan = '#SonicRadioboom';
 
 var now = new moment();
-db.initSync();
+db.initSync({dir: '../data/'});
 if (!db.getItem('ElectricErger'.substring(0,12))) {
     db.setItem('ElectricErger'.substring(0,12), now);
 }
