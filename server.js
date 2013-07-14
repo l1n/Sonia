@@ -111,6 +111,7 @@ sonia.addListener('message', function (from, to, message) {
         } else if (message.match(/^w(?:hen) \[(.*?)\],? s(?:ay) ? \[(.*?)\]/i)) {
             var match = message.match(/^w(?:hen) \[(.*?)\],? s(?:ay) ? \[(.*?)\]/i);
             db.getItem('calls')[match[1]] = match[2];
+            db.persistSync();
             sonia.say(chan, 'Got it!');
         } else if (message.match(/^g(?:etdata| |$)/i)) {
             var data = db.getItem((message.match(/ (.*)/i)?message.match(/ (.*)/i)[1]:current.SHOUTCASTSERVER.SONGTITLE)+"");
