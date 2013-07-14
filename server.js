@@ -59,7 +59,7 @@ sonia.addListener('message', function (from, to, message) {
     // request('http://198.211.99.242:2199/api.php?xm=server.getstatus&f=json&a[username]=json&a[password]=secret', function (error, response, body) {http://198.211.99.242:8020/currentsong?sid=1
         // sonia.action(chan, 'Pokes '+from);
         var begin = message.match(/^(Sonia[:,]? |!)/i)?message.match(/^(Sonia[:,]? |!)/i)[1]:message.match(/(,? Sonia)$/i)[1];
-        message = message.match(/^(Sonia[:,]? |)/i)?message.match(/^(?:Sonia[:,]? |!)(.*)/i)[1]:message.match(/(.*)(?:,? Sonia)$/i)[1];
+        message = message.replace(begin, '');
         if (message.match(/^s(?:ong| |$)/i)) {
             sonia.say(chan, 'Current Song: '+current.SHOUTCASTSERVER.SONGTITLE);
         } else if (message.match(/^l(?:isteners| |$)/i)) {
