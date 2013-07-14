@@ -113,7 +113,7 @@ sonia.addListener('message', function (from, to, message) {
                       orderBy: "startTime",
                       };
                 client.calendar.events.list(params).withApiKey(key).execute(function (err, response) {
-                    response.items.forEach(function (item,a,b) {sonia.say(chan, 'Next event is '+item.summary+' '+moment(item.start.dateTime).fromNow());});
+                    response.items.forEach(function (item,a,b) {sonia.say(chan, 'Next event starts '+item.summary+' '+moment(item.start.dateTime).fromNow());});
                 })});
         } else if (message=='PLEASE QUIT NAO') {
             process.exit();
