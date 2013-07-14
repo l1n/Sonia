@@ -113,6 +113,7 @@ sonia.addListener('message', function (from, to, message) {
             var match = message.match(/^w(?:hen) \[(.*?)\],? s(?:ay) ? \[(.*?)\]/i);
             calls[match[1]] = match[2];
             db.setItem('calls', calls);
+            console.log(db.getItem('calls'));
             sonia.say(chan, 'Got it!');
         } else if (message.match(/^g(?:etdata| |$)/i)) {
             var data = db.getItem((message.match(/ (.*)/i)?message.match(/ (.*)/i)[1]:current.SHOUTCASTSERVER.SONGTITLE)+"");
