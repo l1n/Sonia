@@ -111,6 +111,7 @@ sonia.addListener('message', function (from, to, message) {
                 }
             });
         } else if (message.match(/^w(?:hen) (?:I say )?\[(.*?)\],?(?: you)? s(?:ay) ? \[(.*?)\]/i)) {
+            console.log(message);
             var match = message.match(/^w(?:hen) (?:I say )?\[(.*?)\],?(?: you) s(?:ay) ? \[(.*?)\]/i);
             db.say[match[1]] = match[2];
             sonia.say(chan, 'Got it!');
