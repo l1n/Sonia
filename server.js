@@ -191,9 +191,9 @@ setInterval(function() {
                     if (notify) {
                         sonia.say(chan, 'New Song: '+result.SHOUTCASTSERVER.SONGTITLE);
                     }
-                    // if (db.getItem(result.SHOUTCASTSERVER.SONGTITLE+'[s')) {
-                    //     sonia.say(chan, db.getItem(result.SHOUTCASTSERVER.SONGTITLE+'[c'));
-                    // }
+                    if (db.getItem(result.SHOUTCASTSERVER.SONGTITLE+'[s')) {
+                        sonia.say(chan, db.getItem(result.SHOUTCASTSERVER.SONGTITLE+'[c'));
+                    }
                 }
                 current = result;
             });
@@ -207,9 +207,9 @@ sonia.addListener('join', function(channel, nick, message) {
         var record = db.getItem(nick.substring(0,12));
         if (record) {
             sonia.say(chan, 'Welcome back! Last login: '+moment(record).fromNow()+".");
-            // if (db.getItem(nick.substring(0,12)+'[c')) {
-            //     sonia.say(chan, db.getItem(nick.substring(0,12)+'[c'));
-            // }
+            if (db.getItem(nick.substring(0,12)+'[c')) {
+                sonia.say(chan, db.getItem(nick.substring(0,12)+'[c'));
+            }
             
         } else {
             sonia.say(chan, 'Haven\'t seen you around before, care to introduce yourself?');
