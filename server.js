@@ -168,8 +168,8 @@ sonia.addListener('message', function (from, to, message) {
                 if (message.match(item)) {
                     matched = true;
                     message = calls[item];
-                    message.replace('varFrom', from);
-                    message.replace('varFeeling', feeling);
+                    message = message.replace('varFrom', from);
+                    message = message.replace('varFeeling', feeling);
                 }
             });
             if (!matched) {
