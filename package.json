@@ -1,15 +1,40 @@
 {
-    "name": "Sonia",
-    "version": "0.1.1",
-    "dependencies": {
+  "name": "Sonia",
+  "version": "1.0.0",
+  "description": "Sonia-bot",
+  "keywords": [
+    "Sonia",
+    "Node.js",
+    "application",
+    "irc"
+  ],
+  "author": {
+    "name": "Linaea",
+    "email": "linaeap@gmail.com",
+    "url":  "http://www.openshift.com/"
+  },
+  "homepage": "http://thunderlane.ponyvillelive.com/~srb/",
+  "repository": {
+    "type": "git",
+    "url": "https://gitub.com/linuxgeek96/Sonia"
+  },
+
+  "engines": {
+    "node": ">= 0.6.0",
+    "npm": ">= 1.0.0"
+  },
+
+  "dependencies": {
         "googleapis": "*",
         "irc": "*",
         "moment": "*",
         "persist": "*",
         "request": "*",
         "xml2js": "*"
-    },
-    "scripts": {
-        "start": "node server.js"
-    }
+  },
+  "devDependencies": {},
+  "bundleDependencies": [],
+
+  "private": true,
+  "main": "server.js"
 }

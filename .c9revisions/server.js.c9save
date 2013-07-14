@@ -3,3 +3,4 @@
 {"ts":1373803504653,"patch":[[{"diffs":[[0,"\n});\r\n\r\n"],[1,"setInterval(function(){client.send('PONG', 'empty');}, 5*60*1000);\r\n\r\n"],[0,"setInter"]],"start1":6032,"start2":6032,"length1":16,"length2":86}]],"length":7580,"saved":false}
 {"ts":1373805806342,"patch":[[{"diffs":[[0,"ction(){"],[-1,"client"],[1,"sonia"],[0,".send('P"]],"start1":6055,"start2":6055,"length1":22,"length2":21}]],"length":7579,"saved":false}
 {"ts":1373806033024,"patch":[[{"diffs":[[0,"\r\n\r\n"],[-1,"setInterval(function(){sonia.send('PONG', 'empty');}, 5*60*1000);\r\n\r\n"],[0,"setI"]],"start1":6036,"start2":6036,"length1":77,"length2":8}]],"length":7510,"saved":false}
+{"contributors":[],"silentsave":false,"ts":1373808903665,"patch":[[{"diffs":[[0,"chan],\r\n"],[-1,"\t"],[1,"    "],[0,"server: "]],"start1":933,"start2":933,"length1":17,"length2":20}]],"length":7513,"saved":false}

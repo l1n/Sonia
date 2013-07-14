@@ -33,7 +33,7 @@ request(ip+'stats?sid=1', function (error, response, body) {
 // Create the configuration
 var config = {
     channels: [chan],
-	server: "irc.canternet.org",
+    server: "irc.canternet.org",
 	botName: "Sonia",
     floodProtection: true,
 };
