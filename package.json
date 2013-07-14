@@ -9,7 +9,8 @@
         "request": "*",
         "xml2js": "*",
     },
+    
     "scripts": {
         "start": "node server.js"
-    },
+    }
 }
