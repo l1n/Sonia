@@ -14,14 +14,16 @@ var ip = 'http://198.211.99.242:8020/';
 var chan = '#SonicRadioboom';
 
 var now = new moment();
-db.initSync({dir: '../data/'});
+db.initSync({dir: '../data/'}); // PRODUCTION CODE
+// db.initSync(); // DEVEL CODE
 if (!db.getItem('ElectricErger'.substring(0,12))) {
     db.setItem('ElectricErger'.substring(0,12), now);
 }
 if (!db.getItem('linaea'.substring(0,12))) {
     db.setItem('linaea'.substring(0,12), now);
 }
-var calls = db.getItem('calls');
+var calls = db.getItem('calls') || {'hello': 'Hi there'};
+db.setItem('calls', calls);
 var current, rem;
 var feeling = 'like a robot';
 request(ip+'stats?sid=1', function (error, response, body) {
@@ -36,7 +38,8 @@ request(ip+'stats?sid=1', function (error, response, body) {
 var config = {
     channels: [chan],
     server: "irc.canternet.org",
-	botName: "Sonia",
+	// botName: "SoniaBeta",
+    botName: "Sonia",
     floodProtection: true,
 };
 
@@ -47,23 +50,23 @@ var sonia = new irc.Client(config.server, config.botName, {
     channels: config.channels
 });
 
-sonia.say('linaea', 'Started Sonia '+require('./package.json').version);
+sonia.addListener('registered', function() {sonia.say('linaea', 'Started Sonia '+require('./package.json').version)});
 
 sonia.addListener('message', function (from, to, message) {
     // console.log(from + ' => ' + to + ': ' + message);
     // if (message.match(/bot/i)) sonia.say(from, "I heard that!");
-    if (message.match(/^(?:!|Sonia[:,] )/i)||message.match(/,? Sonia$/i)) {
+    if (message.match(/^(?:!|Sonia[:,]? )/i)||message.match(/,? Sonia$/i)) {
     // request('http://198.211.99.242:2199/api.php?xm=server.getstatus&f=json&a[username]=json&a[password]=secret', function (error, response, body) {http://198.211.99.242:8020/currentsong?sid=1
         // sonia.action(chan, 'Pokes '+from);
-        var begin = message.match(/(Sonia[:,] |!)/i)?message.match(/(Sonia: |!)/i)[1]:message.match(/(,? Sonia)$/i)[1];
-        message = message.match(/(Sonia[:,] |)/i)?message.match(/(?:Sonia[:,] |!)(.*)/i)[1]:message.match(/(.*)(?:,? Sonia)$/i)[1];
+        var begin = message.match(/^(Sonia[:,]? |!)/i)?message.match(/^(Sonia[:,]? |!)/i)[1]:message.match(/(,? Sonia)$/i)[1];
+        message = message.match(/^(Sonia[:,]? |)/i)?message.match(/^(?:Sonia[:,]? |!)(.*)/i)[1]:message.match(/(.*)(?:,? Sonia)$/i)[1];
         if (message.match(/^s(?:ong| |$)/i)) {
             sonia.say(chan, 'Current Song: '+current.SHOUTCASTSERVER.SONGTITLE);
         } else if (message.match(/^l(?:isteners| |$)/i)) {
             sonia.say(chan, 'Listeners: '+current.SHOUTCASTSERVER.CURRENTLISTENERS);
-        } else if (message.match(/^lo(?:gin| |$)/i) && message.match(/ (.*)/i)) {
+        } else if (message.match(/^lo(?:gin| |$)/i) && message.match(/ (.*)$/i)) {
             sonia.say(chan, "Last login by "+message.match(/ (.*)/i)[1]+": "+moment(db.getItem(message.match(/ (.*)/i)[1].substring(0,12))).fromNow());
-        } else  if (message.match(/^help|command/i) || message == '?') {
+        } else if (message.match(/^help|command/i) || message == '?') {
             sonia.say(chan,
             'Commands: [s]ong, [l]isteners, [lo]gin, [h]ug, [p]oke, @add, [g]etdata, [n]ext, @[no]tify');
         } else if (message.match(/^no(?:tify| |$)/i)) {
@@ -75,10 +78,9 @@ sonia.addListener('message', function (from, to, message) {
                     sonia.say(from, 'You\'re not an OP, I don\'t trust you ...');
                 }
             });
-
         } else if (message.match(/^h(?:ug| |$)/i)) {
             sonia.action(chan, ' hugs '+from);
-        } else if (message.match(/^p(?:oke| |$)/i) && message.match(/ (.*)/i)) {
+        } else if (message.match(/^p(?:oke| |$)/i) && message.match(/ (.*)$/i)) {
             sonia.action(chan, ' pokes '+message.match(/ (.*)/i)[1]);
         } else if (message.match(/^a(?:dd| |$)/i)) {
             sonia.whois(from, function (info) {
@@ -125,7 +127,6 @@ sonia.addListener('message', function (from, to, message) {
                     var params = {
                         maxResults: 1,
                         q: (message.match(/ (.*)/i)?message.match(/ (.*)/i)[1]:current.SHOUTCASTSERVER.SONGTITLE),
-                        // order: 'rating',
                         part: 'snippet',
                         };
                     client.youtube.search.list(params).withApiKey(key).execute(function (err, response) {
@@ -161,21 +162,17 @@ sonia.addListener('message', function (from, to, message) {
         } else if (message=='sync') {
             db.persistSync();
         } else if (begin!='!') {
-            if (message.match(/thank you/i)) {
-                message = 'No problem!';
-            } else {
-                var matched = false;
-                Object.keys(calls).forEach(function (item, a, b) {
-                    if (message.match(item)) {
-                        matched = true;
-                        message = calls[item];
-                        message.replace(/<from>/g, from);
-                        message.replace(/<feeling>/g, feeling);
-                    }
-                });
-                if (!matched) {
-                    message = message+' to you, too, '+from;
+            var matched = false;
+            Object.keys(calls).forEach(function (item, a, b) {
+                if (message.match(item)) {
+                    matched = true;
+                    message = calls[item];
+                    message.replace(/<from>/g, from);
+                    message.replace(/<feeling>/g, feeling);
                 }
+            });
+            if (!matched) {
+                message = message+' to you too, '+from;
             }
             if (to!=config.botName) {
                 sonia.say(chan, message);
@@ -194,9 +191,9 @@ setInterval(function() {
                     if (notify) {
                         sonia.say(chan, 'New Song: '+result.SHOUTCASTSERVER.SONGTITLE);
                     }
-                    if (db.getItem(result.SHOUTCASTSERVER.SONGTITLE+'[s')) {
-                        sonia.say(chan, db.getItem(result.SHOUTCASTSERVER.SONGTITLE+'[c'));
-                    }
+                    // if (db.getItem(result.SHOUTCASTSERVER.SONGTITLE+'[s')) {
+                    //     sonia.say(chan, db.getItem(result.SHOUTCASTSERVER.SONGTITLE+'[c'));
+                    // }
                 }
                 current = result;
             });
@@ -210,9 +207,9 @@ sonia.addListener('join', function(channel, nick, message) {
         var record = db.getItem(nick.substring(0,12));
         if (record) {
             sonia.say(chan, 'Welcome back! Last login: '+moment(record).fromNow()+".");
-            if (db.getItem(nick.substring(0,12)+'[c')) {
-                sonia.say(chan, db.getItem(nick.substring(0,12)+'[c'));
-            }
+            // if (db.getItem(nick.substring(0,12)+'[c')) {
+            //     sonia.say(chan, db.getItem(nick.substring(0,12)+'[c'));
+            // }
             
         } else {
             sonia.say(chan, 'Haven\'t seen you around before, care to introduce yourself?');
@@ -231,5 +228,6 @@ sonia.addListener('error', function(message) {
 });
 
 process.on('uncaughtException', function(err) {
-  sonia.say(chan, 'Caught exception: ' + err);
+  sonia.say('linaea', 'Caught exception: ' + err.stack);
+  sonia.say('ElectricErger', 'Caught exception: ' + err.stack);
 });
