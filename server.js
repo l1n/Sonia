@@ -69,7 +69,7 @@ sonia.addListener('message', function (from, to, message) {
             sonia.say(chan, "Last login by "+message.match(/ (.*)/i)[1]+": "+moment(db.names[message.match(/ (.*)/i)[1]]).fromNow());
         } else if (message.match(/^help|command/i) || message == '?') {
             sonia.say(chan,
-            'Commands: [s]ong, [l]isteners, [lo]gin, [h]ug, [p]oke, @add, [g]etdata, [n]ext, @[no]tify');
+            'Commands: [s]ong, [l]isteners, [lo]gin, [help|command], @[no]tify, [h]ug, [p]oke, @[a]dd, @[s]ay, [w]hen, [g]etdata, [n]ext, @[no]tify');
         } else if (message.match(/^no(?:tify| |$)/i)) {
             sonia.whois(from, function (info) {
                 if (info.channels.indexOf('@#SonicRadioboom') >= 0 || info.channels.indexOf('~#SonicRadioboom') >= 0 || info.channels.indexOf('%#SonicRadioboom') >= 0) {
@@ -146,8 +146,6 @@ sonia.addListener('message', function (from, to, message) {
             }
         } else if (message=='PLEASE QUIT NAO') {
             process.exit();
-        } else if (message=='sync') {
-            db.persistSync();
         } else if (begin!='!') {
             var matched = false;
             Object.keys(db.say).forEach(function (item, a, b) {
