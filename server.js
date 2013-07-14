@@ -186,7 +186,7 @@ function updateNextShow(message) {
 }
 
 setInterval(function() {
-    if (moment(next.start.dateTime).fromNow() == "in 5 minutes" && !djNotified) {
+    if (!next || moment(next.start.dateTime).fromNow() == "in 5 minutes" && !djNotified) {
         updateNextShow();
         djNotified = true;
         setTimeout(function() {
