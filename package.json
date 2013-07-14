@@ -1,6 +1,14 @@
 {
     "name": "Sonia",
-    "version": "0.1"
+    "version": "0.1",
+    "dependencies": {
+        "googleapis": "*",
+        "irc": "*",
+        "moment": "*",
+        "nodejs-persist": "*",
+        "request": "*",
+        "xml2js": "*",
+    },
     "scripts": {
         "start": "node server.js"
     },
