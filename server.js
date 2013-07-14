@@ -175,7 +175,7 @@ sonia.addListener('message', function (from, to, message) {
                     }
                 });
                 if (!matched) {
-                    message = message+' you, too, '+from;
+                    message = message+' to you, too, '+from;
                 }
             }
             if (to!=config.botName) {
