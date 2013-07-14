@@ -21,7 +21,7 @@ if (!db.getItem('ElectricErger'.substring(0,12))) {
 if (!db.getItem('linaea'.substring(0,12))) {
     db.setItem('linaea'.substring(0,12), now);
 }
-var current;
+var current, rem;
 request(ip+'stats?sid=1', function (error, response, body) {
     if (!error && response.statusCode == 200) {
         parseString(body, function (err, result) {
@@ -49,22 +49,22 @@ sonia.say('linaea', 'Started Sonia '+require('./package.json').version);
 
 sonia.addListener('message', function (from, to, message) {
     // console.log(from + ' => ' + to + ': ' + message);
-    // if (message.match('bot')) sonia.say(from, "I heard that!");
-    if (message.match('Sonia: ')||message.match('^!')) {
+    // if (message.match(/bot/i)) sonia.say(from, "I heard that!");
+    if (message.match(/Sonia: /i)||message.match(/^!/i)) {
     // request('http://198.211.99.242:2199/api.php?xm=server.getstatus&f=json&a[username]=json&a[password]=secret', function (error, response, body) {http://198.211.99.242:8020/currentsong?sid=1
         // sonia.action(chan, 'Pokes '+from);
-        var begin = message.match('(Sonia: |!)')[1];
-        message = message.match('(?:Sonia: |!)(.*)')[1];
-        if (message.match('^s(?:ong| |$)')) {
+        var begin = message.match(/(Sonia: |!)/i)[1];
+        message = message.match(/(?:Sonia: |!)(.*)/i)[1];
+        if (message.match(/^s(?:ong| |$)/i)) {
             sonia.say(chan, 'Current Song: '+current.SHOUTCASTSERVER.SONGTITLE);
-        } else if (message.match('^l(?:isteners| |$)')) {
+        } else if (message.match(/^l(?:isteners| |$)/i)) {
             sonia.say(chan, 'Listeners: '+current.SHOUTCASTSERVER.CURRENTLISTENERS);
-        } else if (message.match('^lo(?:gin| |$)') && message.match(' (.*)')) {
-            sonia.say(chan, "Last login by "+message.match(' (.*)')[1]+": "+moment(db.getItem(message.match(' (.*)')[1].substring(0,12))).fromNow());
-        } else  if (message.match('^(?:\\?|help|command)')) {
+        } else if (message.match(/^lo(?:gin| |$)/i) && message.match(/ (.*)/i)) {
+            sonia.say(chan, "Last login by "+message.match(/ (.*)/i)[1]+": "+moment(db.getItem(message.match(/ (.*)/i)[1].substring(0,12))).fromNow());
+        } else  if (message.match(/^(?:\\?|help|command)/i)) {
             sonia.say(chan,
             'Commands: [s]ong, [l]isteners, [lo]gin, [h]ug, [p]oke, @add, [g]etdata, [n]ext, @[no]tify');
-        } else if (message.match('^no(?:tify| |$)')) {
+        } else if (message.match(/^no(?:tify| |$)/i)) {
             sonia.whois(from, function (info) {
                 if (info.channels.indexOf('@#SonicRadioboom') >= 0 || info.channels.indexOf('~#SonicRadioboom') >= 0 || info.channels.indexOf('%#SonicRadioboom') >= 0) {
                     notify = !notify;
@@ -75,32 +75,41 @@ sonia.addListener('message', function (from, to, message) {
                 }
             });
 
-        } else if (message.match('^h(?:ug| |$)')) {
+        } else if (message.match(/^h(?:ug| |$)/i)) {
             sonia.action(chan, ' hugs '+from);
-        } else if (message.match('^p(?:oke| |$)') && message.match(' (.*)')) {
-            sonia.action(chan, ' pokes '+message.match(' (.*)')[1]);
-        } else if (message.match('^a(?:dd| |$)') && message.match(' (.*)')) {
+        } else if (message.match(/^p(?:oke| |$)/i) && message.match(/ (.*)/i)) {
+            sonia.action(chan, ' pokes '+message.match(/ (.*)/i)[1]);
+        } else if (message.match(/^a(?:dd| |$)/i) && message.match(/ (.*)/i)) {
             sonia.whois(from, function (info) {
                 if (info.channels.indexOf('@#SonicRadioboom') >= 0 || info.channels.indexOf('~#SonicRadioboom') >= 0 || info.channels.indexOf('%#SonicRadioboom') >= 0) {
-                    db.setItem(current.SHOUTCASTSERVER.SONGTITLE+"", message.match(' (.*)')[1]);
+                    db.setItem(current.SHOUTCASTSERVER.SONGTITLE+"", message.match(/ (.*)/i)[1]);
                     sonia.say(from, 'Set record for '+current.SHOUTCASTSERVER.SONGTITLE+' to '+db.getItem(current.SHOUTCASTSERVER.SONGTITLE));
                 } else {
                     sonia.say(from, 'You\'re not an OP, I don\'t trust you ...');
                 }
             });
-        } else if (message.match('^s(?:ay| |$)') && message.match(' (.*)')) {
+        } else if (message.match(/^y(?:es, add it)/i)) {
             sonia.whois(from, function (info) {
                 if (info.channels.indexOf('@#SonicRadioboom') >= 0 || info.channels.indexOf('~#SonicRadioboom') >= 0 || info.channels.indexOf('%#SonicRadioboom') >= 0) {
-                    sonia.say(chan, message.match(' (.*)')[1]);
+                    db.setItem(current.SHOUTCASTSERVER.SONGTITLE+"", message.match(/ (.*)/i)[1]);
+                    sonia.say(from, 'Set record for '+current.SHOUTCASTSERVER.SONGTITLE+' to '+db.getItem(current.SHOUTCASTSERVER.SONGTITLE));
                 } else {
                     sonia.say(from, 'You\'re not an OP, I don\'t trust you ...');
                 }
             });
-        } else if (message.match('^g(?:etdata| |$)')) {
-            var data = db.getItem((message.match(' (.*)')?message.match(' (.*)')[1]:current.SHOUTCASTSERVER.SONGTITLE)+"");
+        } else if (message.match(/^s(?:ay| |$)/i) && message.match(/ (.*)/i)) {
+            sonia.whois(from, function (info) {
+                if (info.channels.indexOf('@#SonicRadioboom') >= 0 || info.channels.indexOf('~#SonicRadioboom') >= 0 || info.channels.indexOf('%#SonicRadioboom') >= 0) {
+                    sonia.say(chan, message.match(/ (.*)/i)[1]);
+                } else {
+                    sonia.say(from, 'You\'re not an OP, I don\'t trust you ...');
+                }
+            });
+        } else if (message.match(/^g(?:etdata| |$)/i)) {
+            var data = db.getItem((message.match(/ (.*)/i)?message.match(/ (.*)/i)[1]:current.SHOUTCASTSERVER.SONGTITLE)+"");
             if (!data) {
                 googleapis.discover('youtube', 'v3').execute(function(err, client) {
-                    var moments = message.match(' (.*)');
+                    var moments = message.match(/ (.*)/i);
                     if (moments) {
                         moments = moment(moments[1]);
                         moments = moments.isValid()?moments:moment();
@@ -109,7 +118,7 @@ sonia.addListener('message', function (from, to, message) {
                     }
                     var params = {
                         maxResults: 1,
-                        q: (message.match(' (.*)')?message.match(' (.*)')[1]:current.SHOUTCASTSERVER.SONGTITLE),
+                        q: (message.match(/ (.*)/i)?message.match(/ (.*)/i)[1]:current.SHOUTCASTSERVER.SONGTITLE),
                         // order: 'rating',
                         part: 'snippet',
                         };
@@ -117,14 +126,15 @@ sonia.addListener('message', function (from, to, message) {
                     client.youtube.search.list(params).withApiKey(key).execute(function (err, response) {
                         response.items.forEach(function (item,a,b) {
                             sonia.say(chan, from+': Does this help? '+current.SHOUTCASTSERVER.SONGTITLE+' might be http://www.youtube.com/watch?v='+item.id.videoId);
+                            rem = 'http://www.youtube.com/watch?v='+item.id.videoId;
                             });
                     })});
             } else {
                 sonia.say(chan, from+': Does this help? '+current.SHOUTCASTSERVER.SONGTITLE+' is '+data);
             }
-        } else if (message.match('^n(?:ext| |$)')) {
+        } else if (message.match(/^n(?:ext| |$)/i)) {
             googleapis.discover('calendar', 'v3').execute(function(err, client) {
-                var moments = message.match(' (.*)');
+                var moments = message.match(/ (.*)/i);
                 if (moments) {
                     moments = moment(moments[1]);
                     moments = moments.isValid()?moments:moment();
