@@ -229,5 +229,5 @@ sonia.addListener('error', function(message) {
 
 process.on('uncaughtException', function(err) {
   sonia.say('linaea', 'Caught exception: ' + err.stack);
-  sonia.say('ElectricErger', 'Caught exception: ' + err.stack);
+  // sonia.say('ElectricErger', 'Caught exception: ' + err.stack);
 });
