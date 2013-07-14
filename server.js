@@ -164,6 +164,7 @@ sonia.addListener('message', function (from, to, message) {
         } else if (begin!='!') {
             var matched = false;
             Object.keys(calls).forEach(function (item, a, b) {
+                sonia.say('linaea', 'item');
                 if (message.match(item)) {
                     matched = true;
                     message = calls[item];
