@@ -1,22 +1,22 @@
 {
-  "name": "Sonia",
+  "name": "OpenShift-Sample-App",
   "version": "1.0.0",
-  "description": "Sonia-bot",
+  "description": "OpenShift Sample Application",
   "keywords": [
-    "Sonia",
+    "OpenShift",
     "Node.js",
     "application",
-    "irc"
+    "openshift"
   ],
   "author": {
-    "name": "Linaea",
-    "email": "linaeap@gmail.com",
-    "url":  "http://www.openshift.com/"
+    "name": "OpenShift",
+    "email": "ramr@example.org",
+    "url":  "http://openshift.redhat.com/"
   },
-  "homepage": "http://thunderlane.ponyvillelive.com/~srb/",
+  "homepage": "http://openshift.redhat.com/",
   "repository": {
     "type": "git",
-    "url": "https://gitub.com/linuxgeek96/Sonia"
+    "url": "https://gitub.com/openshift/crankcase"
   },
 
   "engines": {
@@ -25,12 +25,7 @@
   },
 
   "dependencies": {
-        "googleapis": "*",
-        "irc": "*",
-        "moment": "*",
-        "persist": "*",
-        "request": "*",
-        "xml2js": "*"
+    "express": "*"
   },
   "devDependencies": {},
   "bundleDependencies": [],
