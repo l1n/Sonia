@@ -45,6 +45,8 @@ var sonia = new irc.Client(config.server, config.botName, {
     channels: config.channels
 });
 
+sonia.say('linaea', 'Started Sonia '+require('./package.json').version);
+
 sonia.addListener('message', function (from, to, message) {
     // console.log(from + ' => ' + to + ': ' + message);
     // if (message.match('bot')) sonia.say(from, "I heard that!");
@@ -95,7 +97,31 @@ sonia.addListener('message', function (from, to, message) {
                 }
             });
         } else if (message.match('^g(?:etdata| |$)')) {
-            sonia.say(chan, from+': Does this help? '+current.SHOUTCASTSERVER.SONGTITLE+' is '+db.getItem(current.SHOUTCASTSERVER.SONGTITLE+""));
+            var data = db.getItem((message.match(' (.*)')?message.match(' (.*)')[1]:current.SHOUTCASTSERVER.SONGTITLE)+"");
+            if (!data) {
+                googleapis.discover('youtube', 'v3').execute(function(err, client) {
+                    var moments = message.match(' (.*)');
+                    if (moments) {
+                        moments = moment(moments[1]);
+                        moments = moments.isValid()?moments:moment();
+                    } else {
+                        moments = moment();
+                    }
+                    var params = {
+                        maxResults: 1,
+                        q: (message.match(' (.*)')?message.match(' (.*)')[1]:current.SHOUTCASTSERVER.SONGTITLE),
+                        // order: 'rating',
+                        part: 'snippet',
+                        };
+                          console.log(client);
+                    client.youtube.search.list(params).withApiKey(key).execute(function (err, response) {
+                        response.items.forEach(function (item,a,b) {
+                            sonia.say(chan, from+': Does this help? '+current.SHOUTCASTSERVER.SONGTITLE+' might be http://www.youtube.com/watch?v='+item.id.videoId);
+                            });
+                    })});
+            } else {
+                sonia.say(chan, from+': Does this help? '+current.SHOUTCASTSERVER.SONGTITLE+' is '+data);
+            }
         } else if (message.match('^n(?:ext| |$)')) {
             googleapis.discover('calendar', 'v3').execute(function(err, client) {
                 var moments = message.match(' (.*)');
@@ -156,9 +182,7 @@ sonia.addListener('join', function(channel, nick, message) {
 });
 
 sonia.addListener('quit', function(channel, nick, message) {
-    if (channel==chan && nick!=config.botName) {
-        db.setItem(nick.substring(0,12), moment());
-    }
+    db.setItem(nick.substring(0,12), moment());
 });
 
 sonia.addListener('error', function(message) {
