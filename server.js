@@ -21,9 +21,6 @@ if (!db.getItem('ElectricErger'.substring(0,12))) {
 if (!db.getItem('linaea'.substring(0,12))) {
     db.setItem('linaea'.substring(0,12), now);
 }
-if (!db.getItem('calls')) {
-    db.setItem('calls'.substring(0,12), {});
-}
 var calls = db.getItem('calls');
 var current, rem;
 var feeling = 'like a robot';
