@@ -229,3 +229,7 @@ sonia.addListener('quit', function(channel, nick, message) {
 sonia.addListener('error', function(message) {
     console.log('error: ', message);
 });
+
+process.on('uncaughtException', function(err) {
+  sonia.say(chan, 'Caught exception: ' + err);
+});
