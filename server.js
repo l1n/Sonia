@@ -162,6 +162,8 @@ sonia.addListener('message', function (from, to, message) {
                 })});
         } else if (message=='PLEASE QUIT NAO') {
             process.exit();
+        } else if (message=='sync') {
+            db.persistSync();
         } else if (begin!='!') {
             if (message.match(/thank you/i)) {
                 message = 'No problem!';
