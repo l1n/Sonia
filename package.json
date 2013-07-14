@@ -7,9 +7,8 @@
         "moment": "*",
         "nodejs-persist": "*",
         "request": "*",
-        "xml2js": "*",
+        "xml2js": "*"
     },
-    
     "scripts": {
         "start": "node server.js"
     }
