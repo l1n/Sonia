@@ -72,7 +72,7 @@ sonia.addListener('message', function (from, to, message) {
             sonia.whois(from, function (info) {
                 if (info.channels.indexOf('@#SonicRadioboom') >= 0 || info.channels.indexOf('~#SonicRadioboom') >= 0 || info.channels.indexOf('%#SonicRadioboom') >= 0) {
                     notify = !notify;
-                    sonia.say(chan, 'Notifications '+(notify?'on':'off'));
+                    sonia.say(to==chan?chan:from, 'Notifications '+(notify?'on':'off'));
                 } else {
                     sonia.say(from, 'You\'re not an OP, I don\'t trust you ...');
                 }
@@ -86,7 +86,7 @@ sonia.addListener('message', function (from, to, message) {
             sonia.whois(from, function (info) {
                 if (info.channels.indexOf('@#SonicRadioboom') >= 0 || info.channels.indexOf('~#SonicRadioboom') >= 0 || info.channels.indexOf('%#SonicRadioboom') >= 0) {
                     db.setItem(current.SHOUTCASTSERVER.SONGTITLE+"", (message.match(/ (.*)/i)?message.match(/ (.*)/i)[1]:rem));
-                    sonia.say(from, 'Set record for '+current.SHOUTCASTSERVER.SONGTITLE+' to '+db.getItem(current.SHOUTCASTSERVER.SONGTITLE));
+                    sonia.say(to==chan?chan:from, 'I know that '+current.SHOUTCASTSERVER.SONGTITLE+' is '+db.getItem(current.SHOUTCASTSERVER.SONGTITLE));
                 } else {
                     sonia.say(from, 'You\'re not an OP, I don\'t trust you ...');
                 }
@@ -95,7 +95,7 @@ sonia.addListener('message', function (from, to, message) {
             sonia.whois(from, function (info) {
                 if (info.channels.indexOf('@#SonicRadioboom') >= 0 || info.channels.indexOf('~#SonicRadioboom') >= 0 || info.channels.indexOf('%#SonicRadioboom') >= 0) {
                     db.setItem(current.SHOUTCASTSERVER.SONGTITLE+"", rem);
-                    sonia.say(from, 'Set record for '+current.SHOUTCASTSERVER.SONGTITLE+' to '+db.getItem(current.SHOUTCASTSERVER.SONGTITLE));
+                    sonia.say(to==chan?chan:from, 'I know that '+current.SHOUTCASTSERVER.SONGTITLE+' is '+db.getItem(current.SHOUTCASTSERVER.SONGTITLE));
                 } else {
                     sonia.say(from, 'You\'re not an OP, I don\'t trust you ...');
                 }
@@ -203,6 +203,9 @@ sonia.addListener('join', function(channel, nick, message) {
         var record = db.getItem(nick.substring(0,12));
         if (record) {
             sonia.say(chan, 'Welcome back! Last login: '+moment(record).fromNow()+".");
+            if (db.getItem(nick.substring(0,12)+'[c')) {
+                sonia.say(chan, db.getItem(nick.substring(0,12)+'[c'))
+            }
             
         } else {
             sonia.say(chan, 'Haven\'t seen you around before, care to introduce yourself?');
