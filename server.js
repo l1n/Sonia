@@ -14,7 +14,7 @@ var ip = 'http://198.211.99.242:8020/';
 var chan = '#SonicRadioboom';
 
 var now = new moment();
-db.initSync({dir: '/var/lib/openshift/51e2a8655973ca16a70000bb/app-root/data'}); // PRODUCTION CODE
+db.initSync({dir: '../data/'}); // PRODUCTION CODE
 // db.initSync(); // DEVEL CODE
 if (!db.getItem('ElectricErger'.substring(0,12))) {
     db.setItem('ElectricErger'.substring(0,12), now);
