@@ -61,7 +61,7 @@ sonia.addListener('message', function (from, to, message) {
             sonia.say(chan, 'Listeners: '+current.SHOUTCASTSERVER.CURRENTLISTENERS);
         } else if (message.match(/^lo(?:gin| |$)/i) && message.match(/ (.*)/i)) {
             sonia.say(chan, "Last login by "+message.match(/ (.*)/i)[1]+": "+moment(db.getItem(message.match(/ (.*)/i)[1].substring(0,12))).fromNow());
-        } else  if (message.match(/^\\?|help|command/i)) {
+        } else  if (message.match(/^|help|command/i) || message == '?') {
             sonia.say(chan,
             'Commands: [s]ong, [l]isteners, [lo]gin, [h]ug, [p]oke, @add, [g]etdata, [n]ext, @[no]tify');
         } else if (message.match(/^no(?:tify| |$)/i)) {
