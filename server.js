@@ -23,7 +23,7 @@ if (Object.keys(db.name).indexOf('linaea') <= 0) {
 var key = 'AIzaSyDPlGenbEo8T-sbeNHx_shvJSRCwOpCESc';
 
 var ip = 'http://198.211.99.242:8020/';
-var chan = '#SRBTests';
+var chan = '#SonicRadioboom';
 
 
 var current, rem, next, djNotified, lastfrom;
@@ -45,7 +45,7 @@ var config = {
     floodProtection: true,
 };
 
-var notify = false;
+var notify = false, disabled = false;
 
 // Create the bot name
 var sonia = new irc.Client(config.server, config.botName, {
@@ -131,6 +131,15 @@ sonia.addListener('message', function (from, to, message) {
                     sonia.say(from, 'You\'re not an OP, I don\'t trust you ...');
                 }
             });
+        } else if (message.match(/^d(?:isable| |$)/i)) {
+            sonia.whois(from, function (info) {
+                if (info.channels.indexOf('@#SonicRadioboom') >= 0 || info.channels.indexOf('~#SonicRadioboom') >= 0 || info.channels.indexOf('%#SonicRadioboom') >= 0) {
+                    disabled=!disabled;
+                    sonia.say((to==chan?chan:from), 'Disabled: '+disabled);
+                } else {
+                    sonia.say(from, 'You\'re not an OP, I don\'t trust you ...');
+                }
+            });
         } else if (message.match(/^d(?:ump| |$)/i)) {
             sonia.whois(from, function (info) {
                 if (info.channels.indexOf('@#SonicRadioboom') >= 0 || info.channels.indexOf('~#SonicRadioboom') >= 0 || info.channels.indexOf('%#SonicRadioboom') >= 0) {
@@ -207,7 +216,7 @@ sonia.addListener('message', function (from, to, message) {
             if (!matched && !message.match(/\?$/i)) {
                 message = message+' to you too, '+from;
             }
-            if (to!=config.botName) {
+            if (to!=config.botName&&!disabled) {
                 sonia.say(chan, message);
             } else {
                 sonia.say(from, message);
