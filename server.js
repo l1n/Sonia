@@ -78,7 +78,7 @@ sonia.addListener('message', function (from, to, message) {
         if (lastfrom!=config.botName) {
             begin = message.match(/^(Sonia[:,]? |!)/i)?message.match(/^(Sonia[:,]? |!)/i)[1]:message.match(/(,? Sonia[.! ?]*?)$/i)[1];
         }
-        lastfrom=config.botName;
+        // lastfrom=config.botName;
         message = message.replace(begin, '');
         message = message.replace(/What\'s the /i, '');
         if (message.match(/^s(?:ong| |$)/i)) {
