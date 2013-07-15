@@ -148,7 +148,7 @@ sonia.addListener('message', function (from, to, message) {
         } else if (message.match(/^d(?:ump| |$)/i)) {
             sonia.whois(from, function (info) {
                 if (info.channels.indexOf('@#SonicRadioboom') >= 0 || info.channels.indexOf('~#SonicRadioboom') >= 0 || info.channels.indexOf('%#SonicRadioboom') >= 0) {
-                    sonia.say(from, JSON.stringify(db));
+                    sonia.say(from, JSON.stringify(db.say));
                 } else {
                     sonia.say(from, 'You\'re not an OP, I don\'t trust you ...');
                 }
