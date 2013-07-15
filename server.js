@@ -248,6 +248,7 @@ sonia.addListener('message', function (from, to, message) {
                         messagey = messagey.replace('varFeeling', feeling);
                         if (!disabled) {
                             sonia.say((to==chan?chan:from), messagey);
+                            proc=true;
                         }
                     }
                     if (db.act[item]) {
@@ -256,6 +257,7 @@ sonia.addListener('message', function (from, to, message) {
                         messagey = messagey.replace('varFeeling', feeling);
                         if (!disabled) {
                             sonia.action((to==chan?chan:from), messagey);
+                            proc=true;
                         }
                     }
                 }
@@ -266,9 +268,10 @@ sonia.addListener('message', function (from, to, message) {
             if (verbose) sonia.say('linaea', matched+' '+message);
             if (!disabled && (lastfrom!=config.botName&&!matched)) {
                 sonia.say((to==chan?chan:from), message);
+                proc=true;
             }
         }
-        lastfrom=config.botName;
+        if (proc) lastfrom=config.botName;
     } else {
         lastfrom=from;
     }
