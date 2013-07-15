@@ -96,7 +96,7 @@ sonia.addListener('message', function (from, to, message) {
                     sonia.say(from, 'You\'re not an OP, I don\'t trust you ...');
                 }
             });
-        } else if (message.match(/^no(?:tify| |$)/i)) {
+        } else if (message.match(/^ac(?:tion| |) ?/i)) {
             sonia.whois(from, function (info) {
                 if (info.channels.indexOf('@#SonicRadioboom') >= 0 || info.channels.indexOf('~#SonicRadioboom') >= 0 || info.channels.indexOf('%#SonicRadioboom') >= 0) {
                     sonia.action(chan, message);
