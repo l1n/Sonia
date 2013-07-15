@@ -45,7 +45,7 @@ var config = {
     floodProtection: true,
 };
 
-var notify = false, disabled = false;
+var notify = false, disabled = false, verbose = false;
 
 // Create the bot name
 var sonia = new irc.Client(config.server, config.botName, {
@@ -203,11 +203,9 @@ sonia.addListener('message', function (from, to, message) {
             });
         } else if (begin!='!') {
             var matched = false;
-            var defaulted = true;
             Object.keys(db.say).forEach(function (item, a, b) {
-                if (message.match(new RegExp(item, "i")) && !item.match('|event=') && db.say[item] || db.act[item]) {
-                    matched = true;
-                    defaulted = false;
+                if (message.match(new RegExp(item, "i")) && (db.say[item] || db.act[item])) {
+                    if (!item.match('event')) matched = true;
                     message = db.say[item];
                     message = message.replace('varFrom', from);
                     message = message.replace('varFeeling', feeling);
@@ -215,9 +213,9 @@ sonia.addListener('message', function (from, to, message) {
             });
             if (!matched && !message.match(/\?$/i)) {
                 message = message+' to you too, '+from;
-                defaulted = true;
             }
-            if (!disabled && defaulted != matched) {
+            if (verbose) sonia.say('linaea', matched+' '+message);
+            if (!disabled && (lastfrom!=config.botName&&!matched)||matched) {
                 sonia.say((to==chan?chan:from), message);
             }
         }
@@ -230,12 +228,13 @@ sonia.addListener('message', function (from, to, message) {
 function updateNextShow(message) {
     googleapis.discover('calendar', 'v3').execute(function(err, client) {
     var params = {
-          calendarId: 'sonicradioboom2013@gmail.com',
-          maxResults: 1,
-          timeMin: moment(),
-          singleEvents: true,
-          orderBy: "startTime",
-          };
+        calendarId: 'sonicradioboom2013@gmail.com',
+        maxResults: 1,
+        timeMin: moment(),
+        singleEvents: true,
+        orderBy: "startTime",
+        };
+    djNotified = true;
     client.calendar.events.list(params).withApiKey(key).execute(function (err, response) {
         response.items.forEach(function (item,a,b) {next = item; sonia.say(chan, 'Next event '+item.summary+' starts '+moment(item.start.dateTime).fromNow());});
     })});
@@ -247,7 +246,6 @@ setInterval(function() {
         fs.writeFile('../data/db.json', JSON.stringify(db), function (err) {
               if (err) return console.log(err);
             });
-        djNotified = true;
         setTimeout(function() {
             djNotified = false;
         }, 5*60*1000);
