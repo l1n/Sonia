@@ -8,9 +8,9 @@ var mind = require('mind');
 var dbm = new mind('db.json', { encoding: 'UTF-8', autosave: 60000 });
 
 var db;
-dbm.on('open', function (err, dab, data) {
+dbm.open('db.json', function (err, dab, data) {
     console.log('[INFO] Opened db: ' + e.msg +',' + dab + ',' + data);
-    db = data;
+    db = dab;
     var now = new moment();
     if (!db.name) db.name = [];
     if (!db.say) db.say = [];
@@ -30,7 +30,6 @@ dbm.on('error', function (e) {
     console.log('[WARN] Error: ' + e.msg);
 });
 
-dbm.open();
 dbm.startAutosave();
 
 //Google API key
