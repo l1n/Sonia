@@ -28,6 +28,7 @@ dbm.on('save', function (e) {
 });
 
 dbm.open();
+dbm.startAutosave();
 
 //Google API key
 var key = 'AIzaSyDPlGenbEo8T-sbeNHx_shvJSRCwOpCESc';
@@ -180,7 +181,7 @@ sonia.addListener('message', function (from, to, message) {
         } else if (message=='PLEASE QUIT NAO') {
             process.exit();
         } else if (message=='SAVE') {
-            db.save();
+            dbm.save();
         }
         } else if (begin!='!') {
             var matched = false;
