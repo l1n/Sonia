@@ -120,7 +120,7 @@ sonia.addListener('message', function (from, to, message) {
                     sonia.say(from, 'You\'re not an OP, I don\'t trust you ...');
                 }
             });
-        } else if (message.match(/^y(?:es, add it)/i)) {
+        } else if (message.match(/^y(?:es, add it|es, it is)/i)) {
             sonia.whois(from, function (info) {
                 if (info.channels.indexOf('@#SonicRadioboom') >= 0 || info.channels.indexOf('~#SonicRadioboom') >= 0 || info.channels.indexOf('%#SonicRadioboom') >= 0) {
                     db.song[current.SHOUTCASTSERVER.SONGTITLE+""] = rem;
@@ -148,7 +148,15 @@ sonia.addListener('message', function (from, to, message) {
         } else if (message.match(/^d(?:ump| |$)/i)) {
             sonia.whois(from, function (info) {
                 if (info.channels.indexOf('@#SonicRadioboom') >= 0 || info.channels.indexOf('~#SonicRadioboom') >= 0 || info.channels.indexOf('%#SonicRadioboom') >= 0) {
-                    sonia.say(from, JSON.stringify(db.say));
+                    Object.keys(db.say).forEach(function(e, a, b) {sonia.say(from, '['+e+','+db.say[e]+']');});
+                } else {
+                    sonia.say(from, 'You\'re not an OP, I don\'t trust you ...');
+                }
+            });
+        } else if (message.match(/^r(?:estore| |$)/i)) {
+            sonia.whois(from, function (info) {
+                if (info.channels.indexOf('@#SonicRadioboom') >= 0 || info.channels.indexOf('~#SonicRadioboom') >= 0 || info.channels.indexOf('%#SonicRadioboom') >= 0) {
+                    db.say = JSON.parse(message);
                 } else {
                     sonia.say(from, 'You\'re not an OP, I don\'t trust you ...');
                 }
