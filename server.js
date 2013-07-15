@@ -339,7 +339,7 @@ sonia.addListener('join', function(channel, nick, message) {
             }
             
         } else {
-            sonia.say(chan, 'Haven\'t seen you around before, '+nick+' care to introduce yourself?');
+            sonia.say(chan, 'Haven\'t seen you around before, '+nick+'. Care to introduce yourself?');
             sonia.say(nick, 'Welcome to '+chan+'! The radio stream is available at http://thunderlane.ponyvillelive.com/~srb/.');
             sonia.say(nick, 'If you haven\'t registered your nick with ChanServ already, type \"/msg NickServ register <password> <email>\" to register your nick. This way, nopony will take your name.');
         }
