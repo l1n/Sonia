@@ -248,7 +248,8 @@ sonia.addListener('message', function (from, to, message) {
                         if (!disabled) {
                             sonia.say((to==chan?chan:from), messagey);
                         }
-                    } else {
+                    }
+                    if (db.act[item]) {
                         messagey = db.act[item];
                         messagey = messagey.replace('varFrom', from);
                         messagey = messagey.replace('varFeeling', feeling);
