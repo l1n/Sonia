@@ -39,7 +39,7 @@ request(ip+'stats?sid=1', function (error, response, body) {
 
 // Create the configuration
 var config = {
-    channels: [chan],
+    channels: [chan, '#SRBTests'],
     server: "irc.canternet.org",
 	// botName: "SoniaBeta",
     botName: "Sonia",
@@ -182,7 +182,7 @@ sonia.addListener('message', function (from, to, message) {
                 }
             });
             proc=true;
-        } else if (message.match(/^w(?:hen).*\{(.*?)\}.*\{(.*?)\}/i) && message.match(/^w(?:hen).*\{(.*?)\}.*\{(.*?)\}/i).length == 2) {
+        } else if (message.match(/^w(?:hen).*\{(.*?)\}.*\{(.*?)\}/i) && message.match(/^w(?:hen).*\{(.*?)\}.*\{(.*?)\}/i).length == 3) {
            sonia.whois(from, function (info) {
                 if (info.channels.indexOf('@#SonicRadioboom') >= 0 || info.channels.indexOf('~#SonicRadioboom') >= 0 || info.channels.indexOf('%#SonicRadioboom') >= 0) {
                 var match = message.match(/^w(?:hen).*\{(.*?)\}.*\{(.*?)\}/i);
