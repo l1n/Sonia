@@ -203,20 +203,21 @@ sonia.addListener('message', function (from, to, message) {
             });
         } else if (begin!='!') {
             var matched = false;
+            var defaulted = true;
             Object.keys(db.say).forEach(function (item, a, b) {
                 if (message.match(new RegExp(item, "i")) && !item.match('|event=') && db.say[item] || db.act[item]) {
                     matched = true;
+                    defaulted = false;
                     message = db.say[item];
                     message = message.replace('varFrom', from);
                     message = message.replace('varFeeling', feeling);
                 }
             });
-            var defaulted = false;
             if (!matched && !message.match(/\?$/i)) {
                 message = message+' to you too, '+from;
-                if (lastfrom==config.botName && !begin) defaulted = true;
+                defaulted = true;
             }
-            if (!disabled && !defaulted) {
+            if (!disabled && !(defaulted&&!matched)) {
                 sonia.say((to==chan?chan:from), message);
             }
         }
