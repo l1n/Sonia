@@ -211,10 +211,10 @@ sonia.addListener('message', function (from, to, message) {
                     message = message.replace('varFeeling', feeling);
                 }
             });
-            if (!matched && !message.match(/\?$/i) && lastfrom!=config.botName) {
+            if (!matched && !message.match(/\?$/i)) {
                 message = message+' to you too, '+from;
             }
-            if (!disabled) {
+            if (!disabled && !(message.match('to you too') && lastfrom==config.botName)) {
                 if (to!=config.botName) {
                     sonia.say(chan, message);
                 } else {
