@@ -266,7 +266,12 @@ setInterval(function() {
         }
     });
 }, 1000);
-
+sonia.addListener('nick', function (oldnick, newnick, channels, message) {
+    if (!db.name[newnick]) {
+        db.name[newnick]=db.name[oldnick];
+    } else {
+        sonia.say(chan, db.say[newnick+'|event=login']);
+    }});
 sonia.addListener('join', function(channel, nick, message) {
     if (channel==chan && nick!=config.botName) {
         var record = db.name[nick];
