@@ -61,10 +61,10 @@ sonia.addListener('message', function (from, to, message) {
     }
     // console.log(from + ' => ' + to + ': ' + message);
     // if (message.match(/bot/i)) sonia.say(from, "I heard that!");
-    if (message.match(/^(?:!|Sonia[:,]? )/i)||message.match(/,? Sonia[.! ?]*?$/i)||lastfrom==config.botName||to==config.botName) {
+    if (message.match(/^(?:!|Sonia?[:,]? )/i)||message.match(/,? Sonia?[.! ?]*?$/i)||lastfrom==config.botName||to==config.botName) {
     // request('http://198.211.99.242:2199/api.php?xm=server.getstatus&f=json&a[username]=json&a[password]=secret', function (error, response, body) {http://198.211.99.242:8020/currentsong?sid=1
         // sonia.action(chan, 'Pokes '+from);
-        var begin = message.match(/^(Sonia[:,]? |!)/i)?message.match(/^(Sonia[:,]? |!)/i)[1]:message.match(/(,? Sonia[.! ?]*?)$/i)?message.match(/(,? Sonia[.! ?]*?)$/i)[1]:'';
+        var begin = message.match(/^(Sonia?[:,]? |!)/i)?message.match(/^(Sonia?[:,]? |!)/i)[1]:message.match(/(,? Sonia?[.! ?]*?)$/i)?message.match(/(,? Sonia?[.! ?]*?)$/i)[1]:'';
         message = message.replace(begin, '');
         message = message.replace(/What.?s the /i, '');
         var proc = false;
@@ -182,7 +182,7 @@ sonia.addListener('message', function (from, to, message) {
                 }
             });
             proc=true;
-        } else if (message.match(/^w(?:hen).*\{(.*?)\}.*\{(.*?)\}/i).length == 2) {
+        } else if (message.match(/^w(?:hen).*\{(.*?)\}.*\{(.*?)\}/i) && message.match(/^w(?:hen).*\{(.*?)\}.*\{(.*?)\}/i).length == 2) {
            sonia.whois(from, function (info) {
                 if (info.channels.indexOf('@#SonicRadioboom') >= 0 || info.channels.indexOf('~#SonicRadioboom') >= 0 || info.channels.indexOf('%#SonicRadioboom') >= 0) {
                 var match = message.match(/^w(?:hen).*\{(.*?)\}.*\{(.*?)\}/i);
