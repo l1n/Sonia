@@ -182,7 +182,7 @@ sonia.addListener('message', function (from, to, message) {
                 }
             });
             proc=true;
-        } else if (message.match(/^w(?:hen).*\{(.*?)\}.*\{(.*?)\}/i)) {
+        } else if (message.match(/^w(?:hen).*\{(.*?)\}.*\{(.*?)\}/i).length == 2) {
            sonia.whois(from, function (info) {
                 if (info.channels.indexOf('@#SonicRadioboom') >= 0 || info.channels.indexOf('~#SonicRadioboom') >= 0 || info.channels.indexOf('%#SonicRadioboom') >= 0) {
                 var match = message.match(/^w(?:hen).*\{(.*?)\}.*\{(.*?)\}/i);
