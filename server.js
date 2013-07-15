@@ -5,10 +5,10 @@ var moment = require('moment');
 var parseString = require('xml2js').parseString;
 var googleapis = require('googleapis');
 var mind = require('mind');
-var dbm = new mind('db.json', { encoding: 'UTF-8', autosave: 60000 });
+var dbm = new mind('../data/db.json', { encoding: 'UTF-8', autosave: 60000 });
 
 var db;
-dbm.open('db.json', function (err, dab, data) {
+dbm.open('../data/db.json', function (err, dab, data) {
     console.log('[INFO] Opened db: ' + e.msg +',' + dab + ',' + data);
     db = dab;
     var now = new moment();
@@ -30,7 +30,6 @@ dbm.on('error', function (e) {
     console.log('[WARN] Error: ' + e.msg);
 });
 
-dbm.startAutosave();
 
 //Google API key
 var key = 'AIzaSyDPlGenbEo8T-sbeNHx_shvJSRCwOpCESc';
