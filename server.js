@@ -240,17 +240,21 @@ sonia.addListener('message', function (from, to, message) {
             var matched = false;
             Object.keys(db.say).forEach(function (item, a, b) {
                 if (message.match(new RegExp(item, "i")) && (db.say[item] || db.act[item])) {
+                    var messagey = message;
                     if (!item.match('event')) matched = true;
-                    message = db.say[item];
-                    message = message.replace('varFrom', from);
-                    message = message.replace('varFeeling', feeling);
+                    messagey = db.say[item];
+                    messagey = messagey.replace('varFrom', from);
+                    messagey = messagey.replace('varFeeling', feeling);
+                    if (!disabled) {
+                        sonia.say((to==chan?chan:from), messagey);
+                    }
                 }
             });
             if (!matched && !message.match(/\?$/i)) {
                 message = message+' to you too, '+from;
             }
             if (verbose) sonia.say('linaea', matched+' '+message);
-            if (!disabled && (lastfrom!=config.botName&&!matched)||matched) {
+            if (!disabled && (lastfrom!=config.botName&&!matched)) {
                 sonia.say((to==chan?chan:from), message);
             }
         }
