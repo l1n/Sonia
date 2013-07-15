@@ -214,7 +214,7 @@ sonia.addListener('message', function (from, to, message) {
             var defaulted = false;
             if (!matched && !message.match(/\?$/i)) {
                 message = message+' to you too, '+from;
-                if (lastfrom==config.botName) defaulted = true;
+                if (lastfrom==config.botName && !begin) defaulted = true;
             }
             if (!disabled && !defaulted) {
                 sonia.say((to==chan?chan:from), message);
