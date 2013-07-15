@@ -179,6 +179,9 @@ sonia.addListener('message', function (from, to, message) {
             }
         } else if (message=='PLEASE QUIT NAO') {
             process.exit();
+        } else if (message=='SAVE') {
+            db.save();
+        }
         } else if (begin!='!') {
             var matched = false;
             Object.keys(db.say).forEach(function (item, a, b) {
