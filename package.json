@@ -28,7 +28,6 @@
         "googleapis": "*",
         "irc": "*",
         "moment": "*",
-        "mind": "*",
         "request": "*",
         "xml2js": "*"
   },
