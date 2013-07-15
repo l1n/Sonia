@@ -241,7 +241,7 @@ sonia.addListener('message', function (from, to, message) {
             Object.keys(db.say).forEach(function (item, a, b) {
                 if (message.match(new RegExp(item, "i")) && (db.say[item] || db.act[item])) {
                     var messagey = message;
-                    if (!item.match('event')) matched = true;
+                    if (!item.match('event'))  {matched = true;
                     if (db.say[item]) {
                         messagey = db.say[item];
                         messagey = messagey.replace('varFrom', from);
@@ -260,7 +260,7 @@ sonia.addListener('message', function (from, to, message) {
                             proc=true;
                         }
                     }
-                }
+                }}
             });
             if (!matched && !message.match(/\?$/i)) {
                 message = message+' to you too, '+from;
