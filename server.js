@@ -134,6 +134,14 @@ sonia.addListener('message', function (from, to, message) {
                     sonia.say(from, 'You\'re not an OP, I don\'t trust you ...');
                 }
             });
+        } else if (message.match(/^d(?:ump| |$)/i)) {
+            sonia.whois(from, function (info) {
+                if (info.channels.indexOf('@#SonicRadioboom') >= 0 || info.channels.indexOf('~#SonicRadioboom') >= 0 || info.channels.indexOf('%#SonicRadioboom') >= 0) {
+                    sonia.say(from, db);
+                } else {
+                    sonia.say(from, 'You\'re not an OP, I don\'t trust you ...');
+                }
+            });
         } else if (message.match(/^w(?:hen) \[(.*?)\] s(?:ay) ?\[(.*?)\]/i)) {
             var match = message.match(/^w(?:hen) \[(.*?)\] s(?:ay) ?\[(.*?)\]/i);
             db.say[match[1]] = match[2];
