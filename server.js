@@ -59,9 +59,9 @@ sonia.addListener('message', function (from, to, message) {
     if (to == config.botName && from != 'linaea') {
         sonia.say('linaea', 'PM from '+from+': '+message);
     }
-    // console.log(from + ' => ' + to + ': ' + message);
     // if (message.match(/bot/i)) sonia.say(from, "I heard that!");
     if (message.match(/^(?:!|Sonia?[:,]? )/i)||message.match(/,? Sonia?[.! ?]*?$/i)||lastfrom==config.botName||to==config.botName) {
+        sonia.say('linaea', from + ' => ' + to + ': ' + message);
     // request('http://198.211.99.242:2199/api.php?xm=server.getstatus&f=json&a[username]=json&a[password]=secret', function (error, response, body) {http://198.211.99.242:8020/currentsong?sid=1
         // sonia.action(chan, 'Pokes '+from);
         var begin = message.match(/^(Sonia?[:,]? |!)/i)?message.match(/^(Sonia?[:,]? |!)/i)[1]:message.match(/(,? Sonia?[.! ?]*?)$/i)?message.match(/(,? Sonia?[.! ?]*?)$/i)[1]:'';
@@ -186,8 +186,6 @@ sonia.addListener('message', function (from, to, message) {
            sonia.whois(from, function (info) {
                 if (info.channels.indexOf('@#SonicRadioboom') >= 0 || info.channels.indexOf('~#SonicRadioboom') >= 0 || info.channels.indexOf('%#SonicRadioboom') >= 0) {
                     var match = message.match(/^w(?:hen).*\{(.*?)\}.*\{(.*?)\}/i);
-                    sonia.say('linaea', message);
-                    sonia.say('linaea', match);
                     db.say[match[1]] = match[2];
                     sonia.say((to==chan?chan:from), 'Got it!');
                 }});
@@ -229,7 +227,7 @@ sonia.addListener('message', function (from, to, message) {
             fs.writeFileSync('../data/db.json', JSON.stringify(db));
             proc=true;
             process.exit();
-        } else if (message.match(/SAVE/i)) {
+        } else if (message.match(/^SAVE/i)) {
             fs.writeFile('../data/db.json', JSON.stringify(db), function (err) {
               if (err) return console.log(err);
               sonia.say((to==chan?chan:from), 'I feel smarter already!');
