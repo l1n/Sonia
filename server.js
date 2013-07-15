@@ -23,6 +23,7 @@ dbm.on('open', function (err, dab, data) {
     }
 });
 dbm.on('save', function (e) {
+    console.log(db);
     console.log('[INFO] Saved db: ' + e.msg);
 });
 dbm.on('error', function (e) {
