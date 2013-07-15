@@ -29,7 +29,8 @@
         "irc": "*",
         "moment": "*",
         "request": "*",
-        "xml2js": "*"
+        "xml2js": "*",
+        "regexp-quote": "*"
   },
   "devDependencies": {},
   "bundleDependencies": [],
