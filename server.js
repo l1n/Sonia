@@ -5,13 +5,12 @@ var moment = require('moment');
 var parseString = require('xml2js').parseString;
 var googleapis = require('googleapis');
 var mind = require('mind');
-var fs = require('fs');
 var dbm = new mind('db.json', { encoding: 'UTF-8', autosave: 60000 });
 
 var db;
 dbm.on('open', function (err, dab, data) {
-    console.log('[INFO] Opened db: ' + e.msg);
-    db = dab;
+    console.log('[INFO] Opened db: ' + e.msg +',' + dab + ',' + data);
+    db = data;
     var now = new moment();
     if (!db.name) db.name = [];
     if (!db.say) db.say = [];
@@ -148,7 +147,7 @@ sonia.addListener('message', function (from, to, message) {
         } else if (message.match(/^d(?:ump| |$)/i)) {
             sonia.whois(from, function (info) {
                 if (info.channels.indexOf('@#SonicRadioboom') >= 0 || info.channels.indexOf('~#SonicRadioboom') >= 0 || info.channels.indexOf('%#SonicRadioboom') >= 0) {
-                    Object.keys(db.say).forEach(function(e, a, b) {sonia.say(from, '['+e+','+db.say[e]+']');});
+                    Object.keys(db.say).forEach(function(e, a, b) {sonia.say(from, '\''+e+'\': \''+db.say[e]+'\',');});
                 } else {
                     sonia.say(from, 'You\'re not an OP, I don\'t trust you ...');
                 }
@@ -161,7 +160,7 @@ sonia.addListener('message', function (from, to, message) {
                     sonia.say(from, 'You\'re not an OP, I don\'t trust you ...');
                 }
             });
-        } else if (message.match(/^w(?:hen) \[(.*?)\] s(?:ay) ?\[(.*?)\]/i)) {
+        } else if (message.match(/^w(?:hen).*\[(.*?)\].*\[(.*?)\]/i)) {
            sonia.whois(from, function (info) {
                 if (info.channels.indexOf('@#SonicRadioboom') >= 0 || info.channels.indexOf('~#SonicRadioboom') >= 0 || info.channels.indexOf('%#SonicRadioboom') >= 0) {
                 var match = message.match(/^w(?:hen) \[(.*?)\] s(?:ay) ?\[(.*?)\]/i);
@@ -208,7 +207,7 @@ sonia.addListener('message', function (from, to, message) {
             Object.keys(db.say).forEach(function (item, a, b) {
                 if (message.match(new RegExp(item, "i"))) {
                     matched = true;
-                    message = message.replace(new RegExp(item, "i"), db.say[item]);
+                    message = db.say[item];
                     message = message.replace('varFrom', from);
                     message = message.replace('varFeeling', feeling);
                 }
@@ -297,10 +296,3 @@ process.on('uncaughtException', function(err) {
   sonia.say('linaea', 'Caught exception: ' + err.stack);
   // sonia.say('ElectricErger', 'Caught exception: ' + err.stack);
 });
-
-var access = fs.createWriteStream('node.access.log', { flags: 'a' })
-      , error = fs.createWriteStream('node.error.log', { flags: 'a' });
-
-// redirect stdout / stderr
-process.stdout.pipe(access);
-process.stderr.pipe(error);
