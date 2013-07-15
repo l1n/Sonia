@@ -10,6 +10,7 @@ var db = JSON.parse(fs.readFileSync('../data/db.json', "utf8"));
 var now = new moment();
 if (!db.name) db.name = {};
 if (!db.say) db.say = {};
+if (!db.act) db.act = {};
 if (!db.song) db.song = {};
 if (Object.keys(db.name).indexOf('ElectricErger') <= 0) {
     db.name['ElectricErger'] = now;
@@ -203,7 +204,7 @@ sonia.addListener('message', function (from, to, message) {
         } else if (begin!='!') {
             var matched = false;
             Object.keys(db.say).forEach(function (item, a, b) {
-                if (message.match(new RegExp(item, "i"))) {
+                if (message.match(new RegExp(item, "i")) && db.say[item] || db.act[item]) {
                     matched = true;
                     message = db.say[item];
                     message = message.replace('varFrom', from);
@@ -213,10 +214,12 @@ sonia.addListener('message', function (from, to, message) {
             if (!matched && !message.match(/\?$/i) && lastfrom!=config.botName) {
                 message = message+' to you too, '+from;
             }
-            if (to!=config.botName&&!disabled) {
-                sonia.say(chan, message);
-            } else {
-                sonia.say(from, message);
+            if (!disabled) {
+                if (to!=config.botName) {
+                    sonia.say(chan, message);
+                } else {
+                    sonia.say(from, message);
+                }
             }
         }
         lastfrom=config.botName;
