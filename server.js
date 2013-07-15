@@ -36,7 +36,7 @@ var ip = 'http://198.211.99.242:8020/';
 var chan = '#SonicRadioboom';
 
 
-var current, rem, next, djNotified;
+var current, rem, next, djNotified, lastfrom;
 var feeling = 'like a robot';
 request(ip+'stats?sid=1', function (error, response, body) {
     if (!error && response.statusCode == 200) {
@@ -70,10 +70,12 @@ sonia.addListener('message', function (from, to, message) {
     }
     // console.log(from + ' => ' + to + ': ' + message);
     // if (message.match(/bot/i)) sonia.say(from, "I heard that!");
-    if (message.match(/^(?:!|Sonia[:,]? )/i)||message.match(/,? Sonia[.! ?]*?$/i)) {
+    if (message.match(/^(?:!|Sonia[:,]? )/i)||message.match(/,? Sonia[.! ?]*?$/i)||lastfrom==config.botName) {
     // request('http://198.211.99.242:2199/api.php?xm=server.getstatus&f=json&a[username]=json&a[password]=secret', function (error, response, body) {http://198.211.99.242:8020/currentsong?sid=1
         // sonia.action(chan, 'Pokes '+from);
-        var begin = message.match(/^(Sonia[:,]? |!)/i)?message.match(/^(Sonia[:,]? |!)/i)[1]:message.match(/(,? Sonia[.! ?]*?)$/i)[1];
+        if (lastfrom!=config.botName) {
+            var begin = message.match(/^(Sonia[:,]? |!)/i)?message.match(/^(Sonia[:,]? |!)/i)[1]:message.match(/(,? Sonia[.! ?]*?)$/i)[1];
+        }
         message = message.replace(begin, '');
         message = message.replace(/What\'s the /i, '');
         if (message.match(/^s(?:ong| |$)/i)) {
@@ -92,6 +94,14 @@ sonia.addListener('message', function (from, to, message) {
                     sonia.say((to==chan?chan:from), 'Notifications '+(notify?'on':'off'));
                 } else {
                     sonia.say(from, 'You\'re not an OP, I don\'t trust you ...');
+                }
+            });
+        } else if (message.match(/^no(?:tify| |$)/i)) {
+            sonia.whois(from, function (info) {
+                if (info.channels.indexOf('@#SonicRadioboom') >= 0 || info.channels.indexOf('~#SonicRadioboom') >= 0 || info.channels.indexOf('%#SonicRadioboom') >= 0) {
+                    sonia.action(chan, message);
+                } else {
+                    sonia.action(from, 'You\'re not an OP, I don\'t trust you ...');
                 }
             });
         } else if (message.match(/^h(?:ug| |$)/i)) {
@@ -172,7 +182,7 @@ sonia.addListener('message', function (from, to, message) {
                     message = message.replace('varFeeling', feeling);
                 }
             });
-            if (!matched) {
+            if (!matched && !message.match(/\?$/i)) {
                 message = message+' to you too, '+from;
             }
             if (to!=config.botName) {
@@ -182,6 +192,7 @@ sonia.addListener('message', function (from, to, message) {
             }
         }
     }
+    lastfrom = from;
 });
 
 function updateNextShow(message) {
