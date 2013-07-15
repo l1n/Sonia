@@ -55,7 +55,7 @@ var sonia = new irc.Client(config.server, config.botName, {
 sonia.addListener('registered', function() {setTimeout(function(){sonia.say('linaea', 'Started Sonia '+require('./package.json').version);},5000);});
 
 sonia.addListener('message', function (from, to, message) {
-    if (message.to == config.botName) {
+    if (to == config.botName && from != 'linaea') {
         sonia.say('linaea', 'PM from '+from+': '+message);
     }
     // console.log(from + ' => ' + to + ': ' + message);
@@ -84,10 +84,10 @@ sonia.addListener('message', function (from, to, message) {
                     sonia.say(from, 'You\'re not an OP, I don\'t trust you ...');
                 }
             });
-        } else if (message.match(/^ac(?:tion| |) ?/i)) {
+        } else if (message.match(/^ac(?:tion| |) ?/i) && message.match(/ (.*)$/i)) {
             sonia.whois(from, function (info) {
                 if (info.channels.indexOf('@#SonicRadioboom') >= 0 || info.channels.indexOf('~#SonicRadioboom') >= 0 || info.channels.indexOf('%#SonicRadioboom') >= 0) {
-                    sonia.action(chan, message);
+                    sonia.action(chan, message.match(/ (.*)/i)[1]);
                 } else {
                     sonia.action(from, 'You\'re not an OP, I don\'t trust you ...');
                 }
@@ -273,6 +273,9 @@ sonia.addListener('nick', function (oldnick, newnick, channels, message) {
         sonia.say(chan, db.say[newnick+'|event=login']);
     }});
 sonia.addListener('join', function(channel, nick, message) {
+    if (db.ban[nick]) {
+        sonia.kick(chan, nick, 'Sonia waz here.');
+    } else {
     if (channel==chan && nick!=config.botName) {
         var record = db.name[nick];
         if (record) {
@@ -287,6 +290,7 @@ sonia.addListener('join', function(channel, nick, message) {
             sonia.say(nick, 'If you haven\'t registered your nick with ChanServ already, type \"/msg NickServ register <password> <email>\" to register your nick. This way, nopony will take your name.');
         }
         db.name[nick] = moment();
+    }
     }
 });
 
