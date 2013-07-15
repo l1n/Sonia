@@ -8,9 +8,9 @@ var mind = require('mind');
 var dbm = new mind('../data/db.json', { encoding: 'UTF-8', autosave: 60000 });
 
 var db;
-dbm.open('../data/db.json', function (err, dab, data) {
+dbm.on('open', function (e) {
     console.log('[INFO] Opened db: ' + e.msg +',' + dab + ',' + data);
-    db = dab;
+    db = e.db;
     var now = new moment();
     if (!db.name) db.name = [];
     if (!db.say) db.say = [];
@@ -35,7 +35,7 @@ dbm.on('error', function (e) {
 var key = 'AIzaSyDPlGenbEo8T-sbeNHx_shvJSRCwOpCESc';
 
 var ip = 'http://198.211.99.242:8020/';
-var chan = '#SonicRadioboom';
+var chan = '#SRBTests';
 
 
 var current, rem, next, djNotified, lastfrom;
