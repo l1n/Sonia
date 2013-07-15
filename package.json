@@ -28,7 +28,7 @@
         "googleapis": "*",
         "irc": "*",
         "moment": "*",
-        "dirtle": "*",
+        "mind": "*",
         "request": "*",
         "xml2js": "*"
   },

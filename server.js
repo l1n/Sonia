@@ -4,9 +4,30 @@ var request = require('request');
 var moment = require('moment');
 var parseString = require('xml2js').parseString;
 var googleapis = require('googleapis');
-var Dirtle = require('dirtle');
+var mind = require('mind');
 var fs = require('fs');
-var db = new Dirtle('../data/db.json').db;
+var dbm = new mind('../data/db.json', { encoding: 'UTF-8', autosave: 60000 });
+
+var db;
+dbm.on('open', function (e) {
+    console.log('[INFO] Opened db: ' + e.msg);
+    db = e;
+    var now = new moment();
+    if (!db.name) db.name = [];
+    if (!db.say) db.say = [];
+    if (!db.song) db.song = [];
+    if (Object.keys(db.names).indexOf('ElectricErger') <= 0) {
+        db.names.push({'ElectricErger': now});
+    }
+    if (Object.keys(db.names).indexOf('linaea') <= 0) {
+        db.names.push({'linaea': now});
+    }
+});
+dbm.on('save', function (e) {
+    console.log('[INFO] Saved db: ' + e.msg);
+});
+
+dbm.open();
 
 //Google API key
 var key = 'AIzaSyDPlGenbEo8T-sbeNHx_shvJSRCwOpCESc';
@@ -14,17 +35,6 @@ var key = 'AIzaSyDPlGenbEo8T-sbeNHx_shvJSRCwOpCESc';
 var ip = 'http://198.211.99.242:8020/';
 var chan = '#SonicRadioboom';
 
-var now = new moment();
-
-if (!db.name) db.name = [];
-if (!db.say) db.say = [];
-if (!db.song) db.song = [];
-if (Object.keys(db.names).indexOf('ElectricErger') <= 0) {
-    db.names.push({'ElectricErger': now});
-}
-if (Object.keys(db.names).indexOf('linaea') <= 0) {
-    db.names.push({'linaea': now});
-}
 
 var current, rem, next, djNotified;
 var feeling = 'like a robot';
@@ -55,6 +65,9 @@ var sonia = new irc.Client(config.server, config.botName, {
 sonia.addListener('registered', function() {sonia.say('linaea', 'Started Sonia '+require('./package.json').version)});
 
 sonia.addListener('message', function (from, to, message) {
+    if (message.to == config.botName) {
+        sonia.say('linaea', 'PM from '+from+': '+message);
+    }
     // console.log(from + ' => ' + to + ': ' + message);
     // if (message.match(/bot/i)) sonia.say(from, "I heard that!");
     if (message.match(/^(?:!|Sonia[:,]? )/i)||message.match(/,? Sonia[.! ?]*?$/i)) {
@@ -62,7 +75,7 @@ sonia.addListener('message', function (from, to, message) {
         // sonia.action(chan, 'Pokes '+from);
         var begin = message.match(/^(Sonia[:,]? |!)/i)?message.match(/^(Sonia[:,]? |!)/i)[1]:message.match(/(,? Sonia[.! ?]*?)$/i)[1];
         message = message.replace(begin, '');
-        message = message.replace('What\'s the ', '');
+        message = message.replace(/What\'s the /i, '');
         if (message.match(/^s(?:ong| |$)/i)) {
             sonia.say(chan, 'Current Song: '+current.SHOUTCASTSERVER.SONGTITLE);
         } else if (message.match(/^l(?:isteners| |$)/i)) {
