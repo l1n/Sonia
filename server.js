@@ -234,7 +234,7 @@ sonia.addListener('message', function (from, to, message) {
             });
             proc=true;
         }
-        if (proc && begin!='!') {
+        if (begin!='!') {
             var matched = false;
             Object.keys(db.say).forEach(function (item, a, b) {
                 if (message.match(new RegExp(item, "i")) && (db.say[item] || db.act[item])) {
