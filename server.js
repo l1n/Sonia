@@ -74,8 +74,9 @@ sonia.addListener('message', function (from, to, message) {
     if (message.match(/^(?:!|Sonia[:,]? )/i)||message.match(/,? Sonia[.! ?]*?$/i)||lastfrom==config.botName) {
     // request('http://198.211.99.242:2199/api.php?xm=server.getstatus&f=json&a[username]=json&a[password]=secret', function (error, response, body) {http://198.211.99.242:8020/currentsong?sid=1
         // sonia.action(chan, 'Pokes '+from);
+        var begin;
         if (lastfrom!=config.botName) {
-            var begin = message.match(/^(Sonia[:,]? |!)/i)?message.match(/^(Sonia[:,]? |!)/i)[1]:message.match(/(,? Sonia[.! ?]*?)$/i)[1];
+            begin = message.match(/^(Sonia[:,]? |!)/i)?message.match(/^(Sonia[:,]? |!)/i)[1]:message.match(/(,? Sonia[.! ?]*?)$/i)[1];
         }
         message = message.replace(begin, '');
         message = message.replace(/What\'s the /i, '');
@@ -182,11 +183,9 @@ sonia.addListener('message', function (from, to, message) {
             process.exit();
         } else if (message=='SAVE') {
             dbm.save();
-        }
         } else if (begin!='!') {
             var matched = false;
             Object.keys(db.say).forEach(function (item, a, b) {
-                sonia.say('linaea', item);
                 if (message.match(item)) {
                     matched = true;
                     message = db.say[item];
