@@ -9,6 +9,7 @@ var fs = require('fs');
 var db = JSON.parse(fs.readFileSync('../data/db.json', "utf8"));
 var now = new moment();
 if (!db.name) db.name = {};
+if (!db.ban) db.ban = {};
 if (!db.say) db.say = {};
 if (!db.act) db.act = {};
 if (!db.song) db.song = {};
@@ -72,7 +73,7 @@ sonia.addListener('message', function (from, to, message) {
             sonia.say(chan, 'Listeners: '+current.SHOUTCASTSERVER.CURRENTLISTENERS);
         } else if (message.match(/^lo(?:gin| |$)/i) && message.match(/ (.*)$/i)) {
             sonia.say(chan, "Last login by "+message.match(/ (.*)/i)[1]+": "+moment(db.name[message.match(/ (.*)/i)[1]]).fromNow());
-        } else if (message.match(/^help|command/i) || message == '?') {
+        } else if (message.match(/^help|^command/i) || message == '?') {
             sonia.say(chan,
             'Commands: [s]ong, [l]isteners, [lo]gin, [help|command], @[no]tify, [h]ug, [p]oke, @[a]dd, @[s]ay, [w]hen, [g]etdata, [n]ext, @[no]tify');
         } else if (message.match(/^no(?:tify| |$)/i)) {
@@ -126,6 +127,15 @@ sonia.addListener('message', function (from, to, message) {
             sonia.whois(from, function (info) {
                 if (info.channels.indexOf('@#SonicRadioboom') >= 0 || info.channels.indexOf('~#SonicRadioboom') >= 0 || info.channels.indexOf('%#SonicRadioboom') >= 0) {
                     feeling = message.match(/ (.*)/i)[1];
+                } else {
+                    sonia.say(from, 'You\'re not an OP, I don\'t trust you ...');
+                }
+            });
+        } else if (message.match(/^b(?:an| |$)/i) && message.match(/ (.*)/i)) {
+            sonia.whois(from, function (info) {
+                if (info.channels.indexOf('@#SonicRadioboom') >= 0 || info.channels.indexOf('~#SonicRadioboom') >= 0 || info.channels.indexOf('%#SonicRadioboom') >= 0) {
+                    db.ban[message.match(/ (.*)/i)[1]] = true;
+                    sonia.say((to==chan?chan:from), 'banned: '+message.match(/ (.*)/i)[1]);
                 } else {
                     sonia.say(from, 'You\'re not an OP, I don\'t trust you ...');
                 }
