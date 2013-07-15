@@ -137,7 +137,7 @@ sonia.addListener('message', function (from, to, message) {
         } else if (message.match(/^w(?:hen) \[(.*?)\] s(?:ay) ?\[(.*?)\]/i)) {
             var match = message.match(/^w(?:hen) \[(.*?)\] s(?:ay) ?\[(.*?)\]/i);
             db.say[match[1]] = match[2];
-            sonia.say(chan, 'Got it!');
+            sonia.say((to==chan?chan:from), 'Got it!');
         } else if (message.match(/^g(?:etdata| |$)/i)) {
             var data = db.song[(message.match(/ (.*)/i)?message.match(/ (.*)/i)[1]:current.SHOUTCASTSERVER.SONGTITLE)+""];
             if (!data) {
