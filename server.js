@@ -200,7 +200,7 @@ sonia.addListener('message', function (from, to, message) {
             Object.keys(db.say).forEach(function (item, a, b) {
                 if (message.match(new RegExp(item, "i"))) {
                     matched = true;
-                    message = message.replace(item, db.say[item]);
+                    message = message.replace(new RegExp(item, "i"), db.say[item]);
                     message = message.replace('varFrom', from);
                     message = message.replace('varFeeling', feeling);
                 }
