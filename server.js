@@ -155,10 +155,10 @@ sonia.addListener('message', function (from, to, message) {
                     sonia.say(from, 'You\'re not an OP, I don\'t trust you ...');
                 }
             });
-        } else if (message.match(/^w(?:hen).*\[(.*?)\].*\[(.*?)\]/i)) {
+        } else if (message.match(/^w(?:hen).*\{(.*?)\}.*\{(.*?)\}/i)) {
            sonia.whois(from, function (info) {
                 if (info.channels.indexOf('@#SonicRadioboom') >= 0 || info.channels.indexOf('~#SonicRadioboom') >= 0 || info.channels.indexOf('%#SonicRadioboom') >= 0) {
-                var match = message.match(/^w(?:hen).*\[(.*?)\].*\[(.*?)\]/i);
+                var match = message.match(/^w(?:hen).*\{(.*?)\}.*\{(.*?)\}/i);
                 db.say[match[1]] = match[2];
                 sonia.say((to==chan?chan:from), 'Got it!');
                 }});
@@ -204,7 +204,7 @@ sonia.addListener('message', function (from, to, message) {
         } else if (begin!='!') {
             var matched = false;
             Object.keys(db.say).forEach(function (item, a, b) {
-                if (message.match(new RegExp(item, "i")) && db.say[item] || db.act[item]) {
+                if (message.match(new RegExp(item, "i")) && !item.match('|event=') && db.say[item] || db.act[item]) {
                     matched = true;
                     message = db.say[item];
                     message = message.replace('varFrom', from);
