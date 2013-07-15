@@ -6,7 +6,6 @@ var parseString = require('xml2js').parseString;
 var googleapis = require('googleapis');
 var fs = require('fs');
 
-console.log(fs.readFileSync('../data/db.json', "utf8"));
 var db = JSON.parse(fs.readFileSync('../data/db.json', "utf8"));
 var now = new moment();
 if (!db.name) db.name = {};
@@ -64,7 +63,6 @@ sonia.addListener('message', function (from, to, message) {
     // request('http://198.211.99.242:2199/api.php?xm=server.getstatus&f=json&a[username]=json&a[password]=secret', function (error, response, body) {http://198.211.99.242:8020/currentsong?sid=1
         // sonia.action(chan, 'Pokes '+from);
         var begin = message.match(/^(Sonia[:,]? |!)/i)?message.match(/^(Sonia[:,]? |!)/i)[1]:message.match(/(,? Sonia[.! ?]*?)$/i)?message.match(/(,? Sonia[.! ?]*?)$/i)[1]:'';
-        // lastfrom=config.botName;
         message = message.replace(begin, '');
         message = message.replace(/What.?s the /i, '');
         if (message.match(/^s(?:ong| |$)/i)) {
@@ -197,11 +195,10 @@ sonia.addListener('message', function (from, to, message) {
         } else if (message=='PLEASE QUIT NAO') {
             fs.writeFileSync('../data/db.json', JSON.stringify(db));
             process.exit();
-        } else if (message=='SAVE') {
+        } else if (message.match(/SAVE/i)) {
             fs.writeFile('../data/db.json', JSON.stringify(db), function (err) {
               if (err) return console.log(err);
-              console.log(JSON.stringify(db));
-              console.log('saved.');
+              sonia.say((to==chan?chan:from), 'I feel smarter already!');
             });
         } else if (begin!='!') {
             var matched = false;
@@ -213,7 +210,7 @@ sonia.addListener('message', function (from, to, message) {
                     message = message.replace('varFeeling', feeling);
                 }
             });
-            if (!matched && !message.match(/\?$/i)) {
+            if (!matched && !message.match(/\?$/i) && lastfrom!=config.botName) {
                 message = message+' to you too, '+from;
             }
             if (to!=config.botName&&!disabled) {
@@ -222,6 +219,7 @@ sonia.addListener('message', function (from, to, message) {
                 sonia.say(from, message);
             }
         }
+        lastfrom=config.botName;
     } else {
         lastfrom=from;
     }
@@ -244,6 +242,9 @@ function updateNextShow(message) {
 setInterval(function() {
     if (!next || moment(next.start.dateTime).fromNow() == "in 5 minutes" && !djNotified) {
         updateNextShow();
+        fs.writeFile('../data/db.json', JSON.stringify(db), function (err) {
+              if (err) return console.log(err);
+            });
         djNotified = true;
         setTimeout(function() {
             djNotified = false;
