@@ -102,7 +102,7 @@ sonia.addListener('message', function (from, to, message) {
             });
             proc=true;
         } else if (message.match(/^h(?:ug| |$)/i)) {
-            sonia.action(chan, ' hugs '+from);
+            sonia.action(chan, ' hugs '+(message.match(/ (.*)/i)?message.match(/ (.*)/i)[1]:from));
             proc=true;
         } else if (message.match(/^p(?:oke| |$)/i) && message.match(/ (.*)$/i)) {
             sonia.action(chan, ' pokes '+message.match(/ (.*)/i)[1]);
