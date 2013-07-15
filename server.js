@@ -137,6 +137,14 @@ sonia.addListener('message', function (from, to, message) {
                     sonia.say(from, 'You\'re not an OP, I don\'t trust you ...');
                 }
             });
+        } else if (message.match(/^f(?:eel| |$)/i) && message.match(/ (.*)/i)) {
+            sonia.whois(from, function (info) {
+                if (info.channels.indexOf('@#SonicRadioboom') >= 0 || info.channels.indexOf('~#SonicRadioboom') >= 0 || info.channels.indexOf('%#SonicRadioboom') >= 0) {
+                    feeling = message.match(/ (.*)/i)[1];
+                } else {
+                    sonia.say(from, 'You\'re not an OP, I don\'t trust you ...');
+                }
+            });
         } else if (message.match(/^d(?:ump| |$)/i)) {
             sonia.whois(from, function (info) {
                 if (info.channels.indexOf('@#SonicRadioboom') >= 0 || info.channels.indexOf('~#SonicRadioboom') >= 0 || info.channels.indexOf('%#SonicRadioboom') >= 0) {
@@ -190,9 +198,9 @@ sonia.addListener('message', function (from, to, message) {
         } else if (begin!='!') {
             var matched = false;
             Object.keys(db.say).forEach(function (item, a, b) {
-                if (message.match(item)) {
+                if (message.match(new RegExp(item, "i"))) {
                     matched = true;
-                    message = db.say[item];
+                    message = message.replace(item, db.say[item]);
                     message = message.replace('varFrom', from);
                     message = message.replace('varFeeling', feeling);
                 }
