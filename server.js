@@ -72,13 +72,13 @@ sonia.addListener('message', function (from, to, message) {
     // console.log(from + ' => ' + to + ': ' + message);
     // if (message.match(/bot/i)) sonia.say(from, "I heard that!");
     if (message.match(/^(?:!|Sonia[:,]? )/i)||message.match(/,? Sonia[.! ?]*?$/i)||lastfrom==config.botName) {
-        lastfrom=config.botName;
     // request('http://198.211.99.242:2199/api.php?xm=server.getstatus&f=json&a[username]=json&a[password]=secret', function (error, response, body) {http://198.211.99.242:8020/currentsong?sid=1
         // sonia.action(chan, 'Pokes '+from);
         var begin;
         if (lastfrom!=config.botName) {
             begin = message.match(/^(Sonia[:,]? |!)/i)?message.match(/^(Sonia[:,]? |!)/i)[1]:message.match(/(,? Sonia[.! ?]*?)$/i)[1];
         }
+        lastfrom=config.botName;
         message = message.replace(begin, '');
         message = message.replace(/What\'s the /i, '');
         if (message.match(/^s(?:ong| |$)/i)) {
