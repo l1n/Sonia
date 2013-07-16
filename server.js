@@ -239,9 +239,9 @@ sonia.addListener('message', function (from, to, message) {
         }
         if (begin!='!') {
             var matched = false;
+            var messagey = message;
             Object.keys(db.say).forEach(function (item, a, b) {
                 if (message.match(new RegExp(item, "i")) && (db.say[item] || db.act[item])) {
-                    var messagey = message;
                     if (!item.match('event')) {
                         matched = true;
                         if (db.say[item]) {
@@ -265,11 +265,11 @@ sonia.addListener('message', function (from, to, message) {
                 }}
             });
             if (!matched && !message.match(/\?$/i)) {
-                message = message+' to you too, '+from;
+                messagey = messagey+' to you too, '+from;
             }
-            if (verbose) sonia.say('linaea', matched+' '+message);
+            if (verbose) sonia.say('linaea', matched+' '+messagey);
             if (!disabled && (from!=config.botName&&!matched)) {
-                sonia.say((to==chan?chan:from), message);
+                sonia.say((to==chan?chan:from), messagey);
                 proc=true;
             }
         }
