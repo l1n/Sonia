@@ -125,7 +125,7 @@ sonia.addListener('message', function (from, to, message) {
         } else if (message.match(/^sa(?:y| |$)/i) && message.match(/ (.*)/i)) {
             sonia.whois(from, function (info) {
                 if (info.channels.indexOf('@#SonicRadioboom') >= 0 || info.channels.indexOf('~#SonicRadioboom') >= 0 || info.channels.indexOf('%#SonicRadioboom') >= 0) {
-                    sonia.say(chan, message.match(/ (.*)/i)[1]);
+                    sonia.say(chan, message.match(/^say? (.*)$/i)[1]);
                 } else {
                     sonia.say(from, 'You\'re not an OP, I don\'t trust you ...');
                 }
@@ -199,6 +199,7 @@ sonia.addListener('message', function (from, to, message) {
                 }});
             proc=true;message='';
         } else if (message.match(/^[dg](?:et ?link|lc| |$)/i)) {
+            message.replace('get link','getlink');
             var data = db.song[(message.match(/ (.*)/i)?message.match(/ (.*)/i)[1]:+current.response.data.status.currentsong)+""];
             if (!data) {
                 googleapis.discover('youtube', 'v3').execute(function(err, client) {
