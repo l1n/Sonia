@@ -2,7 +2,6 @@
 var irc = require("irc");
 var request = require('request');
 var moment = require('moment');
-var parseString = require('xml2js').parseString;
 var googleapis = require('googleapis');
 var fs = require('fs');
 RegExp.quote = require('regexp-quote');
@@ -24,19 +23,16 @@ if (Object.keys(db.name).indexOf('linaea') <= 0) {
 //Google API key
 var key = 'AIzaSyDPlGenbEo8T-sbeNHx_shvJSRCwOpCESc';
 
-var ip = 'http://198.211.99.242:8020/';
 var chan = '#SonicRadioboom';
 
 
 var current, rem, next, djNotified, grom = ['', ''];
 var feeling = 'like a robot';
-request(ip+'stats?sid=1', function (error, response, body) {
-    if (!error && response.statusCode == 200) {
-        parseString(body, function (err, result) {
-            current = result;
-        });
-    }
-});
+request('http://radio.ponyvillelive.com:2199/api.php?xm=server.getstatus&f=json&a[username]=Linana&a[password]=yoloswag', function (error, response, body) {
+        if (!error && response.statusCode == 200) {
+            body = JSON.parse(body);
+            current = body;
+        if (verbose) console.log('linaea', body);}});
 
 // Create the configuration
 var config = {
@@ -69,10 +65,10 @@ sonia.addListener('message', function (from, to, message) {
         message = message.replace(/What.?s the /i, '');
         var proc = false;
         if (message.match(/^s(?:ong| |$)/i)) {
-            sonia.say(chan, 'Current Song: '+current.SHOUTCASTSERVER.SONGTITLE);
+            sonia.say(chan, 'Current Song: '+current.response.data.status.currentsong);
             proc=true;
         } else if (message.match(/^l(?:isteners| |$)/i)) {
-            sonia.say(chan, 'Listeners: '+current.SHOUTCASTSERVER.CURRENTLISTENERS);
+            sonia.say(chan, 'Listeners: '+current.response.data.status.listenercount);
             proc=true;
         } else if (message.match(/^lo(?:gin| |$)/i) && message.match(/ (.*)$/i)) {
             sonia.say(chan, "Last login by "+message.match(/ (.*)/i)[1]+": "+moment(db.name[message.match(/ (.*)/i)[1]]).fromNow());
@@ -109,8 +105,8 @@ sonia.addListener('message', function (from, to, message) {
         } else if (message.match(/^a(?:dd| |$)/i)) {
             sonia.whois(from, function (info) {
                 if (info.channels.indexOf('@#SonicRadioboom') >= 0 || info.channels.indexOf('~#SonicRadioboom') >= 0 || info.channels.indexOf('%#SonicRadioboom') >= 0) {
-                    db.song[current.SHOUTCASTSERVER.SONGTITLE+""] = (message.match(/ (.*)/i)?message.match(/ (.*)/i)[1]:rem);
-                    sonia.say((to==chan?chan:from), 'I know that '+current.SHOUTCASTSERVER.SONGTITLE+' is '+db.song[current.SHOUTCASTSERVER.SONGTITLE]);
+                    db.song[current.response.data.status.currentsong+""] = (message.match(/ (.*)/i)?message.match(/ (.*)/i)[1]:rem);
+                    sonia.say((to==chan?chan:from), 'I know that '+current.response.data.status.currentsong+' is '+db.song[current.response.data.status.currentsong]);
                 } else {
                     sonia.say(from, 'You\'re not an OP, I don\'t trust you ...');
                 }
@@ -312,22 +308,35 @@ setInterval(function() {
             djNotified = false;
         }, 5*60*1000);
     }
-    request('http://radio.ponyvillelive.com:2199/api.php?xm=server.getstatus&f=json&a[username]=Linana&a[password]=yoloswag', function (error, response, body) {if (verbose) sonia.say('linaea', body);});
-    request(ip+'stats?sid=1', function (error, response, body) {
-        if (!error && response.statusCode == 200) {
-            parseString(body, function (err, result) {
-                if (current && (JSON.stringify(current.SHOUTCASTSERVER.SONGTITLE) != JSON.stringify(result.SHOUTCASTSERVER.SONGTITLE))) {
+    request('http://radio.ponyvillelive.com:2199/api.php?xm=server.getstatus&f=json&a[username]=Linana&a[password]=yoloswag', function (error, response, body) {
+            if (!error && response.statusCode == 200) {
+                body = JSON.parse(body);
+                if (verbose) console.log('linaea', body);
+                if (current && (JSON.stringify(current.response.data.status.currentsong) != JSON.stringify(body.response.data.status.currentsong))) {
                     if (notify) {
-                        sonia.say(chan, 'New Song: '+result.SHOUTCASTSERVER.SONGTITLE);
+                        sonia.say(chan, 'New Song: '+body.response.data.status.currentsong);
                     }
-                    if (db.song[result.SHOUTCASTSERVER.SONGTITLE+'|event=song']) {
-                        sonia.say(chan, db.say[result.SHOUTCASTSERVER.SONGTITLE+'|event=song']);
+                    if (db.say[body.response.data.status.currentsong+'|event=song']) {
+                        sonia.say(chan, db.say[body.response.data.status.currentsong+'|event=song']);
                     }
                 }
-                current = result;
-            });
-        }
-    });
+                current = body;
+}});
+    // request(ip+'stats?sid=1', function (error, response, body) {
+    //     if (!error && response.statusCode == 200) {
+    //         parseString(body, function (err, result) {
+    //             if (current && (JSON.stringify(current.SHOUTCASTSERVER.SONGTITLE) != JSON.stringify(result.SHOUTCASTSERVER.SONGTITLE))) {
+    //                 if (notify) {
+    //                     sonia.say(chan, 'New Song: '+result.SHOUTCASTSERVER.SONGTITLE);
+    //                 }
+    //                 if (db.song[result.SHOUTCASTSERVER.SONGTITLE+'|event=song']) {
+    //                     sonia.say(chan, db.say[result.SHOUTCASTSERVER.SONGTITLE+'|event=song']);
+    //                 }
+    //             }
+    //             current = result;
+    //         });
+    //     }
+    // });
 }, 1000);
 sonia.addListener('nick', function (oldnick, newnick, channels, message) {
     if (!db.name[newnick]) {
@@ -368,6 +377,6 @@ sonia.addListener('error', function(message) {
 });
 
 process.on('uncaughtException', function(err) {
-  sonia.say('linaea', 'Caught exception: ' + err.stack);
+  console.log('linaea', 'Caught exception: ' + err.stack);
   // sonia.say('ElectricErger', 'Caught exception: ' + err.stack);
 });

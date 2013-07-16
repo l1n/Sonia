@@ -29,7 +29,6 @@
         "irc": "*",
         "moment": "*",
         "request": "*",
-        "xml2js": "*",
         "regexp-quote": "*"
   },
   "devDependencies": {},
