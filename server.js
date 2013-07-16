@@ -355,6 +355,11 @@ sonia.addListener('raw', function (message) {
     action(message.nick, message.args[0], message.args[1].match(/ACTION (.*)\u0001$/)[1]);
     });
 function action(from, to, message) {
+        if (to!=config.botName) {
+        Object.keys(db.away).forEach(function (item, a, b) {
+            db.away[item].push('*'+from+' '+message+'*');
+        });
+    }
     if ((message.match(/^!|^Sonia?[:,]?/i)||message.match(/,? Sonia?[.! ?]*?$/i)||grom[0]==config.botName||to==config.botName)&&from!=config.botName) {
         var begin = message.match(/^(Sonia?[:,]? |!)/i)?message.match(/^(Sonia?[:,]? |!)/i)[1]:message.match(/(,? Sonia?[.! ?]*?)$/i)?message.match(/(,? Sonia?[.! ?]*?)$/i)[1]:'';
         message = message.replace(begin, '');
@@ -404,6 +409,7 @@ function action(from, to, message) {
 sonia.addListener('nick', function (oldnick, newnick, channels, message) {
     newnick = newnick.replace(/_*$/, '');
     oldnick = oldnick.replace(/_*$/, '');
+    if (!db.name[newnick]) db.name[newnick] = moment();
     if (!db.name[newnick+'|event=login']) {
         db.name[newnick+'|event=login']=db.name[oldnick+'|event=login'];
     } else if (!db.name[oldnick+'|event=login']) {
