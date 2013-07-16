@@ -203,19 +203,12 @@ sonia.addListener('message', function (from, to, message) {
             var data = db.song[(message.match(/ (.*)/i)?message.match(/ (.*)/i)[1]:+current.response.data.status.currentsong)+""];
             if (!data) {
                 googleapis.discover('youtube', 'v3').execute(function(err, client) {
-                    if (verbose) sonia.say('linaea', data);
-                    var moments = message.match(/ (.*)/i);
-                    if (moments) {
-                        moments = moment(moments[1]);
-                        moments = moments.isValid()?moments:moment();
-                    } else {
-                        moments = moment();
-                    }
                     var params = {
                         maxResults: 1,
-                        q: (message.match(/ (.*)/i)?message.match(/ (.*)/i)[1]:+current.response.data.status.currentsong),
+                        q: (message.match(/ (.*)/i)?message.match(/ (.*)/i)[1]:current.response.data.status.currentsong),
                         part: 'snippet',
                         };
+                    if (verbose) console.log('linaea', params.q);
                     client.youtube.search.list(params).withApiKey(key).execute(function (err, response) {
                         response.items.forEach(function (item,a,b) {
                             sonia.say(chan, from+': Does this help? '+current.response.data.status.currentsong+' might be http://www.youtube.com/watch?v='+item.id.videoId);
