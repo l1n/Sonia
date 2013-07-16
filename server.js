@@ -160,7 +160,7 @@ sonia.addListener('message', function (from, to, message) {
                 }
             });
             proc=true;
-        } else if (message.match(/^d(?:isable| |$)/i)) {
+        } else if (message.match(/^di(?:sable| |$)/i)) {
             sonia.whois(from, function (info) {
                 if (info.channels.indexOf('@#SonicRadioboom') >= 0 || info.channels.indexOf('~#SonicRadioboom') >= 0 || info.channels.indexOf('%#SonicRadioboom') >= 0) {
                     disabled=!disabled;
@@ -198,7 +198,7 @@ sonia.addListener('message', function (from, to, message) {
                     sonia.say((to==chan?chan:from), 'Got it!');
                 }});
             proc=true;
-        } else if (message.match(/^g(?:etlink| |$)/i)) {
+        } else if (message.match(/^[dg](?:et ?link|lc| |$)/i)) {
             var data = db.song[(message.match(/ (.*)/i)?message.match(/ (.*)/i)[1]:current.SHOUTCASTSERVER.SONGTITLE)+""];
             if (!data) {
                 googleapis.discover('youtube', 'v3').execute(function(err, client) {
