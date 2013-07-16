@@ -264,7 +264,7 @@ sonia.addListener('message', function (from, to, message) {
                     sonia.say(from, db.away[from][i]);
                 }
                 sonia.say((to==chan?chan:from), 'You got '+db.away[from].length+' messages while you were away.');
-                db.away[from] = undefined;
+                delete db.away[from];
             }
         }
         if (begin!='!'&&message&&!(message.match(/^w(?:hen).*\{(.*?)\}.*\{(.*?)\}/i) && message.match(/^w(?:hen).*\{(.*?)\}.*\{(.*?)\}/i).length == 3)) {
