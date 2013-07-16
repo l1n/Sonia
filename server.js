@@ -339,10 +339,10 @@ setInterval(function() {
     // });
 }, 1000);
 sonia.addListener('nick', function (oldnick, newnick, channels, message) {
-    if (!db.name[newnick]) {
-        db.name[newnick]=db.name[oldnick];
-    } else if (!db.name[oldnick]) {
-        db.name[oldnick]=db.name[newnick];
+    if (!db.name[newnick+'|event=login']) {
+        db.name[newnick+'|event=login']=db.name[oldnick+'|event=login'];
+    } else if (!db.name[oldnick+'|event=login']) {
+        db.name[oldnick+'|event=login']=db.name[newnick+'|event=login'];
     } else {
         sonia.say(chan, db.say[newnick+'|event=login']);
     }});
