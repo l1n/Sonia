@@ -318,22 +318,9 @@ setInterval(function() {
                 }
                 current = body;
 }});
-    // request(ip+'stats?sid=1', function (error, response, body) {
-    //     if (!error && response.statusCode == 200) {
-    //         parseString(body, function (err, result) {
-    //             if (current && (JSON.stringify(current.SHOUTCASTSERVER.SONGTITLE) != JSON.stringify(result.SHOUTCASTSERVER.SONGTITLE))) {
-    //                 if (notify) {
-    //                     sonia.say(chan, 'New Song: '+result.SHOUTCASTSERVER.SONGTITLE);
-    //                 }
-    //                 if (db.song[result.SHOUTCASTSERVER.SONGTITLE+'|event=song']) {
-    //                     sonia.say(chan, db.say[result.SHOUTCASTSERVER.SONGTITLE+'|event=song']);
-    //                 }
-    //             }
-    //             current = result;
-    //         });
-    //     }
-    // });
 }, 1000);
+sonia.addListener('raw', function (message) {if (verbose) sonia.say(JSON.stringify(message));});
+
 sonia.addListener('nick', function (oldnick, newnick, channels, message) {
     if (!db.name[newnick+'|event=login']) {
         db.name[newnick+'|event=login']=db.name[oldnick+'|event=login'];
