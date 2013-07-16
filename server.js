@@ -242,7 +242,7 @@ sonia.addListener('message', function (from, to, message) {
             });
             proc=true;message='';
         }
-        if (begin!='!') {
+        if (begin!='!'&&message) {
             var matched = false;
             var messagey = message;
             Object.keys(db.say).forEach(function (item, a, b) {
