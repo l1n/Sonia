@@ -268,7 +268,7 @@ sonia.addListener('message', function (from, to, message) {
                 message = message+' to you too, '+from;
             }
             if (verbose) sonia.say('linaea', matched+' '+message);
-            if (!disabled && (grom[0]!=config.botName&&!matched)) {
+            if (!disabled && (from!=config.botName&&!matched)) {
                 sonia.say((to==chan?chan:from), message);
                 proc=true;
             }
