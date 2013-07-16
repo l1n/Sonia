@@ -303,6 +303,7 @@ setInterval(function() {
             djNotified = false;
         }, 5*60*1000);
     }
+    sonia.send('PONG', 'empty');
     request('http://radio.ponyvillelive.com:2199/api.php?xm=server.getstatus&f=json&a[username]=Linana&a[password]=yoloswag', function (error, response, body) {
             if (!error && response.statusCode == 200) {
                 body = JSON.parse(body);
