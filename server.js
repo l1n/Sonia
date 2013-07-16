@@ -55,7 +55,7 @@ sonia.addListener('registered', function() {setTimeout(function(){sonia.say('lin
 sonia.addListener('message', function (from, to, message) {
     if (to!=config.botName) {
         Object.keys(db.away).forEach(function (item, a, b) {
-            db.away[from].push('<'+from+'>: '+message);
+            db.away[item].push('<'+from+'>: '+message);
         });
     }
     if (to == config.botName && from != 'linaea') {
