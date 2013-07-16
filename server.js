@@ -9,9 +9,10 @@ RegExp.quote = require('regexp-quote');
 var db = JSON.parse(fs.readFileSync('../data/db.json', "utf8"));
 var now = new moment();
 if (!db.name) db.name = {};
-if (!db.ban) db.ban = {};
-if (!db.say) db.say = {};
-if (!db.act) db.act = {};
+if (!db.ban)  db.ban  = {};
+if (!db.away) db.away = {};
+if (!db.say)  db.say  = {};
+if (!db.act)  db.act  = {};
 if (!db.song) db.song = {};
 if (Object.keys(db.name).indexOf('ElectricErger') <= 0) {
     db.name['ElectricErger'] = now;
@@ -22,7 +23,6 @@ if (Object.keys(db.name).indexOf('linaea') <= 0) {
 
 //Google API key
 var key = 'AIzaSyDPlGenbEo8T-sbeNHx_shvJSRCwOpCESc';
-
 var chan = '#SonicRadioboom';
 
 
@@ -53,14 +53,24 @@ var sonia = new irc.Client(config.server, config.botName, {
 sonia.addListener('registered', function() {setTimeout(function(){sonia.say('linaea', 'Started Sonia '+require('./package.json').version);},5000);});
 
 sonia.addListener('message', function (from, to, message) {
+    if (to!=config.botName) {
+        Object.keys(db.away).forEach(function (item, a, b) {
+            db.away[from].push('<'+from+'>: '+message);
+        });
+    }
     if (to == config.botName && from != 'linaea') {
         sonia.say('linaea', 'PM from '+from+': '+message);
     }
     // if (message.match(/bot/i)) sonia.say(from, "I heard that!");
-    if ((message.match(/^!|^Sonia?[:,]?/i)||message.match(/,? Sonia?[.! ?]*?$/i)||grom[0]==config.botName||to==config.botName)&&from!=config.botName) {
+    if ((message.match(/^!|^Sonia?[:,]?/i)||message.match(/,? Sonia?[.! ?]*?$/i)
+    || grom[0]==config.botName || to==config.botName) && from!=config.botName) {
         // sonia.say('linaea', from + ' => ' + to + ': ' + message);
         // sonia.action(chan, 'Pokes '+from);
-        var begin = message.match(/^(Sonia?[:,]? |!)/i)?message.match(/^(Sonia?[:,]? |!)/i)[1]:message.match(/(,? Sonia?[.! ?]*?)$/i)?message.match(/(,? Sonia?[.! ?]*?)$/i)[1]:'';
+        var begin = message.match(/^(Sonia?[:,]? |!)/i)
+        ?message.match(/^(Sonia?[:,]? |!)/i)[1]
+        :message.match(/(,? Sonia?[.! ?]*?)$/i)
+        ?message.match(/(,? Sonia?[.! ?]*?)$/i)[1]
+        :'';
         message = message.replace(begin, '');
         message = message.replace(/What.?s the /i, '');
         var proc = false;
@@ -188,7 +198,8 @@ sonia.addListener('message', function (from, to, message) {
                 }
             });
             proc=true;message='';
-        } else if ((message.match(/^w(?:hen).*\{(.*?)\}.*\{(.*?)\}/i) && message.match(/^w(?:hen).*\{(.*?)\}.*\{(.*?)\}/i).length == 3)) {
+        } else if ((message.match(/^w(?:hen).*\{(.*?)\}.*\{(.*?)\}/i)
+        && message.match(/^w(?:hen).*\{(.*?)\}.*\{(.*?)\}/i).length == 3)) {
            sonia.whois(from, function (info) {
                 if (info.channels.indexOf('@#SonicRadioboom') >= 0 || info.channels.indexOf('~#SonicRadioboom') >= 0 || info.channels.indexOf('%#SonicRadioboom') >= 0) {
                     var match = message.match(/\{(.*?)\}.*\{(.*?)\}/i);
@@ -243,6 +254,18 @@ sonia.addListener('message', function (from, to, message) {
                 sonia.say((to==chan?chan:from), body.query.pages[page].title+': "'+body.query.pages[page].extract+'" Source: http://en.wikipedia.org/wiki/'+body.query.pages[page].title);
             });
             proc=true;message='';
+        } else if (message.match(/^aw(?:ay)/i)) {
+            db.away[from]=[];
+            sonia.say((to==chan?chan:from), 'I\'ll hold your messages until you get back, '+from+'.');
+        } else if (message.match(/^b(?:ack)/i)) {
+            if (db.away[from]) {
+                sonia.say((to==chan?chan:from), 'Welcome back! '+from);
+                for (var i = 0; i < db.away[from].length; i++) {
+                    sonia.say(from, db.away[from][i]);
+                }
+                sonia.say((to==chan?chan:from), 'You got '+db.away[from].length+' messages while you were away.');
+                db.away[from] = undefined;
+            }
         }
         if (begin!='!'&&message&&!(message.match(/^w(?:hen).*\{(.*?)\}.*\{(.*?)\}/i) && message.match(/^w(?:hen).*\{(.*?)\}.*\{(.*?)\}/i).length == 3)) {
             var matched = false;
@@ -326,13 +349,11 @@ setInterval(function() {
                 current = body;
 }});
 }, 1000);
-
 // XXXX Hack for calling action handlers.
 sonia.addListener('raw', function (message) {
     if (message.command == 'PRIVMSG' && message.args[1].match(/ACTION/))
     action(message.nick, message.args[0], message.args[1].match(/ACTION (.*)\u0001$/)[1]);
     });
-
 function action(from, to, message) {
     if ((message.match(/^!|^Sonia?[:,]?/i)||message.match(/,? Sonia?[.! ?]*?$/i)||grom[0]==config.botName||to==config.botName)&&from!=config.botName) {
         var begin = message.match(/^(Sonia?[:,]? |!)/i)?message.match(/^(Sonia?[:,]? |!)/i)[1]:message.match(/(,? Sonia?[.! ?]*?)$/i)?message.match(/(,? Sonia?[.! ?]*?)$/i)[1]:'';
@@ -380,7 +401,6 @@ function action(from, to, message) {
     grom[1]=grom[0];
     grom[0]=from;
 }
-
 sonia.addListener('nick', function (oldnick, newnick, channels, message) {
     newnick = newnick.replace(/_*$/, '');
     oldnick = oldnick.replace(/_*$/, '');
@@ -413,15 +433,12 @@ sonia.addListener('join', function(channel, nick, message) {
     }
     }
 });
-
 sonia.addListener('quit', function(channel, nick, message) {
     db.name[nick] = moment();
 });
-
 sonia.addListener('error', function(message) {
     console.log('error: ', message);
 });
-
 process.on('uncaughtException', function(err) {
   console.log('linaea', 'Caught exception: ' + err.stack);
   // sonia.say('ElectricErger', 'Caught exception: ' + err.stack);
