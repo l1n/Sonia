@@ -192,7 +192,7 @@ sonia.addListener('message', function (from, to, message) {
            sonia.whois(from, function (info) {
                 if (info.channels.indexOf('@#SonicRadioboom') >= 0 || info.channels.indexOf('~#SonicRadioboom') >= 0 || info.channels.indexOf('%#SonicRadioboom') >= 0) {
                     var match = message.match(/^w(?:hen).*\{(.*?)\}.*\{(.*?)\}/i);
-                    if (!message.match("regex") && !message.match(event)) match[1] = RegExp.quote(match[1]);
+                    if (!message.match("regex") && !message.match('event')) match[1] = RegExp.quote(match[1]);
                     if (message.match(/\}.*say.*\{/i)) db.say[match[1]] = match[2];
                     if (message.match(/\}.*do.*\{/i)) db.act[match[1]] = match[2];
                     sonia.say((to==chan?chan:from), 'Got it!');
