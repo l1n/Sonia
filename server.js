@@ -63,7 +63,6 @@ sonia.addListener('message', function (from, to, message) {
     // if (message.match(/bot/i)) sonia.say(from, "I heard that!");
     if ((message.match(/^!|^Sonia?[:,]?/i)||message.match(/,? Sonia?[.! ?]*?$/i)||grom[0]==config.botName||to==config.botName)&&from!=config.botName) {
         // sonia.say('linaea', from + ' => ' + to + ': ' + message);
-    // request('http://198.211.99.242:2199/api.php?xm=server.getstatus&f=json&a[username]=json&a[password]=secret', function (error, response, body) {http://198.211.99.242:8020/currentsong?sid=1
         // sonia.action(chan, 'Pokes '+from);
         var begin = message.match(/^(Sonia?[:,]? |!)/i)?message.match(/^(Sonia?[:,]? |!)/i)[1]:message.match(/(,? Sonia?[.! ?]*?)$/i)?message.match(/(,? Sonia?[.! ?]*?)$/i)[1]:'';
         message = message.replace(begin, '');
@@ -127,7 +126,7 @@ sonia.addListener('message', function (from, to, message) {
                 }
             });
             proc=true;
-        } else if (message.match(/^s(?:ay| |$)/i) && message.match(/ (.*)/i)) {
+        } else if (message.match(/^sa(?:y| |$)/i) && message.match(/ (.*)/i)) {
             sonia.whois(from, function (info) {
                 if (info.channels.indexOf('@#SonicRadioboom') >= 0 || info.channels.indexOf('~#SonicRadioboom') >= 0 || info.channels.indexOf('%#SonicRadioboom') >= 0) {
                     sonia.say(chan, message.match(/ (.*)/i)[1]);
@@ -150,6 +149,16 @@ sonia.addListener('message', function (from, to, message) {
                 if (info.channels.indexOf('@#SonicRadioboom') >= 0 || info.channels.indexOf('~#SonicRadioboom') >= 0 || info.channels.indexOf('%#SonicRadioboom') >= 0) {
                     db.ban[message.match(/ (.*)/i)[1]] = true;
                     sonia.say((to==chan?chan:from), 'banned: '+message.match(/ (.*)/i)[1]);
+                } else {
+                    sonia.say(from, 'You\'re not an OP, I don\'t trust you ...');
+                }
+            });
+            proc=true;
+        } else if (message.match(/^v(?:erbose)$/i)) {
+            sonia.whois(from, function (info) {
+                if (info.channels.indexOf('@#SonicRadioboom') >= 0 || info.channels.indexOf('~#SonicRadioboom') >= 0 || info.channels.indexOf('%#SonicRadioboom') >= 0) {
+                    verbose=!verbose;
+                    sonia.say((to==chan?chan:from), 'verbose: '+verbose);
                 } else {
                     sonia.say(from, 'You\'re not an OP, I don\'t trust you ...');
                 }
@@ -303,6 +312,7 @@ setInterval(function() {
             djNotified = false;
         }, 5*60*1000);
     }
+    request('http://radio.ponyvillelive.com:2199/api.php?xm=server.getstatus&f=json&a[username]=Linana&a[password]=yoloswag', function (error, response, body) {if (verbose) sonia.say('linaea', body);});
     request(ip+'stats?sid=1', function (error, response, body) {
         if (!error && response.statusCode == 200) {
             parseString(body, function (err, result) {
@@ -322,6 +332,8 @@ setInterval(function() {
 sonia.addListener('nick', function (oldnick, newnick, channels, message) {
     if (!db.name[newnick]) {
         db.name[newnick]=db.name[oldnick];
+    } else if (!db.name[oldnick]) {
+        db.name[oldnick]=db.name[newnick];
     } else {
         sonia.say(chan, db.say[newnick+'|event=login']);
     }});
