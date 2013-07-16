@@ -319,9 +319,29 @@ setInterval(function() {
                 current = body;
 }});
 }, 1000);
-sonia.addListener('raw', function (message) {if (verbose) sonia.say(JSON.stringify(message));});
+
+// XXXX Hack for calling action handlers.
+sonia.addListener('raw', function (message) {
+    if (message.command == 'PRIVMSG' && message.args[1].match(/ACTION/))
+    action(message.nick, message.args[0], message.args[1].match(/ACTION (.*)\u0001$/)[1])
+    
+    });
+
+function action(from, to, message) {
+    if ((message.match(/^!|^Sonia?[:,]?/i)||message.match(/,? Sonia?[.! ?]*?$/i)||grom[0]==config.botName||to==config.botName)&&from!=config.botName) {
+        var begin = message.match(/^(Sonia?[:,]? |!)/i)?message.match(/^(Sonia?[:,]? |!)/i)[1]:message.match(/(,? Sonia?[.! ?]*?)$/i)?message.match(/(,? Sonia?[.! ?]*?)$/i)[1]:'';
+        message = message.replace(begin, '');
+        message = message.replace(/What.?s the /i, '');
+        var proc = false;
+        if (verbose) sonia.say('linaea', "Saw "+from+" do "+message+" to "+to);
+    }
+    grom[1]=grom[0];
+    grom[0]=from;
+}
 
 sonia.addListener('nick', function (oldnick, newnick, channels, message) {
+    newnick = newnick.replace(/_*$/, '');
+    oldnick = oldnick.replace(/_*$/, '');
     if (!db.name[newnick+'|event=login']) {
         db.name[newnick+'|event=login']=db.name[oldnick+'|event=login'];
     } else if (!db.name[oldnick+'|event=login']) {
@@ -330,6 +350,7 @@ sonia.addListener('nick', function (oldnick, newnick, channels, message) {
         sonia.say(chan, db.say[newnick+'|event=login']);
     }});
 sonia.addListener('join', function(channel, nick, message) {
+    nick = nick.replace(/_*$/, '');
     if (db.ban[nick]) {
         sonia.kick(chan, nick, 'Sonia waz here.');
     } else {
