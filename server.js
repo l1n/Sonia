@@ -191,13 +191,13 @@ sonia.addListener('message', function (from, to, message) {
         } else if ((message.match(/^w(?:hen).*\{(.*?)\}.*\{(.*?)\}/i) && message.match(/^w(?:hen).*\{(.*?)\}.*\{(.*?)\}/i).length == 3)) {
            sonia.whois(from, function (info) {
                 if (info.channels.indexOf('@#SonicRadioboom') >= 0 || info.channels.indexOf('~#SonicRadioboom') >= 0 || info.channels.indexOf('%#SonicRadioboom') >= 0) {
-                    var match = message.match(/^w(?:hen).*\{(.*?)\}.*\{(.*?)\}/i);
+                    var match = message.match(/\{(.*?)\}.*\{(.*?)\}/i);
                     if (!message.match("regex") && !message.match('event')) match[1] = RegExp.quote(match[1]);
                     if (message.match(/\}.*say.*\{/i)) db.say[match[1]] = match[2];
                     if (message.match(/\}.*do.*\{/i)) db.act[match[1]] = match[2];
                     sonia.say((to==chan?chan:from), 'Got it!');
                 }});
-            proc=true;message='';
+            proc=true;
         } else if (message.match(/^[dg](?:et ?link|lc| |$)/i)) {
             message = message.replace('get link','getlink');
             var data = db.song[(message.match(/ (.*)/i)?message.match(/ (.*)/i)[1]:+current.response.data.status.currentsong)+""];
@@ -237,7 +237,7 @@ sonia.addListener('message', function (from, to, message) {
             });
             proc=true;message='';
         }
-        if (begin!='!'&&message) {
+        if (begin!='!'&&message&&!(message.match(/^w(?:hen).*\{(.*?)\}.*\{(.*?)\}/i) && message.match(/^w(?:hen).*\{(.*?)\}.*\{(.*?)\}/i).length == 3)) {
             var matched = false;
             var messagey = message;
             Object.keys(db.say).forEach(function (item, a, b) {
@@ -323,8 +323,7 @@ setInterval(function() {
 // XXXX Hack for calling action handlers.
 sonia.addListener('raw', function (message) {
     if (message.command == 'PRIVMSG' && message.args[1].match(/ACTION/))
-    action(message.nick, message.args[0], message.args[1].match(/ACTION (.*)\u0001$/)[1])
-    
+    action(message.nick, message.args[0], message.args[1].match(/ACTION (.*)\u0001$/)[1]);
     });
 
 function action(from, to, message) {
@@ -333,6 +332,42 @@ function action(from, to, message) {
         message = message.replace(begin, '');
         message = message.replace(/What.?s the /i, '');
         var proc = false;
+                if (begin!='!'&&message) {
+            var matched = false;
+            var messagey = message;
+            Object.keys(db.say).forEach(function (item, a, b) {
+                if (message.match(new RegExp(item, "i")) && (db.say[item] || db.act[item])) {
+                    if (!item.match('event')) {
+                        matched = true;
+                        if (db.say[item]) {
+                            messagey = db.say[item];
+                            messagey = messagey.replace('varFrom', from);
+                            messagey = messagey.replace('varFeeling', feeling);
+                            if (!disabled) {
+                                sonia.say((to==chan?chan:from), messagey);
+                                proc=true;
+                            }
+                        }
+                        if (db.act[item]) {
+                            messagey = db.act[item];
+                            messagey = messagey.replace('varFrom', from);
+                            messagey = messagey.replace('varFeeling', feeling);
+                            if (!disabled) {
+                                sonia.action((to==chan?chan:from), messagey);
+                                proc=true;
+                            }
+                        }
+                }}
+            });
+            if (!matched && !message.match(/\?$/i)) {
+                messagey = messagey+' to you too, '+from;
+            }
+            if (verbose) sonia.say('linaea', matched+' '+messagey);
+            if (!disabled && (from!=config.botName&&!matched)) {
+                sonia.say((to==chan?chan:from), messagey);
+                proc=true;
+            }
+        }
         if (verbose) sonia.say('linaea', "Saw "+from+" do "+message+" to "+to);
     }
     grom[1]=grom[0];
