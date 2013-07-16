@@ -236,6 +236,13 @@ sonia.addListener('message', function (from, to, message) {
               sonia.say((to==chan?chan:from), 'I feel smarter already!');
             });
             proc=true;message='';
+        } else if (message.match(/^d(?:efine) (.+)/i)) {
+            request('http://en.wikipedia.org/w/api.php?action=query&prop=extracts&explaintext=true&exsentences=3&redirects=true&format=json&titles='+message.match(/ (.*)/)[1], function (error, response, body) {
+                body = JSON.parse(body);
+                var page = Object.keys(body.query.pages)[0];
+                sonia.say((to==chan?chan:from), body.query.pages[page].title+': "'+body.query.pages[page].extract+'" Source: http://en.wikipedia.org/wiki/'+body.query.pages[page].title);
+            });
+            proc=true;message='';
         }
         if (begin!='!'&&message&&!(message.match(/^w(?:hen).*\{(.*?)\}.*\{(.*?)\}/i) && message.match(/^w(?:hen).*\{(.*?)\}.*\{(.*?)\}/i).length == 3)) {
             var matched = false;
