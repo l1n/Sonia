@@ -199,10 +199,11 @@ sonia.addListener('message', function (from, to, message) {
                 }});
             proc=true;message='';
         } else if (message.match(/^[dg](?:et ?link|lc| |$)/i)) {
-            message.replace('get link','getlink');
+            message = message.replace('get link','getlink');
             var data = db.song[(message.match(/ (.*)/i)?message.match(/ (.*)/i)[1]:+current.response.data.status.currentsong)+""];
             if (!data) {
                 googleapis.discover('youtube', 'v3').execute(function(err, client) {
+                    if (verbose) sonia.say('linaea', data);
                     var moments = message.match(/ (.*)/i);
                     if (moments) {
                         moments = moment(moments[1]);
