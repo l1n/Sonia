@@ -53,6 +53,7 @@ var sonia = new irc.Client(config.server, config.botName, {
 sonia.addListener('registered', function() {setTimeout(function(){sonia.say('linaea', 'Started Sonia '+require('./package.json').version);},5000);});
 
 sonia.addListener('message', function (from, to, message) {
+        var proc = false;
     if (to!=config.botName) {
         Object.keys(db.away).forEach(function (item, a, b) {
             db.away[item].push('<'+from+'>: '+message);
@@ -64,7 +65,7 @@ sonia.addListener('message', function (from, to, message) {
     // if (message.match(/bot/i)) sonia.say(from, "I heard that!");
     if ((message.match(/^!|^Sonia?[:,]?/i)||message.match(/,? Sonia?[.! ?]*?$/i)
     || grom[0]==config.botName || to==config.botName) && from!=config.botName) {
-        // sonia.say('linaea', from + ' => ' + to + ': ' + message);
+        if (verbose) console.log('linaea', from + ' => ' + to + ': ' + message);
         // sonia.action(chan, 'Pokes '+from);
         var begin = message.match(/^(Sonia?[:,]? |!)/i)
         ?message.match(/^(Sonia?[:,]? |!)/i)[1]
@@ -73,7 +74,6 @@ sonia.addListener('message', function (from, to, message) {
         :'';
         message = message.replace(begin, '');
         message = message.replace(/What.?s the /i, '');
-        var proc = false;
         if (message.match(/^s(?:ong| |$)/i)) {
             sonia.say(chan, 'Current Song: '+current.response.data.status.currentsong);
             proc=true;message='';
@@ -267,6 +267,7 @@ sonia.addListener('message', function (from, to, message) {
                 delete db.away[from];
             }
         }
+        if (verbose) console.log(message);
         if (begin!='!'&&message&&!(message.match(/^w(?:hen).*\{(.*?)\}.*\{(.*?)\}/i) && message.match(/^w(?:hen).*\{(.*?)\}.*\{(.*?)\}/i).length == 3)) {
             var matched = false;
             var messagey = message;
@@ -306,6 +307,10 @@ sonia.addListener('message', function (from, to, message) {
     }
     grom[1]=grom[0];
     grom[0]=from;
+    if (proc) {
+            grom[1]=grom[0];
+            grom[0]='Sonia';
+    }
 });
 
 function updateNextShow(message) {
@@ -337,7 +342,7 @@ setInterval(function() {
     request('http://radio.ponyvillelive.com:2199/api.php?xm=server.getstatus&f=json&a[username]=Linana&a[password]=yoloswag', function (error, response, body) {
             if (!error && response.statusCode == 200) {
                 body = JSON.parse(body);
-                if (verbose) console.log('linaea', body);
+                // if (verbose) console.log('linaea', body);
                 if (current && (JSON.stringify(current.response.data.status.currentsong) != JSON.stringify(body.response.data.status.currentsong))) {
                     if (notify) {
                         sonia.say(chan, 'New Song: '+body.response.data.status.currentsong);
