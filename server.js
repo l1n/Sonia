@@ -258,15 +258,17 @@ sonia.addListener('message', function (from, to, message) {
             proc=true;message='';
         } else if (message.match(/^d(?:efine) (.+)/i)) {
             request('http://en.wikipedia.org/w/api.php?action=query&prop=extracts&explaintext=true&exsentences=3&redirects=true&format=json&titles='+message.match(/ (.*)/)[1], function (error, response, body) {
+            if (!error && response.statusCode == 200) {
                 body = JSON.parse(body);
                 var page = Object.keys(body.query.pages)[0];
                 sonia.say((to==config.botName?from:to), body.query.pages[page].title+': "'+body.query.pages[page].extract+'" Source: http://en.wikipedia.org/wiki/'+body.query.pages[page].title);
+            }
             });
             proc=true;message='';
         } else if (message.match(/^aw(?:ay)/i)) {
             db.away[from]=[];
             sonia.say((to==config.botName?from:to), 'I\'ll hold your messages until you get back, '+from+'.');
-        } else if (message.match(/^b(?:ack)/i)) {
+        } else if (message.match(/^b(?:ack)[^ ]/i)) {
             if (db.away[from]) {
                 sonia.say((to==config.botName?from:to), 'Welcome back! '+from);
                 for (var i = 0; i < db.away[from].length; i++) {
@@ -275,6 +277,20 @@ sonia.addListener('message', function (from, to, message) {
                 sonia.say((to==config.botName?from:to), 'You got '+db.away[from].length+' messages while you were away.');
                 delete db.away[from];
             }
+        } else if (message.match(/^b(?:ack) /i)) {
+            var f = message.match(/ (.*)/)[1];
+                sonia.whois(from, function (info) {
+                if ((info.channels && info.channels.indexOf('@#SonicRadioboom') >= 0 || info.channels.indexOf('~#SonicRadioboom') >= 0 || info.channels.indexOf('%#SonicRadioboom') >= 0) || from == 'linaea') {
+                    delete db.away[f];
+                    sonia.say((to==config.botName?from:to), 'Got it!');
+                }});
+        } else if (message.contains(/http:\/\/.*.deviantart.com\/art\/.*|http:\/\/fav.me\/.*|http:\/\/sta.sh\/.*|http:\/\/.*.deviantart.com\/.*#\/d.*/)) {
+            request('http://backend.deviantart.com/oembed?url='+message.match(/http:[^ ]*/), function (error, response, body) {
+                if (!error && response.statusCode == 200) {
+                    body = JSON.parse(body);
+                    sonia.say((to==config.botName?from:to), body.url+' is "'+body.title+'" by '+body.author_name+'.');
+                }
+            });
         }
         if (verbose) console.log(message);
         if (begin!='!'&&message&&!(message.match(/^w(?:hen).*\{(.*?)\}.*\{(.*?)\}/i) && message.match(/^w(?:hen).*\{(.*?)\}.*\{(.*?)\}/i).length == 3)) {
@@ -374,12 +390,13 @@ function action(from, to, message) {
             db.away[item].push('*'+from+' '+message+'*');
         });
     }
-    if ((message.match(/^!|^Sonia?[:,]?/i)||message.match(/,? Sonia?[.! ?]*?$/i)||grom[0]==config.botName||to==config.botName)&&from!=config.botName) {
+    if ((message.match(/^!|^Sonia?[:,]?/i)||message.match(/,? Sonia?[.! ?]*?$/i)
+    || grom[0]==config.botName || to==config.botName) && from!=config.botName) {
         var begin = message.match(/^(Sonia?[:,]? |!)/i)?message.match(/^(Sonia?[:,]? |!)/i)[1]:message.match(/(,? Sonia?[.! ?]*?)$/i)?message.match(/(,? Sonia?[.! ?]*?)$/i)[1]:'';
         message = message.replace(begin, '');
         message = message.replace(/What.?s the /i, '');
         var proc = false;
-                if (begin!='!'&&message) {
+            if (begin!='!'&&message&&!(message.match(/^w(?:hen).*\{(.*?)\}.*\{(.*?)\}/i) && message.match(/^w(?:hen).*\{(.*?)\}.*\{(.*?)\}/i).length == 3)) {
             var matched = false;
             var messagey = message;
             Object.keys(db.say).forEach(function (item, a, b) {
@@ -407,7 +424,7 @@ function action(from, to, message) {
                 }}
             });
             if (!matched && !message.match(/\?$/i)) {
-                messagey = messagey+' to you too, '+from;
+                messagey = messagey+' '+from+', too';
             }
             if (verbose) sonia.say('linaea', matched+' '+messagey);
             if (!disabled && (from!=config.botName&&!matched)) {
