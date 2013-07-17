@@ -284,7 +284,7 @@ sonia.addListener('message', function (from, to, message) {
                     delete db.away[f];
                     sonia.say((to==config.botName?from:to), 'Got it!');
                 }});
-        } else if (message.contains(/http:\/\/.*.deviantart.com\/art\/.*|http:\/\/fav.me\/.*|http:\/\/sta.sh\/.*|http:\/\/.*.deviantart.com\/.*#\/d.*/)) {
+        } else if (message.match(/http:\/\/.*.deviantart.com\/art\/.*|http:\/\/fav.me\/.*|http:\/\/sta.sh\/.*|http:\/\/.*.deviantart.com\/.*#\/d.*/)) {
             request('http://backend.deviantart.com/oembed?url='+message.match(/http:[^ ]*/), function (error, response, body) {
                 if (!error && response.statusCode == 200) {
                     body = JSON.parse(body);
