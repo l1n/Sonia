@@ -89,7 +89,7 @@ sonia.addListener('message', function (from, to, message) {
             proc=true;message='';
         } else if (message.match(/^no(?:tify| |$)/i)) {
             sonia.whois(from, function (info) {
-                if (info.channels.indexOf('@#SonicRadioboom') >= 0 || info.channels.indexOf('~#SonicRadioboom') >= 0 || info.channels.indexOf('%#SonicRadioboom') >= 0 || from == 'linaea') {
+                if ((info.channels && info.channels.indexOf('@#SonicRadioboom') >= 0 || info.channels.indexOf('~#SonicRadioboom') >= 0 || info.channels.indexOf('%#SonicRadioboom') >= 0) || from == 'linaea') {
                     notify = !notify;
                     sonia.say((to==config.botName?from:to), 'Notifications '+(notify?'on':'off'));
                 } else {
@@ -99,7 +99,7 @@ sonia.addListener('message', function (from, to, message) {
             proc=true;message='';
         } else if (message.match(/^ac(?:tion| |) ?/i) && message.match(/ (.*)$/i)) {
             sonia.whois(from, function (info) {
-                if (info.channels.indexOf('@#SonicRadioboom') >= 0 || info.channels.indexOf('~#SonicRadioboom') >= 0 || info.channels.indexOf('%#SonicRadioboom') >= 0 || from == 'linaea') {
+                if ((info.channels && info.channels.indexOf('@#SonicRadioboom') >= 0 || info.channels.indexOf('~#SonicRadioboom') >= 0 || info.channels.indexOf('%#SonicRadioboom') >= 0) || from == 'linaea') {
                     sonia.action(chan, message.match(/ (.*)/i)[1]);
                 } else {
                     sonia.action(from, 'You\'re not an OP, I don\'t trust you ...');
@@ -114,7 +114,7 @@ sonia.addListener('message', function (from, to, message) {
             proc=true;message='';
         } else if (message.match(/^a(?:dd| |$)/i)) {
             sonia.whois(from, function (info) {
-                if (info.channels.indexOf('@#SonicRadioboom') >= 0 || info.channels.indexOf('~#SonicRadioboom') >= 0 || info.channels.indexOf('%#SonicRadioboom') >= 0 || from == 'linaea') {
+                if ((info.channels && info.channels.indexOf('@#SonicRadioboom') >= 0 || info.channels.indexOf('~#SonicRadioboom') >= 0 || info.channels.indexOf('%#SonicRadioboom') >= 0) || from == 'linaea') {
                     db.song[current.response.data.status.currentsong+""] = (message.match(/ (.*)/i)?message.match(/ (.*)/i)[1]:rem);
                     sonia.say((to==config.botName?from:to), 'I know that '+current.response.data.status.currentsong+' is '+db.song[current.response.data.status.currentsong]);
                 } else {
@@ -124,7 +124,7 @@ sonia.addListener('message', function (from, to, message) {
             proc=true;message='';
         } else if (message.match(/^y(?:es, add it|es, it is)/i)) {
             sonia.whois(from, function (info) {
-                if (info.channels.indexOf('@#SonicRadioboom') >= 0 || info.channels.indexOf('~#SonicRadioboom') >= 0 || info.channels.indexOf('%#SonicRadioboom') >= 0 || from == 'linaea') {
+                if ((info.channels && info.channels.indexOf('@#SonicRadioboom') >= 0 || info.channels.indexOf('~#SonicRadioboom') >= 0 || info.channels.indexOf('%#SonicRadioboom') >= 0) || from == 'linaea') {
                     db.song[current.SHOUTCASTSERVER.SONGTITLE+""] = rem;
                     sonia.say((to==config.botName?from:to), 'I know that '+current.SHOUTCASTSERVER.SONGTITLE+' is '+db.song[current.SHOUTCASTSERVER.SONGTITLE]);
                 } else {
@@ -134,7 +134,7 @@ sonia.addListener('message', function (from, to, message) {
             proc=true;message='';
         } else if (message.match(/^sa(?:y| |$)/i) && message.match(/ (.*)/i)) {
             sonia.whois(from, function (info) {
-                if (info.channels.indexOf('@#SonicRadioboom') >= 0 || info.channels.indexOf('~#SonicRadioboom') >= 0 || info.channels.indexOf('%#SonicRadioboom') >= 0 || from == 'linaea') {
+                if ((info.channels && info.channels.indexOf('@#SonicRadioboom') >= 0 || info.channels.indexOf('~#SonicRadioboom') >= 0 || info.channels.indexOf('%#SonicRadioboom') >= 0) || from == 'linaea') {
                     sonia.say(chan, message.match(/^say? (.*)$/i)[1]);
                 } else {
                     sonia.say(from, 'You\'re not an OP, I don\'t trust you ...');
@@ -143,7 +143,7 @@ sonia.addListener('message', function (from, to, message) {
             proc=true;message='';
         } else if (message.match(/^f(?:eel| |$)/i) && message.match(/ (.*)/i)) {
             sonia.whois(from, function (info) {
-                if (info.channels.indexOf('@#SonicRadioboom') >= 0 || info.channels.indexOf('~#SonicRadioboom') >= 0 || info.channels.indexOf('%#SonicRadioboom') >= 0 || from == 'linaea') {
+                if ((info.channels && info.channels.indexOf('@#SonicRadioboom') >= 0 || info.channels.indexOf('~#SonicRadioboom') >= 0 || info.channels.indexOf('%#SonicRadioboom') >= 0) || from == 'linaea') {
                     feeling = message.match(/ (.*)/i)[1];
                 } else {
                     sonia.say(from, 'You\'re not an OP, I don\'t trust you ...');
@@ -152,7 +152,7 @@ sonia.addListener('message', function (from, to, message) {
             proc=true;message='';
         } else if (message.match(/^b(?:an| |$)/i) && message.match(/ (.*)/i)) {
             sonia.whois(from, function (info) {
-                if (info.channels.indexOf('@#SonicRadioboom') >= 0 || info.channels.indexOf('~#SonicRadioboom') >= 0 || info.channels.indexOf('%#SonicRadioboom') >= 0 || from == 'linaea') {
+                if ((info.channels && info.channels.indexOf('@#SonicRadioboom') >= 0 || info.channels.indexOf('~#SonicRadioboom') >= 0 || info.channels.indexOf('%#SonicRadioboom') >= 0) || from == 'linaea') {
                     db.ban[message.match(/ (.*)/i)[1]] = true;
                     sonia.say((to==config.botName?from:to), 'banned: '+message.match(/ (.*)/i)[1]);
                 } else {
@@ -162,7 +162,7 @@ sonia.addListener('message', function (from, to, message) {
             proc=true;message='';
         } else if (message.match(/^v(?:erbose)$/i)) {
             sonia.whois(from, function (info) {
-                if (info.channels.indexOf('@#SonicRadioboom') >= 0 || info.channels.indexOf('~#SonicRadioboom') >= 0 || info.channels.indexOf('%#SonicRadioboom') >= 0 || from == 'linaea') {
+                if ((info.channels && info.channels.indexOf('@#SonicRadioboom') >= 0 || info.channels.indexOf('~#SonicRadioboom') >= 0 || info.channels.indexOf('%#SonicRadioboom') >= 0) || from == 'linaea') {
                     verbose=!verbose;
                     sonia.say((to==config.botName?from:to), 'verbose: '+verbose);
                 } else {
@@ -172,7 +172,7 @@ sonia.addListener('message', function (from, to, message) {
             proc=true;message='';
         } else if (message.match(/^di(?:sable| |$)/i)) {
             sonia.whois(from, function (info) {
-                if (info.channels.indexOf('@#SonicRadioboom') >= 0 || info.channels.indexOf('~#SonicRadioboom') >= 0 || info.channels.indexOf('%#SonicRadioboom') >= 0 || from == 'linaea') {
+                if ((info.channels && info.channels.indexOf('@#SonicRadioboom') >= 0 || info.channels.indexOf('~#SonicRadioboom') >= 0 || info.channels.indexOf('%#SonicRadioboom') >= 0) || from == 'linaea') {
                     disabled=!disabled;
                     sonia.say((to==config.botName?from:to), 'Disabled: '+disabled);
                 } else {
@@ -182,7 +182,7 @@ sonia.addListener('message', function (from, to, message) {
             proc=true;message='';
         } else if (message.match(/^d(?:ump| |$)/i)) {
             sonia.whois(from, function (info) {
-                if (info.channels.indexOf('@#SonicRadioboom') >= 0 || info.channels.indexOf('~#SonicRadioboom') >= 0 || info.channels.indexOf('%#SonicRadioboom') >= 0 || from == 'linaea') {
+                if ((info.channels && info.channels.indexOf('@#SonicRadioboom') >= 0 || info.channels.indexOf('~#SonicRadioboom') >= 0 || info.channels.indexOf('%#SonicRadioboom') >= 0) || from == 'linaea') {
                     sonia.say(from, JSON.stringify(db));
                 } else {
                     sonia.say(from, 'You\'re not an OP, I don\'t trust you ...');
@@ -191,7 +191,7 @@ sonia.addListener('message', function (from, to, message) {
             proc=true;message='';
         } else if (message.match(/^r(?:estore| |$)/i)) {
             sonia.whois(from, function (info) {
-                if (info.channels.indexOf('@#SonicRadioboom') >= 0 || info.channels.indexOf('~#SonicRadioboom') >= 0 || info.channels.indexOf('%#SonicRadioboom') >= 0 || from == 'linaea') {
+                if ((info.channels && info.channels.indexOf('@#SonicRadioboom') >= 0 || info.channels.indexOf('~#SonicRadioboom') >= 0 || info.channels.indexOf('%#SonicRadioboom') >= 0) || from == 'linaea') {
                     db = JSON.parse(message);
                 } else {
                     sonia.say(from, 'You\'re not an OP, I don\'t trust you ...');
@@ -201,7 +201,7 @@ sonia.addListener('message', function (from, to, message) {
         } else if ((message.match(/^w(?:hen).*\{(.*?)\}.*\{(.*?)\}/i)
         && message.match(/^w(?:hen).*\{(.*?)\}.*\{(.*?)\}/i).length == 3)) {
            sonia.whois(from, function (info) {
-                if (info.channels.indexOf('@#SonicRadioboom') >= 0 || info.channels.indexOf('~#SonicRadioboom') >= 0 || info.channels.indexOf('%#SonicRadioboom') >= 0 || from == 'linaea') {
+                if ((info.channels && info.channels.indexOf('@#SonicRadioboom') >= 0 || info.channels.indexOf('~#SonicRadioboom') >= 0 || info.channels.indexOf('%#SonicRadioboom') >= 0) || from == 'linaea') {
                     var match = message.match(/\{(.*?)\}.*\{(.*?)\}/i);
                     if (!message.match("regex") && !message.match('event')) match[1] = RegExp.quote(match[1]);
                     if (message.match(/\}.*say.*\{/i)) db.say[match[1]] = match[2];
