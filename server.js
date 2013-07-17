@@ -26,7 +26,7 @@ var key = 'AIzaSyDPlGenbEo8T-sbeNHx_shvJSRCwOpCESc';
 var chan = '#SonicRadioboom';
 
 
-var current, rem, next, djNotified, grom = ['', ''];
+var current, rem, next, djNotified, grom = ['Sonia', 'Sonia'];
 var feeling = 'like a robot';
 request('http://radio.ponyvillelive.com:2199/api.php?xm=server.getstatus&f=json&a[username]=Linana&a[password]=yoloswag', function (error, response, body) {
         if (!error && response.statusCode == 200) {
