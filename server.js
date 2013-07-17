@@ -295,11 +295,11 @@ sonia.addListener('message', function (from, to, message) {
                         }
                 }}
             });
-            if (!matched && !message.match(/\?$/i)) {
+            if (!matched && !message.match(/\?$/i && begin.length)) {
                 messagey = messagey+' to you too, '+from;
             }
             if (verbose) sonia.say('linaea', matched+' '+messagey);
-            if (!disabled && (from!=config.botName&&!matched)) {
+            if (!disabled && (from!=config.botName&&grom[0]!=config.botName&&!matched)) {
                 sonia.say((to==chan?chan:from), messagey);
                 proc=true;
             }
