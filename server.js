@@ -98,9 +98,10 @@ sonia.addListener('message', function (from, to, message) {
             });
             proc=true;message='';
         } else if (message.match(/^ac(?:tion| |) ?/i) && message.match(/ (.*)$/i)) {
+            var action = message;
             sonia.whois(from, function (info) {
                 if ((info.channels && info.channels.indexOf('@#SonicRadioboom') >= 0 || info.channels.indexOf('~#SonicRadioboom') >= 0 || info.channels.indexOf('%#SonicRadioboom') >= 0) || from == 'linaea') {
-                    sonia.action(chan, message.match(/ (.*)/i)[1]);
+                    sonia.action(chan, action.match(/ (.*)/i)[1]);
                 } else {
                     sonia.action(from, 'You\'re not an OP, I don\'t trust you ...');
                 }
@@ -113,9 +114,10 @@ sonia.addListener('message', function (from, to, message) {
             sonia.action(chan, ' pokes '+message.match(/ (.*)/i)[1]);
             proc=true;message='';
         } else if (message.match(/^a(?:dd| |$)/i)) {
+            var add = message;
             sonia.whois(from, function (info) {
                 if ((info.channels && info.channels.indexOf('@#SonicRadioboom') >= 0 || info.channels.indexOf('~#SonicRadioboom') >= 0 || info.channels.indexOf('%#SonicRadioboom') >= 0) || from == 'linaea') {
-                    db.song[current.response.data.status.currentsong+""] = (message.match(/ (.*)/i)?message.match(/ (.*)/i)[1]:rem);
+                    db.song[current.response.data.status.currentsong+""] = (add.match(/ (.*)/i)?add.match(/ (.*)/i)[1]:rem);
                     sonia.say((to==config.botName?from:to), 'I know that '+current.response.data.status.currentsong+' is '+db.song[current.response.data.status.currentsong]);
                 } else {
                     sonia.say(from, 'You\'re not an OP, I don\'t trust you ...');
@@ -133,28 +135,31 @@ sonia.addListener('message', function (from, to, message) {
             });
             proc=true;message='';
         } else if (message.match(/^sa(?:y| |$)/i) && message.match(/ (.*)/i)) {
+            var say = message;
             sonia.whois(from, function (info) {
                 if ((info.channels && info.channels.indexOf('@#SonicRadioboom') >= 0 || info.channels.indexOf('~#SonicRadioboom') >= 0 || info.channels.indexOf('%#SonicRadioboom') >= 0) || from == 'linaea') {
-                    sonia.say(chan, message.match(/^say? (.*)$/i)[1]);
+                    sonia.say(chan, say.match(/^say? (.*)$/i)[1]);
                 } else {
                     sonia.say(from, 'You\'re not an OP, I don\'t trust you ...');
                 }
             });
             proc=true;message='';
         } else if (message.match(/^f(?:eel| |$)/i) && message.match(/ (.*)/i)) {
+            var feel = message;
             sonia.whois(from, function (info) {
                 if ((info.channels && info.channels.indexOf('@#SonicRadioboom') >= 0 || info.channels.indexOf('~#SonicRadioboom') >= 0 || info.channels.indexOf('%#SonicRadioboom') >= 0) || from == 'linaea') {
-                    feeling = message.match(/ (.*)/i)[1];
+                    feeling = feel.match(/ (.*)/i)[1];
                 } else {
                     sonia.say(from, 'You\'re not an OP, I don\'t trust you ...');
                 }
             });
             proc=true;message='';
         } else if (message.match(/^b(?:an| |$)/i) && message.match(/ (.*)/i)) {
+            var ban = message;
             sonia.whois(from, function (info) {
                 if ((info.channels && info.channels.indexOf('@#SonicRadioboom') >= 0 || info.channels.indexOf('~#SonicRadioboom') >= 0 || info.channels.indexOf('%#SonicRadioboom') >= 0) || from == 'linaea') {
-                    db.ban[message.match(/ (.*)/i)[1]] = true;
-                    sonia.say((to==config.botName?from:to), 'banned: '+message.match(/ (.*)/i)[1]);
+                    db.ban[ban.match(/ (.*)/i)[1]] = true;
+                    sonia.say((to==config.botName?from:to), 'banned: '+ban.match(/ (.*)/i)[1]);
                 } else {
                     sonia.say(from, 'You\'re not an OP, I don\'t trust you ...');
                 }
@@ -190,33 +195,37 @@ sonia.addListener('message', function (from, to, message) {
             });
             proc=true;message='';
         } else if (message.match(/^r(?:estore| |$)/i)) {
+            var restore = message;
             sonia.whois(from, function (info) {
                 if ((info.channels && info.channels.indexOf('@#SonicRadioboom') >= 0 || info.channels.indexOf('~#SonicRadioboom') >= 0 || info.channels.indexOf('%#SonicRadioboom') >= 0) || from == 'linaea') {
-                    db = JSON.parse(message);
+                    db = JSON.parse(restore);
                 } else {
                     sonia.say(from, 'You\'re not an OP, I don\'t trust you ...');
                 }
             });
             proc=true;message='';
-        } else if ((message.match(/^w(?:hen).*\{(.*?)\}.*\{(.*?)\}/i)
+        
+        } else if ((message.match(/^w(?:hen).*\{(.*?)\}.*\{(.*?)\}/i) 
         && message.match(/^w(?:hen).*\{(.*?)\}.*\{(.*?)\}/i).length == 3)) {
-           sonia.whois(from, function (info) {
+            var event = message;
+            sonia.whois(from, function (info) {
                 if ((info.channels && info.channels.indexOf('@#SonicRadioboom') >= 0 || info.channels.indexOf('~#SonicRadioboom') >= 0 || info.channels.indexOf('%#SonicRadioboom') >= 0) || from == 'linaea') {
-                    var match = message.match(/\{(.*?)\}.*\{(.*?)\}/i);
-                    if (!message.match("regex") && !message.match('event')) match[1] = RegExp.quote(match[1]);
-                    if (message.match(/\}.*say.*\{/i)) db.say[match[1]] = match[2];
-                    if (message.match(/\}.*do.*\{/i)) db.act[match[1]] = match[2];
+                    var match = event.match(/\{(.*?)\}.*\{(.*?)\}/i);
+                    if (!event.match("regex") && !event.match('event')) match[1] = RegExp.quote(match[1]);
+                    if (event.match(/\}.*say.*\{/i)) db.say[match[1]] = match[2];
+                    if (event.match(/\}.*do.*\{/i)) db.act[match[1]] = match[2];
                     sonia.say((to==config.botName?from:to), 'Got it!');
                 }});
             proc=true;
         } else if (message.match(/^[dg](?:et ?link|lc| |$)/i)) {
             message = message.replace('get link','getlink');
             var data = db.song[(message.match(/ (.*)/i)?message.match(/ (.*)/i)[1]:+current.response.data.status.currentsong)+""];
+            var dlc = message;
             if (!data) {
                 googleapis.discover('youtube', 'v3').execute(function(err, client) {
                     var params = {
                         maxResults: 1,
-                        q: (message.match(/ (.*)/i)?message.match(/ (.*)/i)[1]:current.response.data.status.currentsong),
+                        q: (dlc.match(/ (.*)/i)?dlc.match(/ (.*)/i)[1]:current.response.data.status.currentsong),
                         part: 'snippet',
                         };
                     if (verbose) console.log('linaea', params.q);
