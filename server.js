@@ -268,7 +268,14 @@ sonia.addListener('message', function (from, to, message) {
         } else if (message.match(/^aw(?:ay)/i)) {
             db.away[from]=[];
             sonia.say((to==config.botName?from:to), 'I\'ll hold your messages until you get back, '+from+'.');
-        } else if (message.match(/^b(?:ack)[^ ]/i)) {
+        } else if (message.match(/^b(?:ack) /i)) {
+            var f = message.match(/ (.*)/)[1];
+                sonia.whois(from, function (info) {
+                if ((info.channels && info.channels.indexOf('@#SonicRadioboom') >= 0 || info.channels.indexOf('~#SonicRadioboom') >= 0 || info.channels.indexOf('%#SonicRadioboom') >= 0) || from == 'linaea') {
+                    delete db.away[f];
+                    sonia.say((to==config.botName?from:to), 'Got it!');
+                }});
+        } else if (message.match(/^b(?:ack)/i)) {
             if (db.away[from]) {
                 sonia.say((to==config.botName?from:to), 'Welcome back! '+from);
                 for (var i = 0; i < db.away[from].length; i++) {
@@ -277,13 +284,6 @@ sonia.addListener('message', function (from, to, message) {
                 sonia.say((to==config.botName?from:to), 'You got '+db.away[from].length+' messages while you were away.');
                 delete db.away[from];
             }
-        } else if (message.match(/^b(?:ack) /i)) {
-            var f = message.match(/ (.*)/)[1];
-                sonia.whois(from, function (info) {
-                if ((info.channels && info.channels.indexOf('@#SonicRadioboom') >= 0 || info.channels.indexOf('~#SonicRadioboom') >= 0 || info.channels.indexOf('%#SonicRadioboom') >= 0) || from == 'linaea') {
-                    delete db.away[f];
-                    sonia.say((to==config.botName?from:to), 'Got it!');
-                }});
         } else if (message.match(/http:\/\/.*.deviantart.com\/art\/.*|http:\/\/fav.me\/.*|http:\/\/sta.sh\/.*|http:\/\/.*.deviantart.com\/.*#\/d.*/)) {
             request('http://backend.deviantart.com/oembed?url='+message.match(/http:[^ ]*/), function (error, response, body) {
                 if (!error && response.statusCode == 200) {
