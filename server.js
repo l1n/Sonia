@@ -434,11 +434,11 @@ function action(from, to, message) {
                 }}
             });
             if (!matched && !message.match(/\?$/i)) {
-                messagey = messagey+' '+from+', too';
+                messagey = messagey+', too';
             }
             if (verbose) sonia.say('linaea', matched+' '+messagey);
             if (!disabled && (from!=config.botName&&!matched)) {
-                sonia.say((to==config.botName?from:to), messagey);
+                sonia.action((to==config.botName?from:to), messagey);
                 proc=true;
             }
         }
