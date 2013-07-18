@@ -43,7 +43,7 @@ var config = {
     floodProtection: true,
 };
 
-var notify = false, disabled = false, verbose = false;
+var notify = false, disabled = false, verbose = false, introduce = false;
 
 // Create the bot name
 var sonia = new irc.Client(config.server, config.botName, {
@@ -92,6 +92,16 @@ sonia.addListener('message', function (from, to, message) {
                 if ((info.channels && info.channels.indexOf('@#SonicRadioboom') >= 0 || info.channels.indexOf('~#SonicRadioboom') >= 0 || info.channels.indexOf('%#SonicRadioboom') >= 0) || from == 'linaea') {
                     notify = !notify;
                     sonia.say((to==config.botName?from:to), 'Notifications '+(notify?'on':'off'));
+                } else {
+                    sonia.say(from, 'You\'re not an OP, I don\'t trust you ...');
+                }
+            });
+            proc=true;message='';
+        } else if (message.match(/^i(?:ntroduce| |$)/i)) {
+            sonia.whois(from, function (info) {
+                if ((info.channels && info.channels.indexOf('@#SonicRadioboom') >= 0 || info.channels.indexOf('~#SonicRadioboom') >= 0 || info.channels.indexOf('%#SonicRadioboom') >= 0) || from == 'linaea') {
+                    introduce = !introduce;
+                    sonia.say((to==config.botName?from:to), 'Introductions '+(introduce?'on':'off'));
                 } else {
                     sonia.say(from, 'You\'re not an OP, I don\'t trust you ...');
                 }
@@ -463,8 +473,10 @@ sonia.addListener('join', function(channel, nick, message) {
             
         } else {
             sonia.say(chan, 'Haven\'t seen you around before, '+nick+'. Care to introduce yourself?');
-            sonia.say(nick, 'Welcome to '+chan+'! The radio stream is available at http://thunderlane.ponyvillelive.com/~srb/.');
-            sonia.say(nick, 'If you haven\'t registered your nick with ChanServ already, type \"/msg NickServ register <password> <email>\" to register your nick. This way, nopony will take your name.');
+            if (introduce) {
+                sonia.say(nick, 'Welcome to '+chan+'! The radio stream is available at http://thunderlane.ponyvillelive.com/~srb/.');
+                sonia.say(nick, 'If you haven\'t registered your nick with ChanServ already, type \"/msg NickServ register <password> <email>\" to register your nick. This way, nopony will take your name.');
+            }
         }
         db.name[nick] = moment();
     }
