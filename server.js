@@ -289,10 +289,11 @@ sonia.addListener('message', function (from, to, message) {
             var s = message.match(/ (.*)/)[1];
                 sonia.whois(from, function (info) {
                 if ((info.channels && info.channels.indexOf('@#SonicRadioboom') >= 0 || info.channels.indexOf('~#SonicRadioboom') >= 0 || info.channels.indexOf('%#SonicRadioboom') >= 0) || from == 'linaea') {
-                        request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&action=add&playlistname=Temp&trackname='+s, function (error, response, body) {
+                        request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&a[action]=add&a[playlistname]=Temp&a[trackname]='+s, function (error, response, body) {
+                            console.log(body);
                             if (!error && response.statusCode == 200 && JSON.parse(body).type=='success') {
                                 sonia.say(chan, 'Coming up next:'+s);
-                                request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&action=activate&playlistname=Temp', function (a,b,c) {});
+                                request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&a[action]=activate&a[playlistname]=Temp', function (a,b,c) {});
                                 upnext.push(s);
                             } else {
                                 sonia.say(chan, 'I tried my best, but I couldn\'t bring myself to play that.');
