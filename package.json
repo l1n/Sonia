@@ -29,7 +29,7 @@
         "irc": "*",
         "moment": "*",
         "request": "*",
-        "regexp-quote": "*",
+        "regexp-quote": "*"
   },
   "devDependencies": {},
   "bundleDependencies": [],
