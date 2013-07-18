@@ -1,6 +1,6 @@
 {
   "name": "Sonia",
-  "version": "1.3.2",
+  "version": "1.5.2",
   "description": "Sonia-bot",
   "keywords": [
     "Sonia",
@@ -29,7 +29,7 @@
         "irc": "*",
         "moment": "*",
         "request": "*",
-        "regexp-quote": "*"
+        "regexp-quote": "*",
   },
   "devDependencies": {},
   "bundleDependencies": [],

@@ -25,8 +25,7 @@ if (Object.keys(db.name).indexOf('linaea') <= 0) {
 var key = 'AIzaSyDPlGenbEo8T-sbeNHx_shvJSRCwOpCESc';
 var chan = '#SonicRadioboom';
 
-
-var current, rem, next, djNotified, grom = ['Sonia', 'Sonia'];
+var current, rem, next, djNotified, grom = ['Sonia', 'Sonia'], upnext = [];
 var feeling = 'like a robot';
 request('http://radio.ponyvillelive.com:2199/api.php?xm=server.getstatus&f=json&a[username]=Linana&a[password]=yoloswag', function (error, response, body) {
         if (!error && response.statusCode == 200) {
@@ -97,7 +96,7 @@ sonia.addListener('message', function (from, to, message) {
                 }
             });
             proc=true;message='';
-        } else if (message.match(/^i(?:ntroduce| |$)/i)) {
+        } else if (message.match(/^i(?:ntroduce|$)/i)) {
             sonia.whois(from, function (info) {
                 if ((info.channels && info.channels.indexOf('@#SonicRadioboom') >= 0 || info.channels.indexOf('~#SonicRadioboom') >= 0 || info.channels.indexOf('%#SonicRadioboom') >= 0) || from == 'linaea') {
                     introduce = !introduce;
@@ -285,6 +284,25 @@ sonia.addListener('message', function (from, to, message) {
                     delete db.away[f];
                     sonia.say((to==config.botName?from:to), 'Got it!');
                 }});
+        } else if (message.match(/^PLAY /i)) {
+            if (!s) {
+            var s = message.match(/ (.*)/)[1];
+                sonia.whois(from, function (info) {
+                if ((info.channels && info.channels.indexOf('@#SonicRadioboom') >= 0 || info.channels.indexOf('~#SonicRadioboom') >= 0 || info.channels.indexOf('%#SonicRadioboom') >= 0) || from == 'linaea') {
+                        request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&action=add&playlistname=Temp&trackname='+s, function (error, response, body) {
+                            if (!error && response.statusCode == 200 && JSON.parse(body).type=='success') {
+                                sonia.say(chan, 'Coming up next:'+s);
+                                request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&action=activate&playlistname=Temp', function (a,b,c) {});
+                                upnext.push(s);
+                            } else {
+                                sonia.say(chan, 'I tried my best, but I couldn\'t bring myself to play that.');
+                            }
+                        });
+                } else {
+                    sonia.say(((to==config.botName)?to:from), 'PLAY is only available to OPs in beta.');
+                }
+            });
+            }
         } else if (message.match(/^b(?:ack)/i)) {
             if (db.away[from]) {
                 sonia.say((to==config.botName?from:to), 'Welcome back! '+from);
@@ -381,6 +399,9 @@ setInterval(function() {
                 if (current && (JSON.stringify(current.response.data.status.currentsong) != JSON.stringify(body.response.data.status.currentsong))) {
                     if (notify) {
                         sonia.say(chan, 'New Song: '+body.response.data.status.currentsong);
+                    }
+                    if (upnext.length != 0 && body.response.data.status.currentsong==upnext[upnext.length-1]) {
+                        request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&action=remove&playlistname=Temp&trackname='+upnext.pop(), function (a,b,c) {});
                     }
                     if (db.say[body.response.data.status.currentsong+'|event=song']) {
                         sonia.say(chan, db.say[body.response.data.status.currentsong+'|event=song']);
