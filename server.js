@@ -298,7 +298,7 @@ sonia.addListener('message', function (from, to, message) {
         } else if (message.match(/^request /i)) {
             if (!s) {
             var s = message.match(/ (.*)/)[1];
-            fs.readFile("db.txt", function(err, cont) {if (err) throw err;s=(cont+'').match(new RegExp('^.*'+s+'.*$'));
+            fs.readFile("db.txt", function(err, cont) {if (err) throw err;s=(cont+'').match(new RegExp('^.*('+s+').*$'))[0];
                 request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&a[action]=add&a[playlistname]=Temp&a[trackname]='+s, function (error, response, body) {
                     if (verbose) console.log(body);
                     if (!error && response.statusCode == 200 && JSON.parse(body).type=='success') {
@@ -418,7 +418,7 @@ setInterval(function() {
                     if (notify) {
                         sonia.say(chan, 'New Song: '+body.response.data.status.currentsong);
                     }
-                    if (!moment(next.start.dateTime).fromNow().match("ago") && upnext.length !== 0 || body.response.data.status.currentsong.match(upnext[upnext.length-1])) {
+                    if (!moment(next.start.dateTime).fromNow().match("ago") && upnext.length !== 0 || body.response.data.status.currentsong.match(lastplayed[lastplayed.length-2])) {
                         request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&action=remove&playlistname=Temp&trackpath='+lastplayed.push(upnext.pop())+'.mpe', function (a,b,c) {
                         });
                     }

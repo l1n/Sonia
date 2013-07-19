@@ -254,3 +254,7 @@
 {"ts":1374237401847,"patch":[[{"diffs":[[0,"y that.');\r\n"],[1,"                        sonia.say('linaea', 'Error adding '+s+' to the playlist, backtrace: '+body)\r\n"],[0,"            "]],"start1":18627,"start2":18627,"length1":24,"length2":125}]],"length":31982,"saved":false}
 {"ts":1374237404280,"patch":[[{"diffs":[[0," '+body)"],[1,";"],[0,"\r\n      "]],"start1":18730,"start2":18730,"length1":16,"length2":17}]],"length":31983,"saved":false}
 {"ts":1374237415549,"patch":[[{"diffs":[[0,"                "],[1," if (verbose)"],[0," sonia.say('lina"]],"start1":18646,"start2":18646,"length1":32,"length2":45}]],"length":31996,"saved":false}
+{"ts":1374237693757,"patch":[[{"diffs":[[0,"+'.*$'))"],[1,"[0]"],[0,";\r\n     "]],"start1":17802,"start2":17802,"length1":16,"length2":19}]],"length":31999,"saved":false}
+{"ts":1374237703684,"patch":[[{"diffs":[[0,"Exp('^.*"],[1,"("],[0,"'+s+'"],[1,")"],[0,".*$'))[0"]],"start1":17791,"start2":17791,"length1":21,"length2":23}]],"length":32001,"saved":false}
+{"ts":1374237777157,"patch":[[{"diffs":[[0,"g.match("],[-1,"upnext[upnext"],[1,"lasplayed[lastplayed"],[0,".length-"],[-1,"1"],[1,"2"],[0,"])) {\r\n "]],"start1":24653,"start2":24653,"length1":38,"length2":45}]],"length":32008,"saved":false}
+{"ts":1374237779674,"patch":[[{"diffs":[[0,"atch(las"],[1,"t"],[0,"played[l"]],"start1":24656,"start2":24656,"length1":16,"length2":17}]],"length":32009,"saved":false}
