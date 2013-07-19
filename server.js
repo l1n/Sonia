@@ -25,7 +25,7 @@ if (Object.keys(db.name).indexOf('linaea') <= 0) {
 var key = 'AIzaSyDPlGenbEo8T-sbeNHx_shvJSRCwOpCESc';
 var chan = '#SonicRadioboom';
 
-var current, rem, next, djNotified, grom = ['Sonia', 'Sonia'], upnext = [];
+var current, rem, next, djNotified, grom = ['Sonia', 'Sonia'], upnext = [], lastplayed = [];
 var feeling = 'like a robot';
 request('http://radio.ponyvillelive.com:2199/api.php?xm=server.getstatus&f=json&a[username]=Linana&a[password]=yoloswag', function (error, response, body) {
         if (!error && response.statusCode == 200) {
@@ -42,7 +42,7 @@ var config = {
     floodProtection: true,
 };
 
-var notify = false, disabled = false, verbose = true, introduce = false;
+var notify = false, disabled = false, verbose = false, introduce = false;
 
 // Create the bot name
 var sonia = new irc.Client(config.server, config.botName, {
@@ -276,7 +276,7 @@ sonia.addListener('message', function (from, to, message) {
               sonia.say((to==config.botName?from:to), 'I feel smarter already!');
             });
             proc=true;message='';
-        } else if (message.match(/^d(?:efine) (.+)/i)) {
+        } else if (message.match(/^d(?:efine)? (.+)/i)) {
             request('http://en.wikipedia.org/w/api.php?action=query&prop=extracts&explaintext=true&exsentences=3&redirects=true&format=json&titles='+message.match(/ (.*)/)[1], function (error, response, body) {
             if (!error && response.statusCode == 200) {
                 body = JSON.parse(body);
@@ -285,7 +285,7 @@ sonia.addListener('message', function (from, to, message) {
             }
             });
             proc=true;message='';
-        } else if (message.match(/^aw(?:ay)/i)) {
+        } else if (message.match(/^aw(?:ay)?/i)) {
             db.away[from]=[];
             sonia.say((to==config.botName?from:to), 'I\'ll hold your messages until you get back, '+from+'.');
         } else if (message.match(/^b(?:ack) /i)) {
@@ -316,7 +316,7 @@ sonia.addListener('message', function (from, to, message) {
                     request('http://radio.ponyvillelive.com:2199/api.php?xm=server.nextsong&f=json&a[username]=Linana&a[password]=yoloswag', function (a,b,c) {});
                     sonia.say((to==config.botName?from:to), 'Skipped that one.');
                 }});
-        } else if (message.match(/^b(?:ack)/i)) {
+        } else if (message.match(/^b(?:ack)?/i)) {
             if (db.away[from]) {
                 sonia.say((to==config.botName?from:to), 'Welcome back! '+from);
                 for (var i = 0; i < db.away[from].length; i++) {
@@ -326,7 +326,9 @@ sonia.addListener('message', function (from, to, message) {
                 delete db.away[from];
             }
         } else if (message.match(/^up(?:next)/i)) {
-            sonia.say((to==config.botName?from:to), "Up next: "+JSON.stringify(upnext));
+            sonia.say((to==config.botName?from:to), "Up next: "+upnext[upnext.length-1]);
+        } else if (message.match(/^la(?:st)? ?(played)/i)) {
+            sonia.say((to==config.botName?from:to), "Last Played: "+lastplayed[lastplayed.length-1]);
         } else if (message.match(/http:\/\/.*.deviantart.com\/art\/.*|http:\/\/fav.me\/.*|http:\/\/sta.sh\/.*|http:\/\/.*.deviantart.com\/.*#\/d.*/)) {
             request('http://backend.deviantart.com/oembed?url='+message.match(/http:[^ ]*/), function (error, response, body) {
                 if (!error && response.statusCode == 200) {
@@ -416,7 +418,7 @@ setInterval(function() {
                         sonia.say(chan, 'New Song: '+body.response.data.status.currentsong);
                     }
                     if (!moment(next.start.dateTime).fromNow().match("ago") && upnext.length !== 0 || body.response.data.status.currentsong.match(upnext[upnext.length-1])) {
-                        request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&action=remove&playlistname=Temp&trackpath='+upnext.pop(), function (a,b,c) {
+                        request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&action=remove&playlistname=Temp&trackpath='+lastplayed.push(upnext.pop()), function (a,b,c) {
                         });
                     }
                     if (upnext.length===0)
@@ -426,8 +428,9 @@ setInterval(function() {
                             if (verbose) sonia.say('linaea', line+' up next!');
                             line = line+'.mp3';
                             request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&a[action]=add&a[playlistname]=Temp&a[trackpath]='
-                            +line, function (a,b,c) {})}); // TODO Change the song picker to be non-random
-request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&a[action]=deactivate&a[playlistname]=Temp', function (a,b,c) {request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&a[action]=activate&a[playlistname]=Temp', function (a,b,c) {});});                    if (db.say[body.response.data.status.currentsong+'|event=song']) {
+                            +line, function (a,b,c) {if (JSON.parse(body).type!="successs") {sonia.say('linaea', "There was an error adding '"+line+"' to the playlist. Debugging data: "+body)} })}); // TODO Change the song picker to be non-random
+request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&a[action]=deactivate&a[playlistname]=Temp', function (a,b,c) {request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&a[action]=activate&a[playlistname]=Temp', function (a,b,c) {});});
+                    if (db.say[body.response.data.status.currentsong+'|event=song']) {
                         sonia.say(chan, db.say[body.response.data.status.currentsong+'|event=song']);
                     }
                 }
