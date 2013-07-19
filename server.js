@@ -26,25 +26,34 @@ var key = 'AIzaSyDPlGenbEo8T-sbeNHx_shvJSRCwOpCESc';
 var chan = '#SonicRadioboom';
 
 var current, rem, next, djNotified, grom = ['Sonia', 'Sonia'], upnext = [], lastplayed = [];
-var feeling = 'like a robot';
+
+// Create the configuration for node-irc
+var config = {
+    channels: [chan, '#SRBTests'],
+    server: "irc.canternet.org",
+    // botName: "SoniaBeta",
+    botName: "Sonia",
+    floodProtection: true
+};
+
+// Create settings stuff
+var settings = {
+    notify: false,
+    disabled: false,
+    verbose: false,
+    introduce: false,
+    autodj: false,
+    feeling: 'like a robot'
+};
+
+if (settings.autodj)
 request('http://radio.ponyvillelive.com:2199/api.php?xm=server.getstatus&f=json&a[username]=Linana&a[password]=yoloswag', function (error, response, body) {
         if (!error && response.statusCode == 200) {
             body = JSON.parse(body);
             current = body;
-        if (verbose) console.log('linaea', body);}});
+        if (settings.verbose) console.log('linaea', body);}});
 
-// Create the configuration
-var config = {
-    channels: [chan, '#SRBTests'],
-    server: "irc.canternet.org",
-	// botName: "SoniaBeta",
-    botName: "Sonia",
-    floodProtection: true,
-};
-
-var notify = false, disabled = false, verbose = false, introduce = false;
-
-// Create the bot name
+// Create the bot
 var sonia = new irc.Client(config.server, config.botName, {
     channels: config.channels
 });
@@ -55,7 +64,7 @@ sonia.addListener('registered', function() {setTimeout(function(){
                         getRandomLine('db.txt', function (err, line) {
                             line=line.trim();
                             upnext.push(line);
-                            if (verbose) sonia.say('linaea', line+' up next!');
+                            if (settings.verbose) sonia.say('linaea', line+' up next!');
                             request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&a[action]=add&a[playlistname]=Temp&a[trackpname]='
                             +line, function (a,b,c) {})}); // TODO Change the song picker to be non-random
                             request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&a[action]=deactivate&a[playlistname]=Temp', function (a,b,c) {request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&a[action]=activate&a[playlistname]=Temp', function (a,b,c) {});});
@@ -74,7 +83,7 @@ sonia.addListener('message', function (from, to, message) {
     // if (message.match(/bot/i)) sonia.say(from, "I heard that!");
     if ((message.match(/^!|^Sonia?[:,]?/i)||message.match(/,? Sonia?[.! ?]*?$/i)
     || grom[0]==config.botName || to==config.botName) && from!=config.botName) {
-        if (verbose) console.log('linaea', from + ' => ' + to + ': ' + message);
+        if (settings.verbose) console.log('linaea', from + ' => ' + to + ': ' + message);
         // sonia.action(chan, 'Pokes '+from);
         var begin = message.match(/^(Sonia?[:,]? |!)/i)
         ?message.match(/^(Sonia?[:,]? |!)/i)[1]
@@ -96,21 +105,12 @@ sonia.addListener('message', function (from, to, message) {
             sonia.say(chan,
             'Commands: [s]ong, [l]isteners, [lo]gin, [help|command], @[no]tify, [h]ug, [p]oke, @[a]dd, @[s]ay, [w]hen, [g]etdata, [n]ext, @[no]tify');
             proc=true;message='';
-        } else if (message.match(/^no(?:tify| |$)/i)) {
+        } else if (message.match(/^set /i)) {
+            var setting = message.match(/ (.*)/i);
             sonia.whois(from, function (info) {
                 if ((info.channels && info.channels.indexOf('@#SonicRadioboom') >= 0 || info.channels.indexOf('~#SonicRadioboom') >= 0 || info.channels.indexOf('%#SonicRadioboom') >= 0) || from == 'linaea') {
-                    notify = !notify;
-                    sonia.say((to==config.botName?from:to), 'Notifications '+(notify?'on':'off'));
-                } else {
-                    sonia.say(from, 'You\'re not an OP, I don\'t trust you ...');
-                }
-            });
-            proc=true;message='';
-        } else if (message.match(/^i(?:ntroduce|$)/i)) {
-            sonia.whois(from, function (info) {
-                if ((info.channels && info.channels.indexOf('@#SonicRadioboom') >= 0 || info.channels.indexOf('~#SonicRadioboom') >= 0 || info.channels.indexOf('%#SonicRadioboom') >= 0) || from == 'linaea') {
-                    introduce = !introduce;
-                    sonia.say((to==config.botName?from:to), 'Introductions '+(introduce?'on':'off'));
+                    settings[setting] = !settings[setting];
+                    sonia.say((to==config.botName?from:to), setting+' '+(settings[setting]?'on':'off'));
                 } else {
                     sonia.say(from, 'You\'re not an OP, I don\'t trust you ...');
                 }
@@ -163,42 +163,12 @@ sonia.addListener('message', function (from, to, message) {
                 }
             });
             proc=true;message='';
-        } else if (message.match(/^f(?:eel| |$)/i) && message.match(/ (.*)/i)) {
-            var feel = message;
-            sonia.whois(from, function (info) {
-                if ((info.channels && info.channels.indexOf('@#SonicRadioboom') >= 0 || info.channels.indexOf('~#SonicRadioboom') >= 0 || info.channels.indexOf('%#SonicRadioboom') >= 0) || from == 'linaea') {
-                    feeling = feel.match(/ (.*)/i)[1];
-                } else {
-                    sonia.say(from, 'You\'re not an OP, I don\'t trust you ...');
-                }
-            });
-            proc=true;message='';
         } else if (message.match(/^b(?:an| |$)/i) && message.match(/ (.*)/i)) {
             var ban = message;
             sonia.whois(from, function (info) {
                 if ((info.channels && info.channels.indexOf('@#SonicRadioboom') >= 0 || info.channels.indexOf('~#SonicRadioboom') >= 0 || info.channels.indexOf('%#SonicRadioboom') >= 0) || from == 'linaea') {
                     db.ban[ban.match(/ (.*)/i)[1]] = true;
                     sonia.say((to==config.botName?from:to), 'banned: '+ban.match(/ (.*)/i)[1]);
-                } else {
-                    sonia.say(from, 'You\'re not an OP, I don\'t trust you ...');
-                }
-            });
-            proc=true;message='';
-        } else if (message.match(/^v(?:erbose)$/i)) {
-            sonia.whois(from, function (info) {
-                if ((info.channels && info.channels.indexOf('@#SonicRadioboom') >= 0 || info.channels.indexOf('~#SonicRadioboom') >= 0 || info.channels.indexOf('%#SonicRadioboom') >= 0) || from == 'linaea') {
-                    verbose=!verbose;
-                    sonia.say((to==config.botName?from:to), 'verbose: '+verbose);
-                } else {
-                    sonia.say(from, 'You\'re not an OP, I don\'t trust you ...');
-                }
-            });
-            proc=true;message='';
-        } else if (message.match(/^di(?:sable| |$)/i)) {
-            sonia.whois(from, function (info) {
-                if ((info.channels && info.channels.indexOf('@#SonicRadioboom') >= 0 || info.channels.indexOf('~#SonicRadioboom') >= 0 || info.channels.indexOf('%#SonicRadioboom') >= 0) || from == 'linaea') {
-                    disabled=!disabled;
-                    sonia.say((to==config.botName?from:to), 'Disabled: '+disabled);
                 } else {
                     sonia.say(from, 'You\'re not an OP, I don\'t trust you ...');
                 }
@@ -247,7 +217,7 @@ sonia.addListener('message', function (from, to, message) {
                         q: (dlc.match(/ (.*)/i)?dlc.match(/ (.*)/i)[1]:current.response.data.status.currentsong),
                         part: 'snippet',
                         };
-                    if (verbose) console.log('linaea', params.q);
+                    if (settings.verbose) console.log('linaea', params.q);
                     client.youtube.search.list(params).withApiKey(key).execute(function (err, response) {
                         response.items.forEach(function (item,a,b) {
                             sonia.say(chan, from+': Does this help? '+current.response.data.status.currentsong+' might be http://www.youtube.com/watch?v='+item.id.videoId);
@@ -297,16 +267,21 @@ sonia.addListener('message', function (from, to, message) {
         } else if (message.match(/^request /i)) {
             if (!s) {
             var s = message.match(/ (.*)/)[1];
-            fs.readFile("db.txt", function(err, cont) {if (err) throw err;s=(cont+'').match(new RegExp('^.*('+s+').*$'))[0];
+            fs.readFile("db.txt", function(err, cont) {if (err) throw err;
+            console.log(JSON.stringify(s));
+            var r = new RegExp('^.*('+s+').*$', "g");
+            console.log(r.toString());
+            // s=cont.toString().match(r);
+            if (settings.verbose) console.log(s);
                 request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&a[action]=add&a[playlistname]=Temp&a[trackname]='+s, function (error, response, body) {
-                    if (verbose) console.log(body);
+                    if (settings.verbose) console.log(body);
                     if (!error && response.statusCode == 200 && JSON.parse(body).type=='success') {
                         sonia.say(chan, 'Coming up next: '+s);
-                        request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&a[action]=activate&a[playlistname]=Temp', function (a,b,c) {});
+                        request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&a[action]=activate&a[playlistname]=Temp', function (a,b,c) {if (settings.verbose) console.log(c);});
                         upnext.push(s);
                     } else {
                         sonia.say(chan, 'I tried my best, but I couldn\'t bring myself to play that.');
-                        if (verbose) sonia.say('linaea', 'Error adding '+s+' to the playlist, backtrace: '+body);
+                        if (settings.verbose) sonia.say('linaea', 'Error adding '+s+' to the playlist, backtrace: '+body);
                     }
                 });});
             }
@@ -337,7 +312,7 @@ sonia.addListener('message', function (from, to, message) {
                 }
             });
         }
-        if (verbose) console.log(message);
+        if (settings.verbose) console.log(message);
         if (begin!='!'&&message&&!(message.match(/^w(?:hen).*\{(.*?)\}.*\{(.*?)\}/i) && message.match(/^w(?:hen).*\{(.*?)\}.*\{(.*?)\}/i).length == 3)) {
             var matched = false;
             var messagey = message;
@@ -347,18 +322,20 @@ sonia.addListener('message', function (from, to, message) {
                         matched = true;
                         if (db.say[item]) {
                             messagey = db.say[item];
-                            messagey = messagey.replace('varFrom', from);
-                            messagey = messagey.replace('varFeeling', feeling);
-                            if (!disabled) {
+                            while (messagey.match('<[^ ]*?>')) {
+                                messagey.replace(messagey.match('<[^ ]*?>')[0], settings[messagey.match('<[^ ]*?>')[0]]);
+                            }
+                            if (!settings.disabled) {
                                 sonia.say((to==config.botName?from:to), messagey);
                                 proc=true;
                             }
                         }
                         if (db.act[item]) {
                             messagey = db.act[item];
-                            messagey = messagey.replace('varFrom', from);
-                            messagey = messagey.replace('varFeeling', feeling);
-                            if (!disabled) {
+                            while (messagey.match('<[^ ]*?>')) {
+                                messagey.replace(messagey.match('<[^ ]*?>')[0], settings[messagey.match('<[^ ]*?>')[0]]);
+                            }
+                            if (!settings.disabled) {
                                 sonia.action((to==config.botName?from:to), messagey);
                                 proc=true;
                             }
@@ -368,8 +345,8 @@ sonia.addListener('message', function (from, to, message) {
             if (!matched && !message.match(/\?$/i && begin.length)) {
                 messagey = messagey+' to you too, '+from;
             }
-            if (verbose) sonia.say('linaea', matched+' '+messagey);
-            if (!disabled && (from!=config.botName&&grom[0]!=config.botName&&!matched)) {
+            if (settings.verbose) sonia.say('linaea', matched+' '+messagey);
+            if (!settings.disabled && (from!=config.botName&&grom[0]!=config.botName&&!matched)) {
                 sonia.say((to==config.botName?from:to), messagey);
                 proc=true;
             }
@@ -414,20 +391,20 @@ setInterval(function() {
                 body = JSON.parse(body);
                 // if (verbose) console.log('linaea', body);
                 if (current && (JSON.stringify(current.response.data.status.currentsong) != JSON.stringify(body.response.data.status.currentsong))) {
-                    if (notify) {
+                    if (settings.notify) {
                         sonia.say(chan, 'New Song: '+body.response.data.status.currentsong);
                     }
                     if (!moment(next.start.dateTime).fromNow().match("ago") && upnext.length !== 0 || body.response.data.status.currentsong.match(lastplayed[lastplayed.length-2])) {
                         request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&action=remove&playlistname=Temp&trackname='+lastplayed.push(upnext.pop()), function (a,b,c) {
                         });
                     }
-                    if (upnext.length===0)
+                    if (upnext.length===0 && settings.autodj)
                         getRandomLine('db.txt', function (err, line) {
                             line=line.trim();
                             upnext.push(line);
-                            if (verbose) sonia.say('linaea', line+' up next!');
+                            if (settings.verbose) sonia.say('linaea', line+' up next!');
                             request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&a[action]=add&a[playlistname]=Temp&a[trackname]='
-                            +line, function (a,b,c) {if (JSON.parse(body).type!="successs") {sonia.say('linaea', "There was an error adding '"+line+"' to the playlist. Debugging data: "+body);} })}); // TODO Change the song picker to be non-random
+                            +line, function (a,b,c) {if (JSON.parse(c).type!="successs") {sonia.say('linaea', "There was an error adding '"+line+"' to the playlist. Debugging data: "+body);} })}); // TODO Change the song picker to be non-random
 request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&a[action]=deactivate&a[playlistname]=Temp', function (a,b,c) {request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&a[action]=activate&a[playlistname]=Temp', function (a,b,c) {});});
                     if (db.say[body.response.data.status.currentsong+'|event=song']) {
                         sonia.say(chan, db.say[body.response.data.status.currentsong+'|event=song']);
@@ -475,23 +452,25 @@ function action(from, to, message) {
             var matched = false;
             var messagey = message;
             Object.keys(db.say).forEach(function (item, a, b) {
-                if (message.match(new RegExp(item, "i")) && (db.say[item] || db.act[item])) {
+                if (message.match(new RegExp(item+'\\|event=action', "i")) && (db.say[item] || db.act[item])) {
                     if (!item.match('event')) {
                         matched = true;
                         if (db.say[item]) {
                             messagey = db.say[item];
-                            messagey = messagey.replace('varFrom', from);
-                            messagey = messagey.replace('varFeeling', feeling);
-                            if (!disabled) {
+                            while (messagey.match('<[^ ]*?>')) {
+                                messagey.replace(messagey.match('<[^ ]*?>')[0], settings[messagey.match('<[^ ]*?>')[0]]);
+                            }
+                            if (!settings.disabled) {
                                 sonia.say((to==config.botName?from:to), messagey);
                                 proc=true;
                             }
                         }
                         if (db.act[item]) {
                             messagey = db.act[item];
-                            messagey = messagey.replace('varFrom', from);
-                            messagey = messagey.replace('varFeeling', feeling);
-                            if (!disabled) {
+                            while (messagey.match('<[^ ]*?>')) {
+                                messagey.replace(messagey.match('<[^ ]*?>')[0], settings[messagey.match('<[^ ]*?>')[0]]);
+                            }
+                            if (!settings.disabled) {
                                 sonia.action((to==config.botName?from:to), messagey);
                                 proc=true;
                             }
@@ -501,13 +480,13 @@ function action(from, to, message) {
             if (!matched && !message.match(/\?$/i)) {
                 messagey = messagey+', too';
             }
-            if (verbose) sonia.say('linaea', matched+' '+messagey);
-            if (!disabled && (from!=config.botName&&!matched)) {
+            if (settings.verbose) sonia.say('linaea', matched+' '+messagey);
+            if (!settings.disabled && (from!=config.botName&&!matched)) {
                 sonia.action((to==config.botName?from:to), messagey);
                 proc=true;
             }
         }
-        if (verbose) sonia.say('linaea', "Saw "+from+" do "+message+" to "+to);
+        if (settings.verbose) sonia.say('linaea', "Saw "+from+" do "+message+" to "+to);
     }
     grom[1]=grom[0];
     grom[0]=from;
@@ -538,7 +517,7 @@ sonia.addListener('join', function(channel, nick, message) {
             
         } else {
             sonia.say(chan, 'Haven\'t seen you around before, '+nick+'. Care to introduce yourself?');
-            if (introduce) {
+            if (settings.introduce) {
                 sonia.say(nick, 'Welcome to '+chan+'! The radio stream is available at http://thunderlane.ponyvillelive.com/~srb/.');
                 sonia.say(nick, 'If you haven\'t registered your nick with ChanServ already, type \"/msg NickServ register <password> <email>\" to register your nick. This way, nopony will take your name.');
             }
