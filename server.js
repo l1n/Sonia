@@ -56,8 +56,7 @@ sonia.addListener('registered', function() {setTimeout(function(){
                             line=line.trim();
                             upnext.push(line);
                             if (verbose) sonia.say('linaea', line+' up next!');
-                            line = line+'.mp3';
-                            request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&a[action]=add&a[playlistname]=Temp&a[trackpath]='
+                            request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&a[action]=add&a[playlistname]=Temp&a[trackpname]='
                             +line, function (a,b,c) {})}); // TODO Change the song picker to be non-random
                             request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&a[action]=deactivate&a[playlistname]=Temp', function (a,b,c) {request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&a[action]=activate&a[playlistname]=Temp', function (a,b,c) {});});
                         },5000);});
@@ -419,7 +418,7 @@ setInterval(function() {
                         sonia.say(chan, 'New Song: '+body.response.data.status.currentsong);
                     }
                     if (!moment(next.start.dateTime).fromNow().match("ago") && upnext.length !== 0 || body.response.data.status.currentsong.match(lastplayed[lastplayed.length-2])) {
-                        request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&action=remove&playlistname=Temp&trackpath='+lastplayed.push(upnext.pop())+'.mpe', function (a,b,c) {
+                        request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&action=remove&playlistname=Temp&trackname='+lastplayed.push(upnext.pop()), function (a,b,c) {
                         });
                     }
                     if (upnext.length===0)
@@ -427,8 +426,7 @@ setInterval(function() {
                             line=line.trim();
                             upnext.push(line);
                             if (verbose) sonia.say('linaea', line+' up next!');
-                            line = line+'.mp3';
-                            request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&a[action]=add&a[playlistname]=Temp&a[trackpath]='
+                            request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&a[action]=add&a[playlistname]=Temp&a[trackname]='
                             +line, function (a,b,c) {if (JSON.parse(body).type!="successs") {sonia.say('linaea', "There was an error adding '"+line+"' to the playlist. Debugging data: "+body);} })}); // TODO Change the song picker to be non-random
 request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&a[action]=deactivate&a[playlistname]=Temp', function (a,b,c) {request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&a[action]=activate&a[playlistname]=Temp', function (a,b,c) {});});
                     if (db.say[body.response.data.status.currentsong+'|event=song']) {
