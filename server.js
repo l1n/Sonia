@@ -284,25 +284,20 @@ sonia.addListener('message', function (from, to, message) {
                     delete db.away[f];
                     sonia.say((to==config.botName?from:to), 'Got it!');
                 }});
-        } else if (message.match(/^PLAY /i)) {
+        } else if (message.match(/^request /i)) {
             if (!s) {
             var s = message.match(/ (.*)/)[1];
-                sonia.whois(from, function (info) {
-                if ((info.channels && info.channels.indexOf('@#SonicRadioboom') >= 0 || info.channels.indexOf('~#SonicRadioboom') >= 0 || info.channels.indexOf('%#SonicRadioboom') >= 0) || from == 'linaea') {
-                        request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&a[action]=add&a[playlistname]=Temp&a[trackname]='+s, function (error, response, body) {
-                            console.log(body);
-                            if (!error && response.statusCode == 200 && JSON.parse(body).type=='success') {
-                                sonia.say(chan, 'Coming up next: '+s);
-                                request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&a[action]=activate&a[playlistname]=Temp', function (a,b,c) {});
-                                upnext.push(s);
-                            } else {
-                                sonia.say(chan, 'I tried my best, but I couldn\'t bring myself to play that.');
-                            }
-                        });
-                } else {
-                    sonia.say(((to==config.botName)?to:from), 'PLAY is only available to OPs in beta.');
-                }
-            });
+            fs.readFileSync("db.txt", function(err, cont) {if (err) throw err;s=cont.match(RegExp.quote(s));});
+                request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&a[action]=add&a[playlistname]=Temp&a[trackname]='+s, function (error, response, body) {
+                    if (verbose) console.log(body);
+                    if (!error && response.statusCode == 200 && JSON.parse(body).type=='success') {
+                        sonia.say(chan, 'Coming up next: '+s);
+                        request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&a[action]=activate&a[playlistname]=Temp', function (a,b,c) {});
+                        upnext.push(s);
+                    } else {
+                        sonia.say(chan, 'I tried my best, but I couldn\'t bring myself to play that.');
+                    }
+                });
             }
         } else if (message.match(/^SKIP/i)) {
                 sonia.whois(from, function (info) {
@@ -407,8 +402,11 @@ setInterval(function() {
                     if (notify) {
                         sonia.say(chan, 'New Song: '+body.response.data.status.currentsong);
                     }
-                    if (upnext.length != 0 && body.response.data.status.currentsong==upnext[upnext.length-1]) {
-                        request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&action=remove&playlistname=Temp&trackname='+upnext.pop(), function (a,b,c) {});
+                    if (!moment(next.start.dateTime).fromNow().match("ago") && upnext.length !== 0 && body.response.data.status.currentsong==upnext[upnext.length-1]) {
+                        request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&action=remove&playlistname=Temp&trackname='+upnext.pop(), function (a,b,c) {
+                            if (upnext.length===0)
+                                getRandomLine('db.txt', function (err, line) {request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&a[action]=add&a[playlistname]=Temp&a[trackname]='+line, function (a,b,c) {})}); // TODO Change the song picker to be non-random
+                        });
                     }
                     if (db.say[body.response.data.status.currentsong+'|event=song']) {
                         sonia.say(chan, db.say[body.response.data.status.currentsong+'|event=song']);
@@ -417,6 +415,24 @@ setInterval(function() {
                 current = body;
 }});
 }, 1000);
+
+// Modified from solution by FGRibreau
+function getRandomLine(filename, callback) {
+    fs.readFile(filename, function (err, data) {
+    if (err) throw err;
+
+    // Data is a buffer that we need to convert to a string
+    // Improvement: loop over the buffer and stop when the line is reached
+    var lines = data.toString('utf-8').split("\n");
+    var line_no = Math.floor(Math.random() * (lines.length - 1 + 1)) + 1;
+
+    if(+line_no > lines.length){
+        return callback('File end reached without finding line', null);
+    }
+
+    callback(null, lines[+line_no]);
+    });
+}
 // XXXX Hack for calling action handlers.
 sonia.addListener('raw', function (message) {
     if (message.command == 'PRIVMSG' && message.args[1].match(/ACTION/))
