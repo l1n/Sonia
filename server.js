@@ -324,6 +324,8 @@ sonia.addListener('message', function (from, to, message) {
                 sonia.say((to==config.botName?from:to), 'You got '+db.away[from].length+' messages while you were away.');
                 delete db.away[from];
             }
+        } else if (message.match(/^up(?:next)/i)) {
+            sonia.say((to==config.botName?from:to), upnext);
         } else if (message.match(/http:\/\/.*.deviantart.com\/art\/.*|http:\/\/fav.me\/.*|http:\/\/sta.sh\/.*|http:\/\/.*.deviantart.com\/.*#\/d.*/)) {
             request('http://backend.deviantart.com/oembed?url='+message.match(/http:[^ ]*/), function (error, response, body) {
                 if (!error && response.statusCode == 200) {
