@@ -54,6 +54,7 @@ sonia.addListener('registered', function() {setTimeout(function(){
     sonia.say('NickServ', 'identify yoloswag');
                         getRandomLine('db.txt', function (err, line) {
                             line=line.trim();
+                            upnext.push(line);
                             if (verbose) sonia.say('linaea', line+' up next!');
                             line = line+'.mp3';
                             request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&a[action]=add&a[playlistname]=Temp&a[trackpath]='
@@ -325,7 +326,7 @@ sonia.addListener('message', function (from, to, message) {
                 delete db.away[from];
             }
         } else if (message.match(/^up(?:next)/i)) {
-            sonia.say((to==config.botName?from:to), upnext);
+            sonia.say((to==config.botName?from:to), :"Up next: "+JSON.stringify(upnext));
         } else if (message.match(/http:\/\/.*.deviantart.com\/art\/.*|http:\/\/fav.me\/.*|http:\/\/sta.sh\/.*|http:\/\/.*.deviantart.com\/.*#\/d.*/)) {
             request('http://backend.deviantart.com/oembed?url='+message.match(/http:[^ ]*/), function (error, response, body) {
                 if (!error && response.statusCode == 200) {
@@ -421,6 +422,7 @@ setInterval(function() {
                     if (upnext.length===0)
                         getRandomLine('db.txt', function (err, line) {
                             line=line.trim();
+                            upnext.push(line);
                             if (verbose) sonia.say('linaea', line+' up next!');
                             line = line+'.mp3';
                             request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&a[action]=add&a[playlistname]=Temp&a[trackpath]='

@@ -236,3 +236,7 @@
 {"ts":1374201187597,"patch":[[{"diffs":[[0,")+'.*$')"],[1,")"],[0,";\r\n     "]],"start1":17698,"start2":17698,"length1":16,"length2":17}]],"length":31253,"saved":false}
 {"ts":1374201211531,"patch":[[{"diffs":[[0,".version);\r\n"],[1,"    sonia.say('NickServ', 'identify yoloswag');\r\n"],[0,"            "]],"start1":1751,"start2":1751,"length1":24,"length2":73}]],"length":31302,"saved":false}
 {"ts":1374201330068,"patch":[[{"diffs":[[0,"\n            }\r\n"],[1,"        } else if (message.match(/^up(?:next)/i)) {\r\n            sonia.say((to==config.botName?from:to), upnext);\r\n"],[0,"        } else i"]],"start1":19695,"start2":19695,"length1":32,"length2":147}]],"length":31417,"saved":false}
+{"ts":1374201486896,"patch":[[{"diffs":[[0,"o), "],[1,"JSON.stringify("],[0,"upnext)"],[1,")"],[0,";\r\n "]],"start1":19812,"start2":19812,"length1":15,"length2":31}]],"length":31433,"saved":false}
+{"ts":1374201568733,"patch":[[{"diffs":[[0,"e=line.trim();\r\n"],[1,"                            upnext.push(line);\r\n"],[0,"                "]],"start1":24757,"start2":24757,"length1":32,"length2":80}]],"length":31481,"saved":false}
+{"ts":1374201585323,"patch":[[{"diffs":[[0,"e=line.trim();\r\n"],[1,"                            upnext.push(line);\r\n"],[0,"                "]],"start1":1915,"start2":1915,"length1":32,"length2":80}]],"length":31529,"saved":false}
+{"ts":1374201608632,"patch":[[{"diffs":[[0,"om:to), "],[1,":\"Up next: \"+"],[0,"JSON.str"]],"start1":19856,"start2":19856,"length1":16,"length2":29}]],"length":31542,"saved":false}
