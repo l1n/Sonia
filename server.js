@@ -418,7 +418,7 @@ setInterval(function() {
                         sonia.say(chan, 'New Song: '+body.response.data.status.currentsong);
                     }
                     if (!moment(next.start.dateTime).fromNow().match("ago") && upnext.length !== 0 || body.response.data.status.currentsong.match(upnext[upnext.length-1])) {
-                        request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&action=remove&playlistname=Temp&trackpath='+lastplayed.push(upnext.pop()), function (a,b,c) {
+                        request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&action=remove&playlistname=Temp&trackpath='+lastplayed.push(upnext.pop())+'.mpe', function (a,b,c) {
                         });
                     }
                     if (upnext.length===0)
