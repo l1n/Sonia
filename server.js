@@ -298,7 +298,7 @@ sonia.addListener('message', function (from, to, message) {
         } else if (message.match(/^request /i)) {
             if (!s) {
             var s = message.match(/ (.*)/)[1];
-            fs.readFile("db.txt", function(err, cont) {if (err) throw err;s=(cont+'').match(new RegExp('^.*'+RegExp.quote(s)+'.*$'));
+            fs.readFile("db.txt", function(err, cont) {if (err) throw err;s=(cont+'').match(new RegExp('^.*'+s+'.*$'));
                 request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&a[action]=add&a[playlistname]=Temp&a[trackname]='+s, function (error, response, body) {
                     if (verbose) console.log(body);
                     if (!error && response.statusCode == 200 && JSON.parse(body).type=='success') {
@@ -307,6 +307,7 @@ sonia.addListener('message', function (from, to, message) {
                         upnext.push(s);
                     } else {
                         sonia.say(chan, 'I tried my best, but I couldn\'t bring myself to play that.');
+                        if (verbose) sonia.say('linaea', 'Error adding '+s+' to the playlist, backtrace: '+body);
                     }
                 });});
             }
@@ -328,7 +329,7 @@ sonia.addListener('message', function (from, to, message) {
         } else if (message.match(/^up(?:next)/i)) {
             sonia.say((to==config.botName?from:to), "Up next: "+upnext[upnext.length-1]);
         } else if (message.match(/^la(?:st)? ?(played)/i)) {
-            sonia.say((to==config.botName?from:to), "Last Played: "+lastplayed[lastplayed.length-1]);
+            sonia.say((to==config.botName?from:to), "Last Played: "+lastplayed[lastplayed.length-2]);
         } else if (message.match(/http:\/\/.*.deviantart.com\/art\/.*|http:\/\/fav.me\/.*|http:\/\/sta.sh\/.*|http:\/\/.*.deviantart.com\/.*#\/d.*/)) {
             request('http://backend.deviantart.com/oembed?url='+message.match(/http:[^ ]*/), function (error, response, body) {
                 if (!error && response.statusCode == 200) {
@@ -428,7 +429,7 @@ setInterval(function() {
                             if (verbose) sonia.say('linaea', line+' up next!');
                             line = line+'.mp3';
                             request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&a[action]=add&a[playlistname]=Temp&a[trackpath]='
-                            +line, function (a,b,c) {if (JSON.parse(body).type!="successs") {sonia.say('linaea', "There was an error adding '"+line+"' to the playlist. Debugging data: "+body)} })}); // TODO Change the song picker to be non-random
+                            +line, function (a,b,c) {if (JSON.parse(body).type!="successs") {sonia.say('linaea', "There was an error adding '"+line+"' to the playlist. Debugging data: "+body);} })}); // TODO Change the song picker to be non-random
 request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&a[action]=deactivate&a[playlistname]=Temp', function (a,b,c) {request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&a[action]=activate&a[playlistname]=Temp', function (a,b,c) {});});
                     if (db.say[body.response.data.status.currentsong+'|event=song']) {
                         sonia.say(chan, db.say[body.response.data.status.currentsong+'|event=song']);
