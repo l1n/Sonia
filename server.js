@@ -292,7 +292,7 @@ sonia.addListener('message', function (from, to, message) {
                         request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&a[action]=add&a[playlistname]=Temp&a[trackname]='+s, function (error, response, body) {
                             console.log(body);
                             if (!error && response.statusCode == 200 && JSON.parse(body).type=='success') {
-                                sonia.say(chan, 'Coming up next:'+s);
+                                sonia.say(chan, 'Coming up next: '+s);
                                 request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&a[action]=activate&a[playlistname]=Temp', function (a,b,c) {});
                                 upnext.push(s);
                             } else {
@@ -304,6 +304,12 @@ sonia.addListener('message', function (from, to, message) {
                 }
             });
             }
+        } else if (message.match(/^SKIP/i)) {
+                sonia.whois(from, function (info) {
+                if ((info.channels && info.channels.indexOf('@#SonicRadioboom') >= 0 || info.channels.indexOf('~#SonicRadioboom') >= 0 || info.channels.indexOf('%#SonicRadioboom') >= 0) || from == 'linaea') {
+                    request('http://radio.ponyvillelive.com:2199/api.php?xm=server.nextsong&f=json&a[username]=Linana&a[password]=yoloswag', function (a,b,c) {});
+                    sonia.say((to==config.botName?from:to), 'Skipped that one.');
+                }});
         } else if (message.match(/^b(?:ack)/i)) {
             if (db.away[from]) {
                 sonia.say((to==config.botName?from:to), 'Welcome back! '+from);
@@ -327,7 +333,7 @@ sonia.addListener('message', function (from, to, message) {
             var messagey = message;
             Object.keys(db.say).forEach(function (item, a, b) {
                 if (message.match(new RegExp(item, "i")) && (db.say[item] || db.act[item])) {
-                    if (!item.match('event')) {
+                    if (!item.match(/event=(?:song|login)/)) {
                         matched = true;
                         if (db.say[item]) {
                             messagey = db.say[item];
