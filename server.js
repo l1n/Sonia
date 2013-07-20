@@ -47,7 +47,8 @@ var settings = {
 
 // Create the bot
 var sonia = new irc.Client(settings.server, settings.botName, {
-    channels: settings.channels
+    channels: settings.channels,
+    floodProtection: settings.floodProtection
 });
 
 sonia.addListener('registered', function() {setTimeout(function(){
