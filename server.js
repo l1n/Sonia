@@ -5,7 +5,7 @@ var moment = require('moment');
 var googleapis = require('googleapis');
 var fs = require('fs');
 RegExp.quote = require('regexp-quote');
-var EventEmitter = require('eventemitter2').EventEmitter2;
+var EventEmitter = require('events').EventEmitter;
 var emitter = new EventEmitter();
 
 var db = JSON.parse(fs.readFileSync('../data/db.json', "utf8"));
@@ -52,7 +52,7 @@ var sonia = new irc.Client(settings.server, settings.botName, {
 });
 
 sonia.addListener('registered', function() {setTimeout(function(){
-    setTimeout(function() {sonia.say('NickServ', 'identify yoloswag');}, 500);
+    sonia.say('NickServ', 'identify yoloswag');
     sonia.say('linaea', 'Started Sonia '+require('./package.json').version);
     updateSong();
     updateNextShow();
@@ -63,8 +63,6 @@ sonia.addListener('registered', function() {setTimeout(function(){
         request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&a[action]=add&a[playlistname]=Temp&a[trackpname]='
         +line, function (a,b,c) {})}); // TODO Change the song picker to be non-random
         request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&a[action]=deactivate&a[playlistname]=Temp', function (a,b,c) {request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&a[action]=activate&a[playlistname]=Temp', function (a,b,c) {});});
-    },5000);
-    
     // Register event handlers
     emitter.on('listeners', listeners);
     emitter.on('song', song);
@@ -76,6 +74,7 @@ sonia.addListener('registered', function() {setTimeout(function(){
     emitter.on('away', away);
     emitter.on('back', back);
     emitter.on('lastLogin', lastLogin);
+    emitter.on('sayWhen', sayWhen);
     emitter.on('setProperty', function (from, to, message, args) {
         opCommand(from, to, message, args, setProperty);
     });
@@ -103,9 +102,9 @@ sonia.addListener('registered', function() {setTimeout(function(){
     emitter.on('load', function (from, to, message, args) {
         opCommand(from, to, message, args, load);
     });
-    emitter.on('sayWhen', function (from, to, message, args) {
-        opCommand(from, to, message, args, sayWhen);
-    });
+    // emitter.on('sayWhen', function (from, to, message, args) {
+    //     opCommand(from, to, message, args, sayWhen);
+    // });
     emitter.on('quit', function (from, to, message, args) {
         opCommand(from, to, message, args, exit);
     });
@@ -121,7 +120,7 @@ sonia.addListener('registered', function() {setTimeout(function(){
     emitter.on('request', function (from, to, message, args) {
         opCommand(from, to, message, args, request);
     });
-    });
+},5000);});
 
 function reply(from, to, message) {
     sonia.say((to==settings.botName?from:to), message);
@@ -239,7 +238,7 @@ function back(from, to) {
         reply(from, to, 'Welcome back! '+from);
         var timeout = 0;
         for (var i = 0; i < db.away[from].length; i++) {
-            setTimeout(function () {sonia.say(from, db.away[from][i]);},timeout);
+            setTimeout(sonia.say(from, db.away[from][i]), timeout);
             timeout+=15;
         }
         reply(from, to, 'You got '+db.away[from].length+' messages while you were away, '+from+'.');
@@ -299,8 +298,8 @@ sonia.addListener('message', function (from, to, message) {
             message = message.replace(db.pp[item].find, db.pp[item].replace);
         }
     });
-    if ((message.match(/^!|^Sonia?[:,]?/i)||message.match(/,? Sonia?[.! ?]*?$/i)
-    || grom[0]==settings.botName || to==settings.botName) && from!=settings.botName) {
+    if ((message.match(/^!|^Sonia?[:,]?/i)||message.match(/,? Sonia?[.! ?]*?$/i))
+    || (grom[0]==settings.botName || to==settings.botName && from!=settings.botName)) {
         var begin = message.match(/^(Sonia?[:,]? |!)/i)
         ?message.match(/^(Sonia?[:,]? |!)/i)[1]
         :message.match(/(,? Sonia?[.! ?]*?)$/i)
@@ -379,16 +378,17 @@ function updateNextShow(message) {
             djNotified = false;
         }, 5*60*1000);
     }
-    setTimeout(updateNextShow(), 6000000);
     })});
 }
 
+setInterval(updateNextShow(), 20*60*1000);
+
 setInterval(function () {
     console.log('writing');
-fs.writeFile('../data/db.json', JSON.stringify(db), function (err) {
-    if (err) return console.log(err);
-    console.log('done writing');
-});
+    fs.writeFile('../data/db.json', JSON.stringify(db), function (err) {
+        if (err) return console.log(err);
+        console.log('done writing');
+    });
 }, 1000*5*60);
 
 function updateSong() {
@@ -411,7 +411,7 @@ function updateSong() {
                 }
                 current = body;
 }
-setTimeout(updateSong, 10000);
+setTimeout(updateSong, 1000*60);
 });
 }
 
