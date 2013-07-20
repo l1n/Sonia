@@ -54,7 +54,7 @@ var sonia = new irc.Client(settings.server, settings.botName, {
 sonia.addListener('registered', function() {setTimeout(function(){
     sonia.say('linaea', 'Started Sonia '+require('./package.json').version);
     updateSong();
-    setTimeout(function() {sonia.say('NickServ', 'identify yoloswag');}, 50);
+    setTimeout(function() {sonia.say('NickServ', 'identify yoloswag');}, 500);
     getRandomLine('db.txt', function (err, line) {
         line=line.trim();
         upnext.push(line);
@@ -120,6 +120,7 @@ sonia.addListener('registered', function() {setTimeout(function(){
     emitter.on('request', function (from, to, message, args) {
         opCommand(from, to, message, args, request);
     });
+    updateNextShow();
     });
 
 function reply(from, to, message) {
@@ -201,7 +202,7 @@ function getMeta(from, to, message, args) {
 }
 function event(from, to, message) {
     if (!next || moment(next.start.dateTime).fromNow().match('ago')) {
-        updateNextShow();
+        // updateNextShow();
     } else {
         reply(from, to, 'Next event '+next.summary+'; starting time is '+moment(next.start.dateTime).fromNow());
     }
@@ -359,6 +360,7 @@ sonia.addListener('message', function (from, to, message) {
 });
 
 function updateNextShow(message) {
+    sonia.send('PONG', 'empty');
     googleapis.discover('calendar', 'v3').execute(function(err, client) {
     var params = {
         calendarId: 'sonicradioboom2013@gmail.com',
@@ -369,7 +371,18 @@ function updateNextShow(message) {
         };
     djNotified = true;
     client.calendar.events.list(params).withApiKey(key).execute(function (err, response) {
-        response.items.forEach(function (item,a,b) {next = item; sonia.say('#SonicRadioboom', 'Next event '+item.summary+' starts '+moment(item.start.dateTime).fromNow());});
+        if (err) return sonia.say('linaea', err);
+        response.items.forEach(function (item,a,b) {next = item;});
+    if (!next || moment(next.start.dateTime).fromNow() == "in 5 minutes" && !djNotified) {
+        fs.writeFile('../data/db.json', JSON.stringify(db), function (err) {
+            sonia.say('#SonicRadioboom', 'Next event '+next.summary+'; starting time is '+moment(next.start.dateTime).fromNow());
+            if (err) return console.log(err);
+            });
+        setTimeout(function() {
+            djNotified = false;
+        }, 5*60*1000);
+    }
+    setTimeout(updateNextShow(), 6000000);
     })});
 }
 
@@ -393,7 +406,7 @@ function updateSong() {
                 }
                 current = body;
 }
-setTimeout(updateSong, 1000);
+setTimeout(updateSong, 10000);
 });
 }
 
@@ -409,19 +422,6 @@ function addSong() {
         request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&a[action]=activate&a[playlistname]=Temp', function (error, response, body) {});
     });
 }
-
-setInterval(function() {
-    if (!next || moment(next.start.dateTime).fromNow() == "in 5 minutes" && !djNotified) {
-        updateNextShow();
-        fs.writeFile('../data/db.json', JSON.stringify(db), function (err) {
-              if (err) return console.log(err);
-            });
-        setTimeout(function() {
-            djNotified = false;
-        }, 5*60*1000);
-    }
-    sonia.send('PONG', 'empty');
-}, 1000);
 
 // Modified from solution by FGRibreau
 function getRandomLine(filename, callback) {
