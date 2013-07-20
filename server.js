@@ -5,7 +5,7 @@ var moment = require('moment');
 var googleapis = require('googleapis');
 var fs = require('fs');
 RegExp.quote = require('regexp-quote');
-var EventEmitter = require("events").EventEmitter
+var EventEmitter = require('eventemitter2').EventEmitter2;
 var emitter = new EventEmitter();
 
 var db = JSON.parse(fs.readFileSync('../data/db.json', "utf8"));
@@ -64,6 +64,9 @@ sonia.addListener('registered', function() {setTimeout(function(){
     },5000);
     
     // Register event handlers
+    emitter.offAny(function(value) {
+      console.log('The event '+this.event+' was raised!');
+    });
     emitter.on('listeners', listeners);
     emitter.on('song', song);
     emitter.on('dlc', getMeta);
@@ -301,7 +304,6 @@ function sayWhen(from, to, message) {
 }
 
 sonia.addListener('message', function (from, to, message) {
-        var proc = false;
     if (to!=settings.botName) {
         Object.keys(db.away).forEach(function (item, a, b) {
             db.away[item].push('<'+from+'>: '+message);
@@ -310,16 +312,13 @@ sonia.addListener('message', function (from, to, message) {
     if (to == settings.botName && from != 'linaea') {
         sonia.say('linaea', 'PM from '+from+': '+message);
     }
-    db.pp.forEach(function (item, a, b) {
+    Object.keys(db.pp).forEach(function (item, a, b) {
         if (message.match(db.pp[item].find)) {
             message = message.replace(db.pp[item].find, db.pp[item].replace);
         }
     });
-    // if (message.match(/bot/i)) sonia.say(from, "I heard that!");
     if ((message.match(/^!|^Sonia?[:,]?/i)||message.match(/,? Sonia?[.! ?]*?$/i)
     || grom[0]==settings.botName || to==settings.botName) && from!=settings.botName) {
-        if (settings.verbose) console.log('linaea', from + ' => ' + to + ': ' + message);
-        // sonia.action(chan, 'Pokes '+from);
         var begin = message.match(/^(Sonia?[:,]? |!)/i)
         ?message.match(/^(Sonia?[:,]? |!)/i)[1]
         :message.match(/(,? Sonia?[.! ?]*?)$/i)
@@ -328,7 +327,11 @@ sonia.addListener('message', function (from, to, message) {
         message = message.replace(begin, '');
         message = message.replace(/What.?s the /i, '');
         
-        event.emit(message.match(/^(.*?) /)[1], from, to, message, message.match(/ (.*)/).trim());
+        var command = message.match(/^\w*/)||message;
+        var argumen = message.match(/ .*/)||'';
+        argumen     = argumen.trim();
+        
+        emitter.emit(command, from, to, message, argumen);
         
         if (message.match(/http:\/\/.*.deviantart.com\/art\/.*|http:\/\/fav.me\/.*|http:\/\/sta.sh\/.*|http:\/\/.*.deviantart.com\/.*#\/d.*/)) {
             request('http://backend.deviantart.com/oembed?url='+message.match(/http:[^ ]*/), function (error, response, body) {

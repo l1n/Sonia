@@ -29,7 +29,8 @@
         "irc": "*",
         "moment": "*",
         "request": "*",
-        "regexp-quote": "*"
+        "regexp-quote": "*",
+        "eventemitter2": "*"
   },
   "devDependencies": {},
   "bundleDependencies": [],
