@@ -445,7 +445,7 @@ function action(from, to, message) {
             var messagey = message;
             Object.keys(db.say).forEach(function (item, a, b) {
                 if (message.match(new RegExp(item+'\\|event=action', "i")) && (db.say[item] || db.act[item])) {
-                    if (!item.match('event')) {
+                    if (item.match('\\|event=action')) {
                         matched = true;
                         if (db.say[item]) {
                             messagey = db.say[item];
