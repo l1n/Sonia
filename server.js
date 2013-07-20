@@ -52,9 +52,10 @@ var sonia = new irc.Client(settings.server, settings.botName, {
 });
 
 sonia.addListener('registered', function() {setTimeout(function(){
+    setTimeout(function() {sonia.say('NickServ', 'identify yoloswag');}, 500);
     sonia.say('linaea', 'Started Sonia '+require('./package.json').version);
     updateSong();
-    setTimeout(function() {sonia.say('NickServ', 'identify yoloswag');}, 500);
+    updateNextShow();
     getRandomLine('db.txt', function (err, line) {
         line=line.trim();
         upnext.push(line);
@@ -120,7 +121,6 @@ sonia.addListener('registered', function() {setTimeout(function(){
     emitter.on('request', function (from, to, message, args) {
         opCommand(from, to, message, args, request);
     });
-    updateNextShow();
     });
 
 function reply(from, to, message) {
@@ -374,10 +374,7 @@ function updateNextShow(message) {
         if (err) return sonia.say('linaea', err);
         response.items.forEach(function (item,a,b) {next = item;});
     if (!next || moment(next.start.dateTime).fromNow() == "in 5 minutes" && !djNotified) {
-        fs.writeFile('../data/db.json', JSON.stringify(db), function (err) {
-            sonia.say('#SonicRadioboom', 'Next event '+next.summary+'; starting time is '+moment(next.start.dateTime).fromNow());
-            if (err) return console.log(err);
-            });
+        sonia.say('#SonicRadioboom', 'Next event '+next.summary+'; starting time is '+moment(next.start.dateTime).fromNow());
         setTimeout(function() {
             djNotified = false;
         }, 5*60*1000);
@@ -385,6 +382,14 @@ function updateNextShow(message) {
     setTimeout(updateNextShow(), 6000000);
     })});
 }
+
+setInterval(function () {
+    console.log('writing');
+fs.writeFile('../data/db.json', JSON.stringify(db), function (err) {
+    if (err) return console.log(err);
+    console.log('done writing');
+});
+}, 1000*5*60);
 
 function updateSong() {
         request('http://radio.ponyvillelive.com:2199/api.php?xm=server.getstatus&f=json&a[username]=Linana&a[password]=yoloswag', function (error, response, body) {
