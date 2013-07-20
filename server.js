@@ -419,7 +419,7 @@ function addSong() {
     request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&a[action]=add&a[playlistname]=Temp&a[trackname]='
     +line, function (error, response, body) {if (JSON.parse(body).type!="successs") {sonia.say('linaea', "There was an error adding '"+line+"' to the playlist. Debugging data: "+body);} })}); // TODO Change the song picker to be non-random
     request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&a[action]=deactivate&a[playlistname]=Temp',
-    function (error. response, body) {
+    function (error, response, body) {
         request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&a[action]=activate&a[playlistname]=Temp', function (error, response, body) {});
     });
 }
