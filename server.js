@@ -53,7 +53,7 @@ var sonia = new irc.Client(settings.server, settings.botName, {
 sonia.addListener('registered', function() {setTimeout(function(){
     sonia.say('linaea', 'Started Sonia '+require('./package.json').version);
     updateSong();
-    sonia.say('NickServ', 'identify yoloswag');
+    setTimeout(function() {sonia.say('NickServ', 'identify yoloswag');}, 50);
     getRandomLine('db.txt', function (err, line) {
         line=line.trim();
         upnext.push(line);
@@ -65,7 +65,7 @@ sonia.addListener('registered', function() {setTimeout(function(){
     
     // Register event handlers
     emitter.offAny(function(value) {
-      console.log('The event '+this.event+' was raised!');
+      console.log('The event '+value+' was raised!');
     });
     emitter.on('listeners', listeners);
     emitter.on('song', song);
@@ -80,8 +80,8 @@ sonia.addListener('registered', function() {setTimeout(function(){
     emitter.on('setProperty', function (from, to, message, args) {
         opCommand(from, to, message, args, setProperty);
     });
-    emitter.on('action', function (from, to, message, args) {
-        opCommand(from, to, message, args, action);
+    emitter.on('do', function (from, to, message, args) {
+        opCommand(from, to, message, args, doSomething);
     });
     emitter.on('hug', function (from, to, message, args) {
         emitter.emit('action', 'linaea', '#SonicRadioboom', message, 'hugs '+args);
@@ -128,14 +128,13 @@ function reply(from, to, message) {
     grom[0]='Sonia';
     }, 1000);
 }
-function action(from, to, message) {
-    sonia.say((to==settings.botName?from:to), message);
+function doSomething(from, to, message, args) {
+    act(from, to, message, args);
     setTimeout(function(){
     grom[1]=grom[0];
     grom[0]='Sonia';
     }, 1000);
 }
-
 function opCommand(from, to, message, args, callback) {
     sonia.whois(from, function (info) {
         if ((info.channels && info.channels.indexOf('@#SonicRadioboom') >= 0 || info.channels.indexOf('~#SonicRadioboom') >= 0 || info.channels.indexOf('%#SonicRadioboom') >= 0) || from == 'linaea') {
@@ -145,7 +144,6 @@ function opCommand(from, to, message, args, callback) {
         }
     });
 }
-
 function define(from, to,  message, args) {
     request('http://en.wikipedia.org/w/api.php?action=query&prop=extracts&explaintext=true&exsentences=3&redirects=true&format=json&titles='+args, function (error, response, body) {
             if (!error && response.statusCode == 200) {
@@ -155,41 +153,32 @@ function define(from, to,  message, args) {
             }
         });
 }
-
 function listeners(from, to, message) {
     reply(from, to, 'Listeners: '+current.response.data.status.listenercount);
 }
-
 function song(from, to, message) {
     reply(from, to, 'Current Song: '+current.response.data.status.currentsong);
 }
-
 function help(from, to, message) {
     reply(from, to, 'Help is available, along with rules, at https://docs.google.com/document/d/15u3B8RexqXryPV1tfF9yJHcTbAAd0ltoPB6a9hKKyWc');
 }
-
 function lastLogin(from, to, message, args) {
     reply(from, to, "Last login by "+args+": "+moment(db.name[args]).fromNow());
 }
-
 function setProperty(from, to, message, args) {
     settings[args] = !settings[args];
     reply(from, to, args+' '+(settings[args]?'on':'off'));
 }
-
-function action(from, to, message, args) {
+function act(from, to, message, args) {
     sonia.action('#SonicRadioboom', args);
 }
-
 function say(from, to, message, args) {
     sonia.say('#SonicRadioboom', args);
 }
-
 function addMeta(from, to, message, args) {
     db.song[current.response.data.status.currentsong] = (args.match(/^$|^it/i))?rem:args;
     reply(from, to, 'I know that '+current.response.data.status.currentsong+' is '+db.song[current.response.data.status.currentsong]);
 }
-
 function getMeta(from, to, message, args) {
     var data = db.song[args||current.response.data.status.currentsong];
     if (!data) {
@@ -209,7 +198,6 @@ function getMeta(from, to, message, args) {
         reply(from, to, from+': '+current.response.data.status.currentsong+' is '+data);
     }
 }
-
 function event(from, to, message) {
     if (!next || moment(next.start.dateTime).fromNow().match('ago')) {
         updateNextShow();
@@ -217,36 +205,29 @@ function event(from, to, message) {
         reply(from, to, 'Next event '+next.summary+'; starting time is '+moment(next.start.dateTime).fromNow());
     }
 }
-
 function ban(from, to, message, args) {
     db.ban[args] = true;
     reply(from, to, 'Banned: '+db.ban[args]);
 }
-
 function dump(from, to, message) {
     sonia.say(from, JSON.stringify(db));
 }
-
 function load(from, to, message) {
     db = JSON.parse(message);
     reply(from, to, 'Loaded database.');
 }
-
 function save(from, to) {
     fs.writeFileSync('../data/db.json', JSON.stringify(db));
     reply(from, to, 'INT is now '+JSON.stringify(db).length);
 }
-
 function exit(from, to) {
     emitter.emit('save');
     process.exit();
 }
-
 function away(from, to) {
     db.away[from]=[];
     reply(from, to, 'I\'ll hold your messages until you get back, '+from+'.');
 }
-
 function back(from, to) {
     if (db.away[from]) {
         reply(from, to, 'Welcome back! '+from);
@@ -261,7 +242,6 @@ function back(from, to) {
         reply(from, to, 'Sorry, I don\'t have anything for you, '+from+'.');
     }
 }
-
 function request(from, to, message, args) {
     fs.readFile("db.txt", function(err, cont) {
         if (err) throw err;
@@ -282,19 +262,15 @@ function request(from, to, message, args) {
             }
         });});
 }
-
 function upnext(from, to) {
     reply(from, to, "Up next: "+upnext[upnext.length-1]);
 }
-
 function lastplayed(from, to) {
     reply(from, to, "Last Played: "+lastplayed[lastplayed.length-2])
 }
-
 function skip(from, to, message, args) {
     request('http://radio.ponyvillelive.com:2199/api.php?xm=server.nextsong&f=json&a[username]=Linana&a[password]=yoloswag', function (a,b,c) {reply(from, to, 'Skipped that one.');});
 }
-
 function sayWhen(from, to, message) {
     var parts = message.match(/\{(.*?)\}.*\{(.*?)\}/i);
     if (!message.match("regex") && !event.match('event')) parts[1] = RegExp.quote(parts[1]);
@@ -327,8 +303,8 @@ sonia.addListener('message', function (from, to, message) {
         message = message.replace(begin, '');
         message = message.replace(/What.?s the /i, '');
         
-        var command = message.match(/^\w*/)||message;
-        var argumen = message.match(/ .*/)||'';
+        var command = message.match(/^\w*/)[0]||message;
+        var argumen = message.match(/ .*/)?message.match(/ .*/)[0]:'';
         argumen     = argumen.trim();
         
         emitter.emit(command, from, to, message, argumen);
@@ -548,6 +524,6 @@ sonia.addListener('error', function(message) {
     console.log('error: ', message);
 });
 process.on('uncaughtException', function(err) {
-  console.log('linaea', 'Caught exception: ' + err.stack);
+  console.log('linaea', 'Caught exception: ' + err + err.stack);
   // sonia.say('ElectricErger', 'Caught exception: ' + err.stack);
 });
