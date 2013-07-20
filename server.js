@@ -65,9 +65,6 @@ sonia.addListener('registered', function() {setTimeout(function(){
     },5000);
     
     // Register event handlers
-    emitter.offAny(function(value) {
-      console.log('The event '+value+' was raised!');
-    });
     emitter.on('listeners', listeners);
     emitter.on('song', song);
     emitter.on('dlc', getMeta);
@@ -113,6 +110,9 @@ sonia.addListener('registered', function() {setTimeout(function(){
     });
     emitter.on('save', function (from, to, message, args) {
         opCommand(from, to, message, args, save);
+    });
+    emitter.on('restore', function (from, to, message, args) {
+        opCommand(from, to, message, args, restore);
     });
     emitter.on('skip', function (from, to, message, args) {
         opCommand(from, to, message, args, skip);
@@ -219,6 +219,10 @@ function load(from, to, message) {
 }
 function save(from, to) {
     fs.writeFileSync('../data/db.json', JSON.stringify(db));
+    reply(from, to, 'INT is now '+JSON.stringify(db).length);
+}
+function restore(from, to) {
+    db = JSON.parse(fs.readFileSync('../data/db.json', "utf8"));
     reply(from, to, 'INT is now '+JSON.stringify(db).length);
 }
 function exit(from, to) {
