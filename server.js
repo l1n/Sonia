@@ -326,15 +326,17 @@ sonia.addListener('message', function (from, to, message) {
                         matched = true;
                         if (db.say[item]) {
                             messagey = db.say[item];
+                            messagey = messagey.replace('<from>', from);
                             while (messagey.match('<[^ ]*?>')) {
-                                messagey.replace(messagey.match('<[^ ]*?>')[0], settings[messagey.match('<[^ ]*?>')[0]]);
+                                messagey = messagey.replace(messagey.match('<[^ ]*?>')[0], settings[messagey.match('<[^ ]*?>')[0]]);
                             }
                             if (!settings.disabled) reply(from, to, messagey);
                         }
                         if (db.act[item]) {
                             messagey = db.act[item];
+                            messagey = messagey.replace('<from>', from);
                             while (messagey.match('<[^ ]*?>')) {
-                                messagey.replace(messagey.match('<[^ ]*?>')[0], settings[messagey.match('<[^ ]*?>')[0]]);
+                                messagey = messagey.replace(messagey.match('<[^ ]*?>')[0], settings[messagey.match('<[^ ]*?>')[0]]);
                             }
                             if (!settings.disabled) action(from, to, messagey);
                         }
