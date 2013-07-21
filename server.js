@@ -462,8 +462,8 @@ function action(from, to, message) {
         db.away[item].push('*'+from+' '+message+'*');
     });
     }
-    if ((message.match(/^!|^Sonia?[:,]?/i)||message.match(/,? Sonia?[.! ?]*?$/i)
-    || grom[0]==settings.botName || to==settings.botName) && from!=settings.botName) {
+    if ((message.match(/^!|^Sonia?[:,]?/i)||message.match(/,? Sonia?[.! ?]*?$/i))
+    || (grom[0]==settings.botName || to==settings.botName && from!=settings.botName)) {
         var begin = message.match(/^(Sonia?[:,]? |!)/i)?message.match(/^(Sonia?[:,]? |!)/i)[1]:message.match(/(,? Sonia?[.! ?]*?)$/i)?message.match(/(,? Sonia?[.! ?]*?)$/i)[1]:'';
         message = message.replace(begin, '');
         message = message.replace(/What.?s the /i, '');
