@@ -60,7 +60,7 @@ sonia.addListener('registered', function() {setTimeout(function(){
         line=line.trim();
         upnext.push(line);
         if (settings.verbose) sonia.say('linaea', line+' up next!');
-        request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&a[action]=add&a[playlistname]=Temp&a[trackpname]='
+        request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&a[action]=add&a[playlistname]=Temp&a[trackname]='
         +line, function (a,b,c) {})}); // TODO Change the song picker to be non-random
         request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&a[action]=deactivate&a[playlistname]=Temp', function (a,b,c) {request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&a[action]=activate&a[playlistname]=Temp', function (a,b,c) {});});
     // Register event handlers
@@ -83,6 +83,8 @@ sonia.addListener('registered', function() {setTimeout(function(){
     });
     emitter.on('hug', hug);
     emitter.on('poke', poke);
+    emitter.on('upnext', nextRequest);
+    emitter.on('last', lastSong);
     emitter.on('say', function (from, to, message, args) {
         opCommand(from, to, message, args, say);
     });
@@ -250,18 +252,18 @@ function back(from, to) {
 function req(from, to, message, args) {
     fs.readFile("db.txt", function(err, cont) {
         if (err) throw err;
-        var r = new RegExp('^.*('+args+').*$', "g");
+        var r = new RegExp('^.*('+args+').*$', "m");
         var song = cont.toString().match(r);
-        request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&a[action]=add&a[playlistname]=Temp&a[trackname]='+song, function (error, response, body) {
+        request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&a[action]=add&a[playlistname]=Temp&a[trackpath]='+song, function (error, response, body) {
             if (!error && response.statusCode == 200 && JSON.parse(body).type=='success') {
-                request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&a[action]=activate&a[playlistname]=Temp', function (error, reponse, body) {
-                    if (!error && response.statusCode == 200 && JSON.parse(body).type=='success') {
+                // request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&a[action]=activate&a[playlistname]=Temp', function (error, reponse, body) {
+                    // if (!error && response.statusCode == 200 && JSON.parse(body).type=='success') {
                         reply(from, to, 'Coming up next: '+song);
                         upnext.push(song);
-                    } else {
-                        reply(from, to, 'Huh. I know that song, but our server doesn\'t... Error: '+error+', body of response: '+body);
-                    }
-                });
+                //     } else {
+                //         reply(from, to, 'Huh. I know that song, but our server doesn\'t... Error: '+error+', body of response: '+body);
+                //     }
+                // });
             } else {
                 reply(from, to, 'I tried my best, but I couldn\'t bring myself to play that.');
             }
@@ -270,10 +272,10 @@ function req(from, to, message, args) {
 function nick(from, to, message, args) {
     sonia.send('nick', args);
 }
-function upnext(from, to) {
+function nextRequest(from, to) {
     reply(from, to, "Up next: "+upnext[upnext.length-1]);
 }
-function lastplayed(from, to) {
+function lastSong(from, to) {
     reply(from, to, "Last Played: "+lastplayed[lastplayed.length-2])
 }
 function skip(from, to, message, args) {
@@ -401,7 +403,7 @@ function updateSong() {
                         sonia.say('#SonicRadioboom', 'New Song: '+body.response.data.status.currentsong);
                     }
                     if (!moment(next.start.dateTime).fromNow().match("ago") && upnext.length !== 0 || body.response.data.status.currentsong.match(lastplayed[lastplayed.length-2])) {
-                        request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&action=remove&playlistname=Temp&trackname='+lastplayed.push(upnext.pop()), function (a,b,c) {
+                        request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&a[action]=remove&a[playlistname]=Temp&a[trackpath]='+lastplayed.push(upnext.pop()), function (error, response, body) {
                         });
                     }
                     if (upnext.length===0 && settings.autodj)
@@ -420,12 +422,12 @@ function addSong() {
     line=line.trim();
     upnext.push(line);
     if (settings.notify) sonia.say('#SonicRadioboom', line+' up next!');
-    request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&a[action]=add&a[playlistname]=Temp&a[trackname]='
-    +line, function (error, response, body) {if (JSON.parse(body).type!="successs") {sonia.say('linaea', "There was an error adding '"+line+"' to the playlist. Debugging data: "+body);} })}); // TODO Change the song picker to be non-random
-    request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&a[action]=deactivate&a[playlistname]=Temp',
-    function (error, response, body) {
+    request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&a[action]=add&a[playlistname]=Temp&a[trackpath]='
+    +line, function (error, response, body) {body = JSON.parse(body); if (body.type!="success") {sonia.say('linaea', "There was an error adding '"+line+"' to the playlist. Debugging data: "+body);} })}); // TODO Change the song picker to be non-random
+    // request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&a[action]=deactivate&a[playlistname]=Temp',
+    // function (error, response, body) {
         request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&a[action]=activate&a[playlistname]=Temp', function (error, response, body) {});
-    });
+    // });
 }
 // Modified from solution by FGRibreau
 function getRandomLine(filename, callback) {
