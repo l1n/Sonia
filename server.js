@@ -251,7 +251,7 @@ function req(from, to, message, args) {
     fs.readFile("db.txt", function(err, cont) {
         if (err) throw err;
         var r = new RegExp('^.*('+args+').*$', "g");
-        var song = cont.toString().match(args);
+        var song = cont.toString().match(r);
         request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&a[action]=add&a[playlistname]=Temp&a[trackname]='+song, function (error, response, body) {
             if (!error && response.statusCode == 200 && JSON.parse(body).type=='success') {
                 request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&a[action]=activate&a[playlistname]=Temp', function (error, reponse, body) {
