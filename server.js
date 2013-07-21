@@ -25,8 +25,11 @@ if (Object.keys(db.name).indexOf('linaea') <= 0) {
     db.name['linaea'] = now;
 }
 
-//Google API key
-var key = 'AIzaSyDPlGenbEo8T-sbeNHx_shvJSRCwOpCESc';
+// API keys
+var keys = {
+    eqr: 'b0f4f4a917abbacc10b5910749e7b1bb',
+    ggl: 'AIzaSyDPlGenbEo8T-sbeNHx_shvJSRCwOpCESc'
+}
 
 var current, rem, next, djNotified, grom = ['Sonia', 'Sonia'], upnext = [], lastplayed = [];
 
@@ -41,7 +44,7 @@ var settings = {
     disabled: false,
     verbose: false,
     introduce: false,
-    autodj: false,
+    autodj: true,
     feeling: 'like a robot'
 };
 
@@ -123,7 +126,7 @@ sonia.addListener('registered', function() {setTimeout(function(){
     });
     },5000);});
 function poke(from, to, message, args) {
-    doSomething('Sonia', '#SonicRadioboom', '', 'pokes '+args)
+    doSomething('Sonia', '#SonicRadioboom', '', 'pokes '+args);
 }
 function hug(from, to, message, args) {
     doSomething('Sonia', '#SonicRadioboom', '', 'hugs '+args);
@@ -191,7 +194,7 @@ function getMeta(from, to, message, args) {
                 q: args||current.response.data.status.currentsong,
                 part: 'snippet',
                 };
-            client.youtube.search.list(params).withApiKey(key).execute(function (err, response, to, from, message, args) {
+            client.youtube.search.list(params).withApiKey(keys.ggl).execute(function (err, response, to, from, message, args) {
                 response.items.forEach(function (item,a,b) {
                     reply(from, to, from+': Does this help? '+current.response.data.status.currentsong+' might be http://www.youtube.com/watch?v='+item.id.videoId);
                     rem = 'http://www.youtube.com/watch?v='+item.id.videoId;
@@ -254,8 +257,10 @@ function req(from, to, message, args) {
         if (err) throw err;
         var r = new RegExp('^.*('+args+').*$', "m");
         var song = cont.toString().match(r);
+        song=song[0]?song[0]:'SimGretina - AI - 06 Intelligentia Room.mp3';
         request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&a[action]=add&a[playlistname]=Temp&a[trackpath]='+song, function (error, response, body) {
-            if (!error && response.statusCode == 200 && JSON.parse(body).type=='success') {
+            body = JSON.parse(body);
+            if (!error && response.statusCode == 200 && body.type=='success') {
                 // request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&a[action]=activate&a[playlistname]=Temp', function (error, reponse, body) {
                     // if (!error && response.statusCode == 200 && JSON.parse(body).type=='success') {
                         reply(from, to, 'Coming up next: '+song);
@@ -276,10 +281,10 @@ function nextRequest(from, to) {
     reply(from, to, "Up next: "+upnext[upnext.length-1]);
 }
 function lastSong(from, to) {
-    reply(from, to, "Last Played: "+lastplayed[lastplayed.length-2])
+    reply(from, to, "Last Played: "+lastplayed[lastplayed.length-2]);
 }
 function skip(from, to, message, args) {
-    request('http://radio.ponyvillelive.com:2199/api.php?xm=server.nextsong&f=json&a[username]=Linana&a[password]=yoloswag', function (a,b,c) {reply(from, to, 'Skipped that one.');});
+    request('http://radio.ponyvillelive.com:2199/api.php?xm=server.nextsong&f=json&a[username]=Linana&a[password]=yoloswag', function (a,b,c) {reply(from, to, 'Skipped '.lastplayed[lastplayed.length-1]);});
 }
 function sayWhen(from, to, message) {
     var parts = message.match(/\{(.*?)\}.*\{(.*?)\}/i);
@@ -337,7 +342,7 @@ sonia.addListener('message', function (from, to, message) {
                         matched = true;
                         if (db.say[item]) {
                             messagey = db.say[item];
-                            messagey = messagey.replace('<from>', from);
+                            messagey = messagey.replace('Sonia|<from>', from);
                             while (messagey.match('<[^ ]*?>')) {
                                 messagey = messagey.replace(messagey.match('<[^ ]*?>')[0], settings[messagey.match('<[^ ]*?>')[0]]);
                             }
@@ -345,7 +350,7 @@ sonia.addListener('message', function (from, to, message) {
                         }
                         if (db.act[item]) {
                             messagey = db.act[item];
-                            messagey = messagey.replace('<from>', from);
+                            messagey = messagey.replace('Sonia|<from>', from);
                             while (messagey.match('<[^ ]*?>')) {
                                 messagey = messagey.replace(messagey.match('<[^ ]*?>')[0], settings[messagey.match('<[^ ]*?>')[0]]);
                             }
@@ -376,7 +381,7 @@ function updateNextShow(message) {
         orderBy: "startTime",
         };
     djNotified = true;
-    client.calendar.events.list(params).withApiKey(key).execute(function (err, response) {
+    client.calendar.events.list(params).withApiKey(keys.ggl).execute(function (err, response) {
         if (err) return sonia.say('linaea', err);
         response.items.forEach(function (item,a,b) {next = item;});
     if (!next || moment(next.start.dateTime).fromNow() == "in 5 minutes" && !djNotified) {
@@ -414,7 +419,7 @@ function updateSong() {
                 }
                 current = body;
 }
-setTimeout(updateSong, 1000*60);
+setTimeout(updateSong, 1000*15);
 });
 }
 function addSong() {
@@ -471,6 +476,7 @@ function action(from, to, message) {
                         matched = true;
                         if (db.say[item]) {
                             messagey = db.say[item];
+                            messagey = messagey.replace('Sonia|<from>', from);
                             while (messagey.match('<[^ ]*?>')) {
                                 messagey.replace(messagey.match('<[^ ]*?>')[0], settings[messagey.match('<[^ ]*?>')[0]]);
                             }
@@ -478,6 +484,7 @@ function action(from, to, message) {
                         }
                         if (db.act[item]) {
                             messagey = db.act[item];
+                            messagey = messagey.replace('Sonia|<from>', from);
                             while (messagey.match('<[^ ]*?>')) {
                                 messagey.replace(messagey.match('<[^ ]*?>')[0], settings[messagey.match('<[^ ]*?>')[0]]);
                             }
