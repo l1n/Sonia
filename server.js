@@ -74,19 +74,15 @@ sonia.addListener('registered', function() {setTimeout(function(){
     emitter.on('away', away);
     emitter.on('back', back);
     emitter.on('lastLogin', lastLogin);
-    emitter.on('sayWhen', sayWhen);
+    emitter.on('when', sayWhen);
     emitter.on('setProperty', function (from, to, message, args) {
         opCommand(from, to, message, args, setProperty);
     });
     emitter.on('do', function (from, to, message, args) {
         opCommand(from, to, message, args, doSomething);
     });
-    emitter.on('hug', function (from, to, message, args) {
-        emitter.emit('action', 'linaea', '#SonicRadioboom', message, 'hugs '+args);
-    });
-    emitter.on('poke', function (from, to, message, args) {
-        emitter.emit('action', 'linaea', '#SonicRadioboom', message, 'pokes '+args);
-    });
+    emitter.on('hug', hug);
+    emitter.on('poke', poke);
     emitter.on('say', function (from, to, message, args) {
         opCommand(from, to, message, args, say);
     });
@@ -118,23 +114,27 @@ sonia.addListener('registered', function() {setTimeout(function(){
         opCommand(from, to, message, args, skip);
     });
     emitter.on('request', function (from, to, message, args) {
-        opCommand(from, to, message, args, request);
+        opCommand(from, to, message, args, req);
     });
-},5000);});
-
+    emitter.on('setNick', function (from, to, message, args) {
+        opCommand(from, to, message, args, nick);
+    });
+    },5000);});
+function poke(from, to, message, args) {
+    doSomething('Sonia', '#SonicRadioboom', '', 'pokes '+args)
+}
+function hug(from, to, message, args) {
+    doSomething('Sonia', '#SonicRadioboom', '', 'hugs '+args);
+}
 function reply(from, to, message) {
     sonia.say((to==settings.botName?from:to), message);
-    setTimeout(function(){
     grom[1]=grom[0];
     grom[0]='Sonia';
-    }, 1000);
 }
 function doSomething(from, to, message, args) {
     act(from, to, message, args);
-    setTimeout(function(){
     grom[1]=grom[0];
     grom[0]='Sonia';
-    }, 1000);
 }
 function opCommand(from, to, message, args, callback) {
     sonia.whois(from, function (info) {
@@ -247,7 +247,7 @@ function back(from, to) {
         reply(from, to, 'Sorry, I don\'t have anything for you, '+from+'.');
     }
 }
-function request(from, to, message, args) {
+function req(from, to, message, args) {
     fs.readFile("db.txt", function(err, cont) {
         if (err) throw err;
         var r = new RegExp('^.*('+args+').*$', "g");
@@ -267,6 +267,9 @@ function request(from, to, message, args) {
             }
         });});
 }
+function nick(from, to, message, args) {
+    sonia.send('nick', args);
+}
 function upnext(from, to) {
     reply(from, to, "Up next: "+upnext[upnext.length-1]);
 }
@@ -278,7 +281,7 @@ function skip(from, to, message, args) {
 }
 function sayWhen(from, to, message) {
     var parts = message.match(/\{(.*?)\}.*\{(.*?)\}/i);
-    if (!message.match("regex") && !event.match('event')) parts[1] = RegExp.quote(parts[1]);
+    if (!message.match("regex") && !message.match('event')) parts[1] = RegExp.quote(parts[1]);
     if (message.match(/\}.*say.*\{/i)) db.say[parts[1]] = parts[2];
     if (message.match(/\}.*do.*\{/i)) db.act[parts[1]] = parts[2];
     reply(from, to, 'Got it!');
@@ -312,6 +315,7 @@ sonia.addListener('message', function (from, to, message) {
         var argumen = message.match(/ .*/)?message.match(/ .*/)[0]:'';
         argumen     = argumen.trim();
         
+        if (settings.verbose) console.log(command, from, to, message, argumen);
         emitter.emit(command, from, to, message, argumen);
         
         if (message.match(/http:\/\/.*.deviantart.com\/art\/.*|http:\/\/fav.me\/.*|http:\/\/sta.sh\/.*|http:\/\/.*.deviantart.com\/.*#\/d.*/)) {
@@ -343,7 +347,7 @@ sonia.addListener('message', function (from, to, message) {
                             while (messagey.match('<[^ ]*?>')) {
                                 messagey = messagey.replace(messagey.match('<[^ ]*?>')[0], settings[messagey.match('<[^ ]*?>')[0]]);
                             }
-                            if (!settings.disabled) action(from, to, messagey);
+                            if (!settings.disabled) doSomething(from, to, messagey, messagey);
                         }
                 }}
             });
@@ -358,6 +362,7 @@ sonia.addListener('message', function (from, to, message) {
     grom[0]='Sonia';
 });
 
+setInterval(updateNextShow(), 20*60*1000);
 function updateNextShow(message) {
     sonia.send('PONG', 'empty');
     googleapis.discover('calendar', 'v3').execute(function(err, client) {
@@ -380,9 +385,6 @@ function updateNextShow(message) {
     }
     })});
 }
-
-setInterval(updateNextShow(), 20*60*1000);
-
 setInterval(function () {
     console.log('writing');
     fs.writeFile('../data/db.json', JSON.stringify(db), function (err) {
@@ -390,7 +392,6 @@ setInterval(function () {
         console.log('done writing');
     });
 }, 1000*5*60);
-
 function updateSong() {
         request('http://radio.ponyvillelive.com:2199/api.php?xm=server.getstatus&f=json&a[username]=Linana&a[password]=yoloswag', function (error, response, body) {
             if (!error && response.statusCode == 200) {
@@ -414,7 +415,6 @@ function updateSong() {
 setTimeout(updateSong, 1000*60);
 });
 }
-
 function addSong() {
     getRandomLine('db.txt', function (err, line) {
     line=line.trim();
@@ -427,7 +427,6 @@ function addSong() {
         request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&a[action]=activate&a[playlistname]=Temp', function (error, response, body) {});
     });
 }
-
 // Modified from solution by FGRibreau
 function getRandomLine(filename, callback) {
     fs.readFile(filename, function (err, data) {
@@ -451,17 +450,16 @@ sonia.addListener('raw', function (message) {
     action(message.nick, message.args[0], message.args[1].match(/ACTION (.*)\u0001$/)[1]);
     });
 function action(from, to, message) {
-        if (to!=settings.botName) {
-        Object.keys(db.away).forEach(function (item, a, b) {
-            db.away[item].push('*'+from+' '+message+'*');
-        });
+    if (to!=settings.botName) {
+    Object.keys(db.away).forEach(function (item, a, b) {
+        db.away[item].push('*'+from+' '+message+'*');
+    });
     }
     if ((message.match(/^!|^Sonia?[:,]?/i)||message.match(/,? Sonia?[.! ?]*?$/i)
     || grom[0]==settings.botName || to==settings.botName) && from!=settings.botName) {
         var begin = message.match(/^(Sonia?[:,]? |!)/i)?message.match(/^(Sonia?[:,]? |!)/i)[1]:message.match(/(,? Sonia?[.! ?]*?)$/i)?message.match(/(,? Sonia?[.! ?]*?)$/i)[1]:'';
         message = message.replace(begin, '');
         message = message.replace(/What.?s the /i, '');
-        var proc = false;
             if (begin!='!'&&message&&!(message.match(/^w(?:hen).*\{(.*?)\}.*\{(.*?)\}/i) && message.match(/^w(?:hen).*\{(.*?)\}.*\{(.*?)\}/i).length == 3)) {
             var matched = false;
             var messagey = message;
@@ -481,14 +479,14 @@ function action(from, to, message) {
                             while (messagey.match('<[^ ]*?>')) {
                                 messagey.replace(messagey.match('<[^ ]*?>')[0], settings[messagey.match('<[^ ]*?>')[0]]);
                             }
-                            if (!settings.disabled) action(to, from, messagey);
+                            if (!settings.disabled) doSomething(to, from, messagey, messagey);
                         }
                 }}
             });
             if (!matched && !message.match(/\?$/i)) {
                 messagey = messagey+', too';
             }
-            if (!settings.disabled && (from!=settings.botName&&!matched)) action(from, to, messagey);
+            if (!settings.disabled && (from!=settings.botName&&!matched)) doSomething(from, to, messagey, messagey);
         }
     }
     grom[1]=grom[0];
