@@ -338,7 +338,7 @@ sonia.addListener('message', function (from, to, message) {
             var messagey = message;
             Object.keys(db.say).forEach(function (item, a, b) {
                 if (message.match(new RegExp(item, "i")) && (db.say[item] || db.act[item])) {
-                    if (!item.match(/event=(?:song|login)/)) {
+                    if (!item.match(/event=(?:song|login|hour|minute|second)/)) {
                         matched = true;
                         if (db.say[item]) {
                             messagey = db.say[item];
@@ -504,6 +504,10 @@ function action(from, to, message) {
 
 function hours() {sonia.say('#SonicRadioboom', db.say['|event=hour']);}
 setInterval(hours(), 60*60*1000);
+function minute() {sonia.say('#SonicRadioboom', db.say['|event=minute']);}
+setInterval(hours(), 60*1000);
+function second() {sonia.say('#SonicRadioboom', db.say['|event=second']);}
+setInterval(hours(), 1000);
 
 sonia.addListener('nick', function (oldnick, newnick, channels, message) {
     newnick = newnick.replace(/_*$/, '');
