@@ -517,7 +517,7 @@ function hour() {
     sonia.say('#SonicRadioboom', db.say['event=hour']);
     }
 function minute() {
-    sonia.say('#SonicRadioboom', db.say['event=minute']+moment());
+    sonia.say('#SonicRadioboom', db.say['event=minute']);
     }
 function second() {
     sonia.say('#SonicRadioboom', db.say['event=second']);
