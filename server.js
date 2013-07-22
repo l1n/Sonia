@@ -55,6 +55,7 @@ var sonia = new irc.Client(settings.server, settings.botName, {
 });
 
 sonia.addListener('registered', function() {setTimeout(function(){
+    
     sonia.say('NickServ', 'identify yoloswag');
     sonia.say('linaea', 'Started Sonia '+require('./package.json').version);
     updateSong();
@@ -124,6 +125,7 @@ sonia.addListener('registered', function() {setTimeout(function(){
     emitter.on('setNick', function (from, to, message, args) {
         opCommand(from, to, message, args, nick);
     });
+    setTimeout(every(), 1000);
     },5000);});
 function poke(from, to, message, args) {
     doSomething('Sonia', '#SonicRadioboom', '', 'pokes '+args);
@@ -369,7 +371,6 @@ sonia.addListener('message', function (from, to, message) {
     grom[0]='Sonia';
 });
 
-setInterval(updateNextShow(), 20*60*1000);
 function updateNextShow(message) {
     sonia.send('PONG', 'empty');
     googleapis.discover('calendar', 'v3').execute(function(err, client) {
@@ -392,13 +393,13 @@ function updateNextShow(message) {
     }
     })});
 }
-setInterval(function () {
+function autosave() {
     console.log('writing');
     fs.writeFile('../data/db.json', JSON.stringify(db), function (err) {
         if (err) return console.log(err);
         console.log('done writing');
     });
-}, 1000*5*60);
+}
 function updateSong() {
         request('http://radio.ponyvillelive.com:2199/api.php?xm=server.getstatus&f=json&a[username]=Linana&a[password]=yoloswag', function (error, response, body) {
             if (!error && response.statusCode == 200) {
@@ -502,12 +503,25 @@ function action(from, to, message) {
     grom[0]=from;
 }
 
-function hours() {sonia.say('#SonicRadioboom', db.say['|event=hour']);}
-setInterval(hours(), 60*60*1000);
-function minute() {sonia.say('#SonicRadioboom', db.say['|event=minute']);}
-setInterval(hours(), 60*1000);
-function second() {sonia.say('#SonicRadioboom', db.say['|event=second']);}
-setInterval(hours(), 1000);
+var t = 0;
+function every() {
+    t++;
+    if (t%1===0) second();
+    if (t%60===0) minute();
+    if (t%60*60===0) hour();
+    if (t%20*60===0) updateNextShow();
+    if (t%5*60===0) autosave();
+    setTimeout(function () {every()}, 1000);
+}
+function hour() {
+    sonia.say('#SonicRadioboom', db.say['event=hour']);
+    }
+function minute() {
+    sonia.say('#SonicRadioboom', db.say['event=minute']);
+    }
+function second() {
+    sonia.say('#SonicRadioboom', db.say['event=second']);
+    }
 
 sonia.addListener('nick', function (oldnick, newnick, channels, message) {
     newnick = newnick.replace(/_*$/, '');
