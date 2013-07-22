@@ -501,6 +501,10 @@ function action(from, to, message) {
     grom[1]=grom[0];
     grom[0]=from;
 }
+
+function hourly() {sonia.say('#SonicRadioboom', db.say['|event=hour']);setTimeout(hourly(), 60*60*1000);}
+setTimeout(hourly(), 60*60*1000);
+
 sonia.addListener('nick', function (oldnick, newnick, channels, message) {
     newnick = newnick.replace(/_*$/, '');
     oldnick = oldnick.replace(/_*$/, '');
