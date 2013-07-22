@@ -506,11 +506,11 @@ function action(from, to, message) {
 var t = 0;
 function every() {
     t++;
-    if (t%1===0) second();
-    if (t%60===0) minute();
-    if (t%60*60===0) hour();
-    if (t%20*60===0) updateNextShow();
-    if (t%5*60===0) autosave();
+    if (1%t===0) second();
+    if (60%t===0) minute();
+    if (60*60%t===0) hour();
+    if (20*60%t===0) updateNextShow();
+    if (05*60%t===0) autosave();
     setTimeout(function () {every()}, 1000);
 }
 function hour() {
