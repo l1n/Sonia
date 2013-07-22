@@ -420,7 +420,7 @@ function updateSong() {
                 }
                 current = body;
 }
-setTimeout(updateSong, 1000*15);
+setTimeout(function () {updateSong();}, 1000*15);
 });
 }
 function addSong() {
@@ -506,11 +506,12 @@ function action(from, to, message) {
 var t = 0;
 function every() {
     t++;
-    if (1%t===0) second();
-    if (60%t===0) minute();
-    if (((60*60)%t)===0) hour();
-    if (((20*60)%t)===0) updateNextShow();
-    if (((5*60)%t)===0) autosave();
+    console.log(t);
+    if (1%t) second();
+    if (60%t) minute();
+    if ((60*60)%t) hour();
+    if ((20*60)%t) updateNextShow();
+    if ((5*60)%t) autosave();
     setTimeout(function () {every()}, 1000);
 }
 function hour() {
