@@ -508,9 +508,9 @@ function every() {
     t++;
     if (1%t===0) second();
     if (60%t===0) minute();
-    if (60*60%t===0) hour();
-    if (20*60%t===0) updateNextShow();
-    if (05*60%t===0) autosave();
+    if (((60*60)%t)===0) hour();
+    if (((20*60)%t)===0) updateNextShow();
+    if (((5*60)%t)===0) autosave();
     setTimeout(function () {every()}, 1000);
 }
 function hour() {
