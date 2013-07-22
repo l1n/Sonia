@@ -506,19 +506,18 @@ function action(from, to, message) {
 var t = 0;
 function every() {
     t++;
-    console.log(t);
-    if (1%t) second();
-    if (60%t) minute();
-    if ((60*60)%t) hour();
-    if ((20*60)%t) updateNextShow();
-    if ((5*60)%t) autosave();
+    if (t%1===0) second();
+    if (t%60===0) minute();
+    if (t%(60*60)===0) hour();
+    if (t%(20*60)===0) updateNextShow();
+    if (t%(5*60)===0) autosave();
     setTimeout(function () {every()}, 1000);
 }
 function hour() {
     sonia.say('#SonicRadioboom', db.say['event=hour']);
     }
 function minute() {
-    sonia.say('#SonicRadioboom', db.say['event=minute']);
+    sonia.say('#SonicRadioboom', db.say['event=minute']+moment());
     }
 function second() {
     sonia.say('#SonicRadioboom', db.say['event=second']);
