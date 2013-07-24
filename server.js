@@ -55,7 +55,6 @@ var sonia = new irc.Client(settings.server, settings.botName, {
 });
 
 sonia.addListener('registered', function() {setTimeout(function(){
-    
     sonia.say('NickServ', 'identify yoloswag');
     sonia.say('linaea', 'Started Sonia '+require('./package.json').version);
     updateSong();
