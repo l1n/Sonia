@@ -561,9 +561,9 @@ sonia.addListener('quit', function(channel, nick, message) {
     db.name[nick] = moment();
 });
 sonia.addListener('error', function(message) {
-    console.log('error: ', message);
+    sonia.say('linaea', 'error: '+ message);
 });
 process.on('uncaughtException', function(err) {
-  console.log('linaea', 'Caught exception: ' + err + err.stack);
+  sonia.say('linaea', 'Caught exception: ' + err + err.stack);
   // sonia.say('ElectricErger', 'Caught exception: ' + err.stack);
 });
