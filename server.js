@@ -371,7 +371,6 @@ sonia.addListener('message', function (from, to, message) {
 });
 
 function updateNextShow(message) {
-    sonia.send('PONG', 'empty');
     googleapis.discover('calendar', 'v3').execute(function(err, client) {
     var params = {
         calendarId: 'sonicradioboom2013@gmail.com',
@@ -516,6 +515,7 @@ function hour() {
     sonia.say('#SonicRadioboom', db.say['event=hour']);
     }
 function minute() {
+    sonia.send('PONG', 'empty');
     sonia.say('#SonicRadioboom', db.say['event=minute']);
     }
 function second() {
@@ -561,7 +561,7 @@ sonia.addListener('quit', function(channel, nick, message) {
     db.name[nick] = moment();
 });
 sonia.addListener('error', function(message) {
-    sonia.say('linaea', 'error: '+ message);
+    sonia.say('linaea', 'error: '+ JSON.stringify(message));
 });
 process.on('uncaughtException', function(err) {
   sonia.say('linaea', 'Caught exception: ' + err + err.stack);
