@@ -36,6 +36,7 @@ var current, rem, next, djNotified, grom = ['Sonia', 'Sonia'], upnext = [], last
 // Create the settingsuration for node-irc
 var settings = {
     channels: ['#SonicRadioboom', '#SRBTests'],
+    // channels: ['#SRBTests'],
     server: "irc.canternet.org",
     // botName: "SoniaBeta",
     botName: "Sonia",
@@ -133,12 +134,13 @@ function hug(from, to, message, args) {
     doSomething('Sonia', '#SonicRadioboom', '', 'hugs '+args);
 }
 function reply(from, to, message) {
+    if (settings.verbose) sonia.say('linaea', (to==settings.botName?from:to));
     sonia.say((to==settings.botName?from:to), message);
     grom[1]=grom[0];
     grom[0]='Sonia';
 }
 function doSomething(from, to, message, args) {
-    act(from, to, message, args);
+    act(from, (to==settings.botName?from:to), message, args);
     grom[1]=grom[0];
     grom[0]='Sonia';
 }
@@ -177,7 +179,7 @@ function setProperty(from, to, message, args) {
     reply(from, to, args+' '+(settings[args]?'on':'off'));
 }
 function act(from, to, message, args) {
-    sonia.action('#SonicRadioboom', args);
+    sonia.action(to, args);
 }
 function say(from, to, message, args) {
     sonia.say('#SonicRadioboom', args);
@@ -296,6 +298,9 @@ function sayWhen(from, to, message) {
 }
 
 sonia.addListener('message', function (from, to, message) {
+    settings.from = from;
+    settings.to = to;
+    settings.message = message;
     if (to!=settings.botName) {
         Object.keys(db.away).forEach(function (item, a, b) {
             db.away[item].push('<'+from+'>: '+message);
@@ -343,25 +348,29 @@ sonia.addListener('message', function (from, to, message) {
                         matched = true;
                         if (db.say[item]) {
                             messagey = db.say[item];
-                            messagey = messagey.replace('Sonia|<from>', from);
-                            while (messagey.match('<[^ ]*?>')) {
-                                messagey = messagey.replace(messagey.match('<[^ ]*?>')[0], settings[messagey.match('<[^ ]*?>')[0]]);
+                            messagey = messagey.replace('Sonia','<from>');
+                            while (messagey.match(/<[^ ]*?>/)) {
+                                messagey = messagey.replace(/<[^ ]*?>/, settings[messagey.match('<([^ ]*?)>')[1]]);
                             }
                             if (!settings.disabled) reply(from, to, messagey);
                         }
                         if (db.act[item]) {
                             messagey = db.act[item];
-                            messagey = messagey.replace('Sonia|<from>', from);
-                            while (messagey.match('<[^ ]*?>')) {
-                                messagey = messagey.replace(messagey.match('<[^ ]*?>')[0], settings[messagey.match('<[^ ]*?>')[0]]);
+                            messagey = messagey.replace('Sonia', '<from>');
+                            while (messagey.match(/<[^ ]*?>/)) {
+                                messagey = messagey.replace(/<[^ ]*?>/, settings[messagey.match('<([^ ]*?)>')[1]]);
                             }
-                            if (!settings.disabled) doSomething(from, to, messagey, messagey);
+                            if (!settings.disabled) doSomething(to, (to==settings.botName?from:to), messagey, messagey);
                         }
                 }}
             });
             if (!matched && !message.match(/\?$/i && begin.length)) {
                 messagey = messagey+' to you too, '+from;
-            }
+                messagey = messagey.replace('Sonia', '<from>');
+                while (messagey.match(/<[^ ]*?>/)) {
+                    messagey = messagey.replace(/<[^ ]*?>/, settings[messagey.match('<([^ ]*?)>')[1]]);
+                }
+                }
             if (settings.verbose) sonia.say('linaea', matched+' '+messagey);
             if (!settings.disabled && (from!=settings.botName&&grom[0]!=settings.botName&&!matched)) reply(from, to, messagey);
         }
@@ -456,6 +465,9 @@ sonia.addListener('raw', function (message) {
     action(message.nick, message.args[0], message.args[1].match(/ACTION (.*)\u0001$/)[1]);
     });
 function action(from, to, message) {
+    settings.from = from;
+    settings.to = to;
+    settings.message = message;
     if (to!=settings.botName) {
     Object.keys(db.away).forEach(function (item, a, b) {
         db.away[item].push('*'+from+' '+message+'*');
@@ -464,8 +476,9 @@ function action(from, to, message) {
     if ((message.match(/^!|^Sonia?[:,]?/i)||message.match(/,? Sonia?[.! ?]*?$/i))
     || (grom[0]==settings.botName || to==settings.botName && from!=settings.botName)) {
         var begin = message.match(/^(Sonia?[:,]? |!)/i)?message.match(/^(Sonia?[:,]? |!)/i)[1]:message.match(/(,? Sonia?[.! ?]*?)$/i)?message.match(/(,? Sonia?[.! ?]*?)$/i)[1]:'';
-        message = message.replace(begin, '');
-        message = message.replace(/What.?s the /i, '');
+        // message = message.replace(begin, '');
+        // message = message.replace(/What.?s the /i, '');
+            message = message.replace('Sonia', '<from>');
             if (begin!='!'&&message&&!(message.match(/^w(?:hen).*\{(.*?)\}.*\{(.*?)\}/i) && message.match(/^w(?:hen).*\{(.*?)\}.*\{(.*?)\}/i).length == 3)) {
             var matched = false;
             var messagey = message;
@@ -475,26 +488,28 @@ function action(from, to, message) {
                         matched = true;
                         if (db.say[item]) {
                             messagey = db.say[item];
-                            messagey = messagey.replace('Sonia|<from>', from);
-                            while (messagey.match('<[^ ]*?>')) {
-                                messagey.replace(messagey.match('<[^ ]*?>')[0], settings[messagey.match('<[^ ]*?>')[0]]);
+                            while (messagey.match(/<[^ ]*?>/)) {
+                                messagey = messagey.replace(/<[^ ]*?>/, settings[messagey.match('<([^ ]*?)>')[1]]);
                             }
                             if (!settings.disabled) reply(from, to, messagey);
                         }
                         if (db.act[item]) {
                             messagey = db.act[item];
-                            messagey = messagey.replace('Sonia|<from>', from);
-                            while (messagey.match('<[^ ]*?>')) {
-                                messagey.replace(messagey.match('<[^ ]*?>')[0], settings[messagey.match('<[^ ]*?>')[0]]);
+                            while (messagey.match(/<[^ ]*?>/)) {
+                                messagey = messagey.replace(/<[^ ]*?>/, settings[messagey.match('<([^ ]*?)>')[1]]);
                             }
-                            if (!settings.disabled) doSomething(to, from, messagey, messagey);
+                            if (!settings.disabled) doSomething(to, (to==settings.botName?from:to), messagey, messagey);
                         }
                 }}
             });
-            if (!matched && !message.match(/\?$/i)) {
+            if (!settings.disabled && !matched && !message.match(/\?$/i)) {
                 messagey = messagey+', too';
+                while (messagey.match(/<[^ ]*?>/)) {
+                    console.log(messagey)
+                    messagey = messagey.replace(/<[^ ]*?>/, settings[messagey.match('<([^ ]*?)>')[1]]);
+                }
             }
-            if (!settings.disabled && (from!=settings.botName&&!matched)) doSomething(from, to, messagey, messagey);
+            if (!settings.disabled && (from!=settings.botName&&!matched)) doSomething(to, (to==settings.botName?from:to), messagey, messagey);
         }
     }
     grom[1]=grom[0];
