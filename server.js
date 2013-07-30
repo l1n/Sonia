@@ -260,7 +260,7 @@ function req(from, to, message, args) {
         if (err) throw err;
         var r = new RegExp('^.*('+args+').*$', "m");
         var song = cont.toString().match(r);
-        song=song[0]?song[0]:'SimGretina - AI - 06 Intelligentia Room.mp3';
+        song=song?song[0]:'SimGretina - AI - 06 Intelligentia Room.mp3';
         request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&a[action]=add&a[playlistname]=Temp&a[trackpath]='+song, function (error, response, body) {
             body = JSON.parse(body);
             if (!error && response.statusCode == 200 && body.type=='success') {
@@ -419,8 +419,10 @@ function updateSong() {
                         request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&a[action]=remove&a[playlistname]=Temp&a[trackpath]='+lastplayed.push(upnext.pop()), function (error, response, body) {
                         });
                     }
-                    if (upnext.length===0 && settings.autodj)
+                    if (upnext.length===0 && settings.autodj) {
+                        if (settings.verbose) sonia.say('linaea', 'Adding song');
                         addSong();
+                    }
                     if (db.say[body.response.data.status.currentsong+'|event=song']) {
                         sonia.say('#SonicRadioboom', db.say[body.response.data.status.currentsong+'|event=song']);
                     }
