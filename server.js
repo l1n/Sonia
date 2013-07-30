@@ -415,10 +415,7 @@ function updateSong() {
                     if (settings.notify) {
                         sonia.say('#SonicRadioboom', 'New Song: '+body.response.data.status.currentsong);
                     }
-                    if (!moment(next.start.dateTime).fromNow().match("ago") && upnext.length !== 0 || body.response.data.status.currentsong.match(lastplayed[lastplayed.length-2])) {
-                        request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&a[action]=remove&a[playlistname]=Temp&a[trackpath]='+lastplayed.push(upnext.pop()), function (error, response, body) {
-                        });
-                    }
+                    request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&a[action]=remove&a[playlistname]=Temp&a[trackpath]='+lastplayed.push(upnext.pop()), function (error, response, body) {});
                     if (upnext.length===0 && settings.autodj) {
                         if (settings.verbose) sonia.say('linaea', 'Adding song');
                         addSong();
