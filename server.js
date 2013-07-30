@@ -125,6 +125,9 @@ sonia.addListener('registered', function() {setTimeout(function(){
     emitter.on('setNick', function (from, to, message, args) {
         opCommand(from, to, message, args, nick);
     });
+    emitter.on('updateSong', function (from, to, message, args) {
+        opCommand(from, to, message, args, updateSong);
+    });
     setTimeout(every(), 1000);
     },5000);});
 function poke(from, to, message, args) {
