@@ -466,6 +466,7 @@ function getRandomLine(filename, callback) {
 }
 // XXXX Hack for calling action handlers.
 sonia.addListener('raw', function (message) {
+    if (message.command == 'PING') sonia.send('PONG', 'empty');
     if (message.command == 'PRIVMSG' && message.args[1].match(/ACTION/))
     action(message.nick, message.args[0], message.args[1].match(/ACTION (.*)\u0001$/)[1]);
     });
@@ -535,7 +536,6 @@ function hour() {
     sonia.say('#SonicRadioboom', db.say['event=hour']);
     }
 function minute() {
-    sonia.send('PONG', 'empty');
     sonia.say('#SonicRadioboom', db.say['event=minute']);
     }
 function second() {
