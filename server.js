@@ -128,6 +128,9 @@ sonia.addListener('registered', function() {setTimeout(function(){
     emitter.on('updateSong', function (from, to, message, args) {
         opCommand(from, to, message, args, updateSong);
     });
+    emitter.on('addSong', function (from, to, message, args) {
+        opCommand(from, to, message, args, addSong);
+    });
     setTimeout(every(), 1000);
     },5000);});
 function poke(from, to, message, args) {
