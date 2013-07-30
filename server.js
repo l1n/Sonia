@@ -131,6 +131,12 @@ sonia.addListener('registered', function() {setTimeout(function(){
     emitter.on('addSong', function (from, to, message, args) {
         opCommand(from, to, message, args, addSong);
     });
+    emitter.on('clearQueue', function (from, to, message, args) {
+        opCommand(from, to, message, args, function () {
+            upnext = [];
+            reply(from, to, 'Hmm... What was that again?');
+        });
+    });
     setTimeout(every(), 1000);
     },5000);});
 function poke(from, to, message, args) {
