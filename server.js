@@ -433,7 +433,8 @@ function updateSong() {
                     if (settings.notify) {
                         sonia.say('#SonicRadioboom', 'New Song: '+body.response.data.status.currentsong);
                     }
-                    request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&a[action]=remove&a[playlistname]=Temp&a[trackpath]='+lastplayed.push(upnext.pop()), function (error, response, body) {});
+                    upnext.unshift();
+                    request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&a[action]=remove&a[playlistname]=Temp&a[trackpath]='+lastplayed.push(JSON.stringify(body.response.data.status.currentsong)), function (error, response, body) {});
                     if (upnext.length===0 && settings.autodj) {
                         if (settings.verbose) sonia.say('linaea', 'Adding song');
                         addSong();
@@ -450,7 +451,6 @@ setTimeout(function () {updateSong();}, 1000*15);
 function addSong() {
     getRandomLine('db.txt', function (err, line) {
     line=line.trim();
-    upnext.push(line);
     if (settings.notify) sonia.say('#SonicRadioboom', line+' up next!');
     request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&a[action]=add&a[playlistname]=Temp&a[trackpath]='
     +line, function (error, response, body) {body = JSON.parse(body); if (body.type!="success") {sonia.say('linaea', "There was an error adding '"+line+"' to the playlist.");
@@ -458,12 +458,15 @@ function addSong() {
     +line);
     sonia.say('linaea', "Body: "+JSON.stringify(body));
     setTimeout(addSong, 10);
-    } })}); // TODO Change the song picker to be non-random
+    } else {
+        upnext.push(line);
+} })}); // TODO Change the song picker to be non-random
     // request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&a[action]=deactivate&a[playlistname]=Temp',
     // function (error, response, body) {
         request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&a[action]=activate&a[playlistname]=Temp', function (error, response, body) {});
     // });
 }
+
 // Modified from solution by FGRibreau
 function getRandomLine(filename, callback) {
     fs.readFile(filename, function (err, data) {
