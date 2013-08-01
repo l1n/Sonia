@@ -77,9 +77,9 @@ sonia.addListener('registered', function() {setTimeout(function(){
     emitter.on('define', define);
     emitter.on('away', away);
     emitter.on('back', back);
-    emitter.on('lastLogin', lastLogin);
+    emitter.on('lastlogin', lastLogin);
     emitter.on('when', sayWhen);
-    emitter.on('setProperty', function (from, to, message, args) {
+    emitter.on('setproperty', function (from, to, message, args) {
         opCommand(from, to, message, args, setProperty);
     });
     emitter.on('do', function (from, to, message, args) {
@@ -122,16 +122,16 @@ sonia.addListener('registered', function() {setTimeout(function(){
     emitter.on('request', function (from, to, message, args) {
         opCommand(from, to, message, args, req);
     });
-    emitter.on('setNick', function (from, to, message, args) {
+    emitter.on('setnick', function (from, to, message, args) {
         opCommand(from, to, message, args, nick);
     });
-    emitter.on('updateSong', function (from, to, message, args) {
+    emitter.on('updatesong', function (from, to, message, args) {
         opCommand(from, to, message, args, updateSong);
     });
-    emitter.on('addSong', function (from, to, message, args) {
+    emitter.on('addsong', function (from, to, message, args) {
         opCommand(from, to, message, args, addSong);
     });
-    emitter.on('clearQueue', function (from, to, message, args) {
+    emitter.on('clearqueue', function (from, to, message, args) {
         opCommand(from, to, message, args, function () {
             upnext = [];
             reply(from, to, 'Hmm... What was that again?');
@@ -341,7 +341,7 @@ sonia.addListener('message', function (from, to, message) {
         argumen     = argumen.trim();
         
         if (settings.verbose) console.log(command, from, to, message, argumen);
-        emitter.emit(command, from, to, message, argumen);
+        emitter.emit(command.toLowerCase(), from, to, message, argumen);
         
         if (message.match(/http:\/\/.*.deviantart.com\/art\/.*|http:\/\/fav.me\/.*|http:\/\/sta.sh\/.*|http:\/\/.*.deviantart.com\/.*#\/d.*/)) {
             request('http://backend.deviantart.com/oembed?url='+message.match(/http:[^ ]*/), function (error, response, body) {
