@@ -66,13 +66,7 @@ sonia.addListener('registered', function() {setTimeout(function(){
     sonia.say('linaea', 'Started Sonia '+require('./package.json').version);
     updateSong();
     updateNextShow();
-    getRandomLine('db.txt', function (err, line) {
-        line=line.trim();
-        upnext.push(line);
-        if (settings.verbose) sonia.say('linaea', line+' up next!');
-        request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&a[action]=add&a[playlistname]=Temp&a[trackname]='
-        +line, function (a,b,c) {})}); // TODO Change the song picker to be non-random
-        request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&a[action]=deactivate&a[playlistname]=Temp', function (a,b,c) {request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&a[action]=activate&a[playlistname]=Temp', function (a,b,c) {});});
+    addSong();
     // Register event handlers
     emitter.on('listeners', listeners);
     emitter.on('song', song);
@@ -435,7 +429,7 @@ function updateSong() {
                     }
                     upnext.unshift();
                     request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&a[action]=remove&a[playlistname]=Temp&a[trackpath]='+lastplayed.push(JSON.stringify(body.response.data.status.currentsong)), function (error, response, body) {});
-                    if (upnext.length===0 && settings.autodj) {
+                    if (settings.autodj) {
                         if (settings.verbose) sonia.say('linaea', 'Adding song');
                         addSong();
                     }
