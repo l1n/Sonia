@@ -1,6 +1,6 @@
 {
   "name": "Sonia",
-  "version": "3.9.0",
+  "version": "3.9.4",
   "description": "Sonia-bot",
   "keywords": [
     "Sonia",
@@ -30,7 +30,8 @@
         "moment": "*",
         "request": "*",
         "regexp-quote": "*",
-        "eventemitter2": "*"
+        "eventemitter2": "*",
+        "triejs": "*"
   },
   "devDependencies": {},
   "bundleDependencies": [],

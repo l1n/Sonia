@@ -5,8 +5,13 @@ var moment = require('moment');
 var googleapis = require('googleapis');
 var fs = require('fs');
 RegExp.quote = require('regexp-quote');
-var EventEmitter = require('events').EventEmitter;
-var emitter = new EventEmitter();
+var EventEmitter = require('eventemitter2').EventEmitter2, emitter = new EventEmitter();
+var Triejs = require('triejs'), trie = new Triejs();
+
+{
+    var eventlist = ["listeners","song","dlc","help","rules","next","define","away","back","lastlogin","when","setproperty","do","hug","poke","upnext","last","say","add","ban","dump","load","sayWhen","quit","save","restore","skip","request","setnick","updatesong","addsong","clearqueue"];
+    for (var i = 0; i < eventlist.length; i++) trie.add(eventlist[i]);
+}
 
 var db = JSON.parse(fs.readFileSync('../data/db.json', "utf8"));
 var now = new moment();
@@ -35,17 +40,18 @@ var current, rem, next, djNotified, grom = ['Sonia', 'Sonia'], upnext = [], last
 
 // Create the settingsuration for node-irc
 var settings = {
-    channels: ['#SonicRadioboom', '#SRBTests'],
-    // channels: ['#SRBTests'],
+    // channels: ['#SonicRadioboom', '#SRBTests'],
+    channels: ['#SRBTests'],
     server: "irc.canternet.org",
-    // botName: "SoniaBeta",
-    botName: "Sonia",
+    botName: "SoniaBeta",
+    // botName: "Sonia",
     floodProtection: true,
     notify: false,
     disabled: false,
     verbose: false,
     introduce: false,
     autodj: true,
+    context: true,
     feeling: 'like a robot'
 };
 
@@ -327,7 +333,7 @@ sonia.addListener('message', function (from, to, message) {
         }
     });
     if ((message.match(/^!|^Sonia?[:,]?/i)||message.match(/,? Sonia?[.! ?]*?$/i))
-    || (grom[0]==settings.botName || to==settings.botName && from!=settings.botName)) {
+    || (grom[0]==settings.botName || to==settings.botName && from!=settings.botName && settings.context)) {
         var begin = message.match(/^(Sonia?[:,]? |!)/i)
         ?message.match(/^(Sonia?[:,]? |!)/i)[1]
         :message.match(/(,? Sonia?[.! ?]*?)$/i)
@@ -340,8 +346,8 @@ sonia.addListener('message', function (from, to, message) {
         var argumen = message.match(/ .*/)?message.match(/ .*/)[0]:'';
         argumen     = argumen.trim();
         
-        if (settings.verbose) console.log(command, from, to, message, argumen);
-        emitter.emit(command.toLowerCase(), from, to, message, argumen);
+        if (settings.verbose) console.log(trie.find(command), from, to, message, argumen);
+        emitter.emit(trie.find(command.toLowerCase()), from, to, message, argumen);
         
         if (message.match(/http:\/\/.*.deviantart.com\/art\/.*|http:\/\/fav.me\/.*|http:\/\/sta.sh\/.*|http:\/\/.*.deviantart.com\/.*#\/d.*/)) {
             request('http://backend.deviantart.com/oembed?url='+message.match(/http:[^ ]*/), function (error, response, body) {
