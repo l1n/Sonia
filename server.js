@@ -299,7 +299,9 @@ function lastSong(from, to) {
     reply(from, to, "Last Played: "+lastplayed[lastplayed.length-2]);
 }
 function skip(from, to, message, args) {
-    request('http://radio.ponyvillelive.com:2199/api.php?xm=server.nextsong&f=json&a[username]=Linana&a[password]=yoloswag', function (a,b,c) {reply(from, to, 'Skipped '.lastplayed[lastplayed.length-1]);});
+    var sfrom = from;
+    var sto = to;
+    request('http://radio.ponyvillelive.com:2199/api.php?xm=server.nextsong&f=json&a[username]=Linana&a[password]=yoloswag', function (error, response, body) {reply(sfrom, sto, 'Skipped '.lastplayed[lastplayed.length-1]);});
 }
 function sayWhen(from, to, message) {
     var parts = message.match(/\{(.*?)\}.*\{(.*?)\}/i);
