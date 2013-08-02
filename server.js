@@ -312,9 +312,7 @@ function lastSong(from, to) {
     reply(from, to, "Last Played: "+lastplayed[lastplayed.length-2]);
 }
 function skip(from, to, message, args) {
-    var sfrom = from;
-    var sto = to;
-    request('http://radio.ponyvillelive.com:2199/api.php?xm=server.nextsong&f=json&a[username]=Linana&a[password]=yoloswag', function (error, response, body) {reply(from, to, 'Skipped '.current.response.data.currentsong);});
+    request('http://radio.ponyvillelive.com:2199/api.php?xm=server.nextsong&f=json&a[username]=Linana&a[password]=yoloswag', function (error, response, body) {reply(from, to, 'Skipped that one.');});
 }
 function sayWhen(from, to, message) {
     var parts = message.match(/\{(.*?)\}.*\{(.*?)\}/i);
@@ -585,7 +583,7 @@ sonia.addListener('nick', function (oldnick, newnick, channels, message) {
 sonia.addListener('join', function(channel, nick, message) {
     nick = nick.replace(/_*$/, '');
     if (db.ban[nick]) {
-        sonia.kick('#SonicRadioboom', nick, 'Sonia waz here.');
+        sonia.send('KICK', '#SonicRadioboom', nick, 'Sonia waz here.');
     } else {
     if (channel=='#SonicRadioboom' && nick!=settings.botName) {
         var record = db.name[nick];
