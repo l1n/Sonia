@@ -9,7 +9,7 @@ var EventEmitter = require('eventemitter2').EventEmitter2, emitter = new EventEm
 var Triejs = require('triejs'), trie = new Triejs();
 
 {
-    var eventlist = ["listeners","song","dlc","help","rules","next","define","away","back","lastlogin","when","setproperty","do","hug","poke","upnext","last","say","add","ban","dump","load","sayWhen","quit","save","restore","skip","request","setnick","updatesong","addsong","clearqueue"];
+    var eventlist = ["listeners","song","dlc","help","rules","next","define","away","back","lastlogin","when","setproperty","do","hug","poke","upnext","lastplayed","broadcast","add","ban","dump","load","sayWhen","quit","save","restore","skip","request","setnick","updatesong","addsong","clearqueue"];
     for (var i = 0; i < eventlist.length; i++) trie.add(eventlist[i]);
 }
 
@@ -88,8 +88,8 @@ sonia.addListener('registered', function() {setTimeout(function(){
     emitter.on('hug', hug);
     emitter.on('poke', poke);
     emitter.on('upnext', nextRequest);
-    emitter.on('last', lastSong);
-    emitter.on('say', function (from, to, message, args) {
+    emitter.on('lastplayed', lastSong);
+    emitter.on('broadcast', function (from, to, message, args) {
         opCommand(from, to, message, args, say);
     });
     emitter.on('add', function (from, to, message, args) {
