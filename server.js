@@ -233,7 +233,7 @@ function event(from, to, message) {
     }
 }
 function ban(from, to, message, args) {
-    db.ban[args] = true;
+    db.ban[args] = db.ban[args]==undefined?true:!db.ban[args];
     reply(from, to, 'Banned: '+db.ban[args]);
 }
 function dump(from, to, message) {
