@@ -279,13 +279,19 @@ function req(from, to, message, args) {
                 // request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&a[action]=activate&a[playlistname]=Temp', function (error, reponse, body) {
                     // if (!error && response.statusCode == 200 && JSON.parse(body).type=='success') {
                         reply(from, to, 'Coming up next: '+song);
-                        upnext.push(song);
+                        request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&a[action]=remove&a[playlistname]=Temp&a[trackpath]='+upnext[0], function (error, response, body) {
+                            request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&a[action]=add&a[playlistname]=Temp&a[trackpath]='+upnext[0], function (error, response, body) {
+                                upnext.push(song);
+                            })
+                        });
                 //     } else {
                 //         reply(from, to, 'Huh. I know that song, but our server doesn\'t... Error: '+error+', body of response: '+body);
                 //     }
                 // });
             } else {
                 reply(from, to, 'I tried my best, but I couldn\'t bring myself to play that.');
+                sonia.say('linaea', 'Error adding song '+song+':');
+                sonia.say('linaea', body);
             }
         });});
 }
