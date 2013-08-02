@@ -291,6 +291,7 @@ function req(from, to, message, args) {
 }
 function nick(from, to, message, args) {
     sonia.send('nick', args);
+    settings.botName = args;
 }
 function nextRequest(from, to) {
     reply(from, to, "Up next: "+upnext[upnext.length-1]);
