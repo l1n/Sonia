@@ -69,7 +69,6 @@ sonia.addListener('registered', function() {setTimeout(function(){
     sonia.say('linaea', 'Started Sonia '+require('./package.json').version);
     updateSong();
     updateNextShow();
-    setTimeout(addSong, 1000);
     // Register event handlers
     emitter.on('listeners', listeners);
     emitter.on('song', song);
@@ -451,7 +450,7 @@ function updateSong() {
                     if (settings.notify) {
                         sonia.say('#SonicRadioboom', 'New Song: '+body.response.data.status.currentsong);
                     }
-                    if (upnext.length!=0) upnext.unshift();
+                    upnext.unshift();
                     request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&a[action]=remove&a[playlistname]=Temp&a[trackpath]='+
                     lastplayed.push(JSON.stringify(body.response.data.status.currentsong).trim()), function (error, response, body) {});
                     if (settings.autodj && upnext.length==0) {
