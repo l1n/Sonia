@@ -11,6 +11,8 @@ var Triejs = require('triejs'), trie = new Triejs();
 {
     var eventlist = ["np","listeners","song","dlc","help","rules","event","define","away","back","lastlogin","when","setproperty","do","hug","poke","nextsong","lastplayed","broadcast","add","ban","dump","load","sayWhen","quit","save","restore","skip","request","setnick","updatesong","addsong","clearqueue","pm"];
     for (var i = 0; i < eventlist.length; i++) trie.add(eventlist[i]);
+    trie.add("upnext","next");
+    trie.add("np","song");
 }
 
 var db = JSON.parse(fs.readFileSync('../data/db.json', "utf8"));
@@ -20,7 +22,7 @@ if (!db.ban)  db.ban  = {};
 if (!db.away) db.away = {};
 if (!db.say)  db.say  = {};
 if (!db.act)  db.act  = {};
-if (!db.song) readSongDB('db.txt');
+if (db.song||true) readSongDB('db.txt');
 if (!db.pp)   db.pp   = {};
 
 if (Object.keys(db.name).indexOf('ElectricErger') <= 0) {
@@ -38,7 +40,7 @@ var keys = {
 
 var current, rem, next, djNotified, grom = ['Sonia', 'Sonia'], upnext = [], lastplayed = [];
 
-// Create the settingsuration for node-irc
+// Create the settings for node-irc
 var settings = {
     channels: ['#SonicRadioboom', '#SRBTests'],
     // channels: ['#SRBTests'],
@@ -48,7 +50,7 @@ var settings = {
     floodProtection: true,
     notify: false,
     disabled: false,
-    verbose: false,
+    verbose: true,
     introduce: false,
     autodj: true,
     context: true,
@@ -67,11 +69,10 @@ sonia.addListener('registered', function() {setTimeout(function(){
     sonia.say('linaea', 'Started Sonia '+require('./package.json').version);
     updateSong();
     updateNextShow();
-    addSong();
+    setTimeout(addSong, 1000);
     // Register event handlers
     emitter.on('listeners', listeners);
     emitter.on('song', song);
-    emitter.on('np', song);
     emitter.on('dlc', getMeta);
     emitter.on('help', help);
     emitter.on('rules', help);
@@ -141,6 +142,10 @@ sonia.addListener('registered', function() {setTimeout(function(){
             upnext = [];
             reply(from, to, 'Hmm... What was that again?');
         });
+    });
+    request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&a[action]=deactivate&a[playlistname]=Temp',
+    function (error, response, body) {
+        request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&a[action]=activate&a[playlistname]=Temp', function (error, response, body) {});
     });
     setTimeout(every(), 1000);
     },5000);});
@@ -276,11 +281,10 @@ function back(from, to) {
     }
 }
 function req(from, to, message, args) {
-    fs.readFile("db.txt", function(err, cont) {
-        if (err) throw err;
-        var r = new RegExp('^.*('+args+').*$', "m");
-        var song = cont.toString().match(r);
-        song=song?song[0]:'SimGretina - AI - 06 Intelligentia Room.mp3';
+    var r = new RegExp('^'+args+'$');
+    var song;
+    for(s in db.songs) if (s.match(r)) {song = s; break;}
+    if (song) {
         request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&a[action]=add&a[playlistname]=Temp&a[trackpath]='+song, function (error, response, body) {
             body = JSON.parse(body);
             if (!error && response.statusCode == 200 && body.type=='success') {
@@ -301,7 +305,10 @@ function req(from, to, message, args) {
                 sonia.say('linaea', 'Error adding song '+song+':');
                 sonia.say('linaea', body);
             }
-        });});
+        });
+    } else {
+        reply(from, to, 'I don\'t know that one. Pick another?');
+    }
 }
 function nick(from, to, message, args) {
     sonia.send('nick', args);
@@ -328,7 +335,7 @@ sonia.addListener('message', function (from, to, message) {
     settings.from = from;
     settings.to = to;
     settings.message = message;
-    settings.nowplaying = current.response.data.status.currentsong;
+    // settings.nowplaying = current.response.data.status.currentsong;
     
     if (to!=settings.botName) {
         Object.keys(db.away).forEach(function (item, a, b) {
@@ -444,12 +451,15 @@ function updateSong() {
                     if (settings.notify) {
                         sonia.say('#SonicRadioboom', 'New Song: '+body.response.data.status.currentsong);
                     }
-                    upnext.unshift();
+                    if (upnext.length==0) upnext.unshift();
                     request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&a[action]=remove&a[playlistname]=Temp&a[trackpath]='+
                     lastplayed.push(JSON.stringify(body.response.data.status.currentsong).trim()), function (error, response, body) {});
-                    if (settings.autodj) {
+                    if (settings.autodj && upnext.length==0) {
                         if (settings.verbose) sonia.say('linaea', 'Adding song');
                         addSong();
+                    } else {
+                        if (settings.verbose) sonia.say('linaea', 'upnext.length: '+upnext.length);
+                        if (settings.verbose) sonia.say('linaea', 'upnext: '+JSON.stringify(upnext));
                     }
                     if (db.say[body.response.data.status.currentsong+'|event=song']) {
                         sonia.say('#SonicRadioboom', db.say[body.response.data.status.currentsong+'|event=song']);
@@ -475,21 +485,23 @@ function addSong() {
 // } })}); // TODO Change the song picker to be non-random
     var song = db.songs[settings.currentSongNum++||0];
     if (db.songs.length-1==settings.currentSongNum) {
+        sonia.say('linaea', 'rereading db, out of songs');
         readSongDB('db.txt');
         settings.currentSongNum;
+    } else {
+        if (settings.notify) sonia.say('#SonicRadioboom', song+' up next!');
+        request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&a[action]=add&a[playlistname]=Temp&a[trackpath]='+song,
+        function (error, response, body) {
+            body = JSON.parse(body);
+            if (body.type!="success") {
+                sonia.say('linaea', "There was an error adding '"+song+"' to the playlist.");
+                sonia.say('linaea', "Server Response: "+JSON.stringify(body));
+                setTimeout(addSong, 1000);
+            } else {
+                upnext.push(song);
+            }
+        });
     }
-    if (settings.notify) sonia.say('#SonicRadioboom', song+' up next!');
-    request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&a[action]=add&a[playlistname]=Temp&a[trackpath]='+song,
-    function (error, response, body) {
-        body = JSON.parse(body);
-        if (body.type!="success") {
-            sonia.say('linaea', "There was an error adding '"+song+"' to the playlist.");
-            sonia.say('linaea', "Server Response: "+JSON.stringify(body));
-            setTimeout(addSong, 1000);
-        } else {
-            upnext.push(song);
-        }
-    });
     // request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&a[action]=deactivate&a[playlistname]=Temp',
     // function (error, response, body) {
     request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&a[action]=activate&a[playlistname]=Temp', function (error, response, body) {});
@@ -498,8 +510,10 @@ function addSong() {
 
 function readSongDB(filename) {
     fs.readFile(filename, function (err, data) {
-    if (err) throw err;
-    db.songs = shuffle(data.toString('utf-8').split("\n"));
+        if (err) throw err;
+        data = data.toString('utf-8').split("\n");
+        db.songs = shuffle(data);
+        addSong();
     });
 }
 
