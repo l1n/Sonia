@@ -50,7 +50,7 @@ var settings = {
     floodProtection: true,
     notify: false,
     disabled: false,
-    verbose: true,
+    verbose: false,
     introduce: false,
     autodj: true,
     context: true,
