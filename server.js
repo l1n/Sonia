@@ -500,7 +500,7 @@ function readSongDB(filename) {
     fs.readFile(filename, function (err, data) {
     if (err) throw err;
     db.songs = shuffle(data.toString('utf-8').split("\n"));
-    }
+    });
 }
 
 // Courtesy of Blender@SO (http://stackoverflow.com/questions/6274339/how-can-i-shuffle-an-array-in-javascript/6274398#6274398)
