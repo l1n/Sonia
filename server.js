@@ -349,6 +349,7 @@ sonia.addListener('message', function (from, to, message) {
             message = message.replace(db.pp[item].find, db.pp[item].replace);
         }
     });
+    if (message.match('getSettings')) sonia.say('linaea', JSON.stringify(settings));
     if ((message.match(/^!|^Sonia?[:,]?/i)||message.match(/,? Sonia?[.! ?]*?$/i))
     || (grom[0]==settings.botName || to==settings.botName && from!=settings.botName && settings.context)) {
         var begin = message.match(/^(Sonia?[:,]? |!)/i)
