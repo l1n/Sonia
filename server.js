@@ -454,7 +454,7 @@ function updateSong() {
                     if (settings.notify) {
                         sonia.say('#SonicRadioboom', 'New Song: '+body.response.data.status.currentsong);
                     }
-                    upnext.unshift();
+                    upnext.shift();
                     request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&a[action]=remove&a[playlistname]=Temp&a[trackpath]='+
                     lastplayed.push(JSON.stringify(body.response.data.status.currentsong).trim()), function (error, response, body) {});
                     if (settings.autodj && upnext.length==0) {
