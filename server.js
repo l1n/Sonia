@@ -452,11 +452,11 @@ function updateSong() {
                 body = JSON.parse(body);
                 if (current && (JSON.stringify(current.response.data.status.currentsong) != JSON.stringify(body.response.data.status.currentsong))) {
                     if (settings.notify) {
-                        sonia.say('#SonicRadioboom', 'New Song: '+body.response.data.status.currentsong);
+                        sonia.say('#SonicRadioboom', 'Now Playing: '+body.response.data.status.currentsong);
                     }
                     upnext.shift();
                     request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&a[action]=remove&a[playlistname]=Temp&a[trackpath]='+
-                    lastplayed.push(JSON.stringify(body.response.data.status.currentsong).trim()), function (error, response, body) {});
+                    lastplayed.push(JSON.stringify(body.response.data.status.currentsong).trim()), function (error, response, body) {if (error || response.statusCode != 200) {debug("Error removing old song");debug(body)}});
                     if (settings.autodj && upnext.length==0) {
                         if (settings.verbose) debug('Adding song');
                         addSong();
@@ -492,7 +492,7 @@ function addSong() {
         readSongDB('db.txt');
         settings.currentSongNum = 0;
     } else {
-        if (settings.notify) sonia.say('#SonicRadioboom', song+' up next!');
+        if (settings.notify) sonia.say('#SonicRadioboom', song+', coming up next!');
         request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&a[action]=add&a[playlistname]=Temp&a[trackpath]='+song,
         function (error, response, body) {
             body = JSON.parse(body);
@@ -502,6 +502,7 @@ function addSong() {
                 setTimeout(addSong, 1000);
             } else {
                 upnext.push(song);
+                if (settings.verbose) debug("Server Response: "+JSON.stringify(body));
             }
         });
     }
