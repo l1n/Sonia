@@ -456,7 +456,7 @@ function updateSong() {
                     }
                     upnext.shift();
                     request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&a[action]=remove&a[playlistname]=Temp&a[trackpath]='+
-                    lastplayed.push(JSON.stringify(body.response.data.status.currentsong).trim()), function (error, response, body) {if (error || response.statusCode != 200) {debug("Error removing old song");debug(body)}});
+                    lastplayed.push(JSON.stringify(body.response.data.status.currentsong).trim()), function (error, response, body) {if (settings.verbose) {debug("Error removing old song");debug(body)}});
                     if (settings.autodj && upnext.length==0) {
                         if (settings.verbose) debug('Adding song');
                         addSong();
