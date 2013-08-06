@@ -454,9 +454,9 @@ function updateSong() {
                     if (settings.notify) {
                         sonia.say('#SonicRadioboom', 'Now Playing: '+body.response.data.status.currentsong);
                     }
-                    upnext.shift();
+                    var cs = upnext.shift();
                     request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&a[action]=remove&a[playlistname]=Temp&a[trackname]='+
-                    lastplayed.push(JSON.stringify(body.response.data.status.currentsong).trim()), function (error, response, body) {if (settings.verbose) {debug("Error removing old song");debug(body)}});
+                    lastplayed.push(cs), function (error, response, body) {if (settings.verbose) {debug("Error removing old song "+cs);debug(body)}});
                     if (settings.autodj && upnext.length==0) {
                         if (settings.verbose) debug('Adding song');
                         addSong();
