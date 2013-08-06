@@ -147,7 +147,12 @@ sonia.addListener('registered', function() {setTimeout(function(){
         request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&a[action]=activate&a[playlistname]=Temp', function (error, response, body) {});
     });
     setTimeout(every(), 1000);
-    },5000);});
+},5000);});
+    
+    function debug(message) {
+        sonia.say('linaea', message);
+    }
+    
 function poke(from, to, message, args) {
     doSomething('Sonia', '#SonicRadioboom', '', 'pokes '+args);
 }
@@ -280,7 +285,7 @@ function back(from, to) {
     }
 }
 function req(from, to, message, args) {
-    var r = new RegExp('^'+args+'$');
+    var r = new RegExp('^.*'+args+'.*$', 'i');
     var song;
     for(s in db.songs) if (s.match(r)) {song = s; break;}
     if (song) {
