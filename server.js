@@ -124,9 +124,7 @@ sonia.addListener('registered', function() {setTimeout(function(){
     emitter.on('skip', function (from, to, message, args) {
         opCommand(from, to, message, args, skip);
     });
-    emitter.on('request', function (from, to, message, args) {
-        opCommand(from, to, message, args, req);
-    });
+    emitter.on('request', req);
     emitter.on('setnick', function (from, to, message, args) {
         opCommand(from, to, message, args, nick);
     });
@@ -160,7 +158,7 @@ function hug(from, to, message, args) {
     doSomething('Sonia', '#SonicRadioboom', '', 'hugs '+args);
 }
 function reply(from, to, message) {
-    if (settings.verbose) sonia.say('linaea', (to==settings.botName?from:to));
+    if (settings.verbose) debug((to==settings.botName?from:to));
     sonia.say((to==settings.botName?from:to), message);
     grom[1]=grom[0];
     grom[0]='Sonia';
@@ -285,9 +283,9 @@ function back(from, to) {
     }
 }
 function req(from, to, message, args) {
-    var r = new RegExp('^.*'+args+'.*$', 'i');
+    var r = new RegExp(args, 'i');
     var song;
-    for(s in db.songs) if (s.match(r)) {song = s; break;}
+    db.songs.forEach(function(s) {if (s.match(r)) {song = s;}});
     if (song) {
         request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&a[action]=add&a[playlistname]=Temp&a[trackpath]='+song, function (error, response, body) {
             body = JSON.parse(body);
@@ -306,8 +304,8 @@ function req(from, to, message, args) {
                 // });
             } else {
                 reply(from, to, 'I tried my best, but I couldn\'t bring myself to play that.');
-                sonia.say('linaea', 'Error adding song '+song+':');
-                sonia.say('linaea', body);
+                debug('Error adding song '+song+':');
+                debug(body);
             }
         });
     } else {
@@ -347,7 +345,7 @@ sonia.addListener('message', function (from, to, message) {
         });
     }
     if (to == settings.botName && from != 'linaea') {
-        sonia.say('linaea', 'PM from '+from+': '+message);
+        debug('PM from '+from+': '+message);
     }
     Object.keys(db.pp).forEach(function (item, a, b) {
         if (message.match(db.pp[item].find)) {
@@ -412,7 +410,7 @@ sonia.addListener('message', function (from, to, message) {
                     messagey = messagey.replace(/<[^ ]*?>/, settings[messagey.match('<([^ ]*?)>')[1]]);
                 }
                 }
-            if (settings.verbose) sonia.say('linaea', matched+' '+messagey);
+            if (settings.verbose) debug(matched+' '+messagey);
             if (!settings.disabled && (from!=settings.botName&&grom[0]!=settings.botName&&!matched)) reply(from, to, messagey);
         }
     }
@@ -431,7 +429,7 @@ function updateNextShow(message) {
         };
     djNotified = true;
     client.calendar.events.list(params).withApiKey(keys.ggl).execute(function (err, response) {
-        if (err) return sonia.say('linaea', err);
+        if (err) return debug(err);
         response.items.forEach(function (item,a,b) {next = item;});
     if (!next || moment(next.start.dateTime).fromNow() == "in 5 minutes" && !djNotified) {
         sonia.say('#SonicRadioboom', 'Next event '+next.summary+'; starting time is '+moment(next.start.dateTime).fromNow());
@@ -442,10 +440,10 @@ function updateNextShow(message) {
     })});
 }
 function autosave() {
-    if (settings.verbose) console.log('writing');
+    if (settings.verbose) debug('writing');
     fs.writeFile('../data/db.json', JSON.stringify(db), function (err) {
         if (err) return console.log(err);
-        if (settings.verbose) console.log('done writing');
+        if (settings.verbose) debug('done writing');
     });
 }
 function updateSong() {
@@ -460,11 +458,11 @@ function updateSong() {
                     request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&a[action]=remove&a[playlistname]=Temp&a[trackpath]='+
                     lastplayed.push(JSON.stringify(body.response.data.status.currentsong).trim()), function (error, response, body) {});
                     if (settings.autodj && upnext.length==0) {
-                        if (settings.verbose) sonia.say('linaea', 'Adding song');
+                        if (settings.verbose) debug('Adding song');
                         addSong();
                     } else {
-                        if (settings.verbose) sonia.say('linaea', 'upnext.length: '+upnext.length);
-                        if (settings.verbose) sonia.say('linaea', 'upnext: '+JSON.stringify(upnext));
+                        if (settings.verbose) debug('upnext.length: '+upnext.length);
+                        if (settings.verbose) debug('upnext: '+JSON.stringify(upnext));
                     }
                     if (db.say[body.response.data.status.currentsong+'|event=song']) {
                         sonia.say('#SonicRadioboom', db.say[body.response.data.status.currentsong+'|event=song']);
@@ -490,17 +488,17 @@ function addSong() {
 // } })}); // TODO Change the song picker to be non-random
     var song = db.songs[settings.currentSongNum++||0];
     if (db.songs.length-1==settings.currentSongNum) {
-        sonia.say('linaea', 'rereading db, out of songs');
+        debug('rereading db, out of songs');
         readSongDB('db.txt');
-        settings.currentSongNum;
+        settings.currentSongNum = 0;
     } else {
         if (settings.notify) sonia.say('#SonicRadioboom', song+' up next!');
         request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&a[action]=add&a[playlistname]=Temp&a[trackpath]='+song,
         function (error, response, body) {
             body = JSON.parse(body);
             if (body.type!="success") {
-                sonia.say('linaea', "There was an error adding '"+song+"' to the playlist.");
-                sonia.say('linaea', "Server Response: "+JSON.stringify(body));
+                debug("There was an error adding '"+song+"' to the playlist.");
+                debug("Server Response: "+JSON.stringify(body));
                 setTimeout(addSong, 1000);
             } else {
                 upnext.push(song);
@@ -674,9 +672,9 @@ sonia.addListener('quit', function(channel, nick, message) {
     db.name[nick] = moment();
 });
 sonia.addListener('error', function(message) {
-    sonia.say('linaea', 'error: '+ JSON.stringify(message));
+    debug('error: '+ JSON.stringify(message));
 });
 process.on('uncaughtException', function(err) {
-  sonia.say('linaea', 'Caught exception: ' + err + err.stack);
+  debug('Caught exception: ' + err + err.stack);
   // sonia.say('ElectricErger', 'Caught exception: ' + err.stack);
 });
