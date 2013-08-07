@@ -1,9 +1,9 @@
 // Get the lib
 var irc = require("irc");
-var request = require('request');
 var moment = require('moment');
 var googleapis = require('googleapis');
 var fs = require('fs');
+var request = require('request');
 RegExp.quote = require('regexp-quote');
 var EventEmitter = require('eventemitter2').EventEmitter2, emitter = new EventEmitter();
 var Triejs = require('triejs'), trie = new Triejs();
@@ -36,9 +36,9 @@ if (Object.keys(db.name).indexOf('linaea') <= 0) {
 var keys = {
     eqr: 'b0f4f4a917abbacc10b5910749e7b1bb',
     ggl: 'AIzaSyDPlGenbEo8T-sbeNHx_shvJSRCwOpCESc'
-}
+};
 
-var current, rem, next, djNotified, grom = ['Sonia', 'Sonia'], upnext = [], lastplayed = [];
+var current, rem, next, djNotified, grom = ['Sonia', 'Sonia'], upnext = [];
 
 // Create the settings for node-irc
 var settings = {
@@ -52,11 +52,23 @@ var settings = {
     disabled: false,
     verbose: false,
     introduce: false,
-    autodj: true,
     context: true,
     currentSongNum: 0,
     feeling: 'like a robot'
 };
+
+// Setup radioController
+var radioController = require('./CentovaCast.js').Centova('radio.ponyvillelive.com', 2199, 'Linana', 'yoloswag',
+{
+    autodj: settings.autodj,
+    notfyCallback: settings.notify,
+    removeSongCallback: settings.verbose,
+    newSongCallback: settings.verbose,
+},{
+    notify: function (song) {sonia.say('#SonicRadioboom', 'Now Playing: '+song);},
+    removeSong:function (song, body) {debug("Error removing old song "+song);debug(body);},
+    newSong:function (song) {if (db.say[song+'|event=song']) {sonia.say('#SonicRadioboom', db.say[song+'|event=song']);}}
+    });
 
 // Create the bot
 var sonia = new irc.Client(settings.server, settings.botName, {
@@ -67,7 +79,7 @@ var sonia = new irc.Client(settings.server, settings.botName, {
 sonia.addListener('registered', function() {setTimeout(function(){
     sonia.say('NickServ', 'identify yoloswag');
     sonia.say('linaea', 'Started Sonia '+require('./package.json').version);
-    updateSong();
+    radioController.updateSong();
     updateNextShow();
     // Register event handlers
     emitter.on('listeners', listeners);
@@ -128,9 +140,9 @@ sonia.addListener('registered', function() {setTimeout(function(){
     emitter.on('setnick', function (from, to, message, args) {
         opCommand(from, to, message, args, nick);
     });
-    emitter.on('updatesong', function (from, to, message, args) {
-        opCommand(from, to, message, args, updateSong);
-    });
+    // emitter.on('updatesong', function (from, to, message, args) {
+    //     opCommand(from, to, message, args, radioController.updateSong);
+    // });
     emitter.on('addsong', function (from, to, message, args) {
         opCommand(from, to, message, args, addSong);
     });
@@ -140,10 +152,7 @@ sonia.addListener('registered', function() {setTimeout(function(){
             reply(from, to, 'Hmm... What was that again?');
         });
     });
-    request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&a[action]=deactivate&a[playlistname]=Temp',
-    function (error, response, body) {
-        request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&a[action]=activate&a[playlistname]=Temp', function (error, response, body) {});
-    });
+    radioController.onStart();
     setTimeout(every(), 1000);
 },5000);});
     
@@ -242,7 +251,7 @@ function event(from, to, message) {
     }
 }
 function ban(from, to, message, args) {
-    db.ban[args] = db.ban[args]==undefined?true:!db.ban[args];
+    db.ban[args] = db.ban[args]===undefined?true:!db.ban[args];
     reply(from, to, 'Banned: '+db.ban[args]);
 }
 function dump(from, to, message) {
@@ -287,21 +296,9 @@ function req(from, to, message, args) {
     var song;
     db.songs.forEach(function(s) {if (s.match(r)) {song = s;}});
     if (song) {
-        request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&a[action]=add&a[playlistname]=Temp&a[trackpath]='+song, function (error, response, body) {
-            body = JSON.parse(body);
-            if (!error && response.statusCode == 200 && body.type=='success') {
-                // request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&a[action]=activate&a[playlistname]=Temp', function (error, reponse, body) {
-                    // if (!error && response.statusCode == 200 && JSON.parse(body).type=='success') {
-                        reply(from, to, 'Coming up next: '+song);
-                        request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&a[action]=remove&a[playlistname]=Temp&a[trackpath]='+upnext[0], function (error, response, body) {
-                            request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&a[action]=add&a[playlistname]=Temp&a[trackpath]='+upnext[0], function (error, response, body) {
-                                upnext.push(song);
-                            })
-                        });
-                //     } else {
-                //         reply(from, to, 'Huh. I know that song, but our server doesn\'t... Error: '+error+', body of response: '+body);
-                //     }
-                // });
+        radioController.addSong(song, function(success, body) {
+            if (success) {
+                reply(from, to, 'Coming up next: '+song);
             } else {
                 reply(from, to, 'I tried my best, but I couldn\'t bring myself to play that.');
                 debug('Error adding song '+song+':');
@@ -317,13 +314,13 @@ function nick(from, to, message, args) {
     settings.botName = args;
 }
 function nextRequest(from, to) {
-    reply(from, to, "Up next: "+upnext[upnext.length-1]);
+    reply(from, to, "Up next: "+radioController.upNext());
 }
 function lastSong(from, to) {
-    reply(from, to, "Last Played: "+lastplayed[lastplayed.length-2]);
+    reply(from, to, "Last Played: "+radioController.lastPlayed());
 }
 function skip(from, to, message, args) {
-    request('http://radio.ponyvillelive.com:2199/api.php?xm=server.nextsong&f=json&a[username]=Linana&a[password]=yoloswag', function (error, response, body) {reply(from, to, 'Skipped that one.');});
+    radioController.skip(function() {reply(from, to, 'Skipped that one.');});
 }
 function sayWhen(from, to, message) {
     var parts = message.match(/\{(.*?)\}.*\{(.*?)\}/i);
@@ -367,7 +364,7 @@ sonia.addListener('message', function (from, to, message) {
         var argumen = message.match(/ .*/)?message.match(/ .*/)[0]:'';
         argumen     = argumen.trim();
         
-        if (settings.verbose) console.log(trie.find(command), from, to, message, argumen);
+        if (settings.verbose) debug(trie.find(command), from, to, message, argumen);
         emitter.emit(trie.find(command.toLowerCase()), from, to, message, argumen);
         
         if (message.match(/http:\/\/.*.deviantart.com\/art\/.*|http:\/\/fav.me\/.*|http:\/\/sta.sh\/.*|http:\/\/.*.deviantart.com\/.*#\/d.*/)) {
@@ -446,47 +443,8 @@ function autosave() {
         if (settings.verbose) debug('done writing');
     });
 }
-function updateSong() {
-        request('http://radio.ponyvillelive.com:2199/api.php?xm=server.getstatus&f=json&a[username]=Linana&a[password]=yoloswag', function (error, response, body) {
-            if (!error && response.statusCode == 200) {
-                body = JSON.parse(body);
-                if (current && (JSON.stringify(current.response.data.status.currentsong) != JSON.stringify(body.response.data.status.currentsong))) {
-                    if (settings.notify) {
-                        sonia.say('#SonicRadioboom', 'Now Playing: '+body.response.data.status.currentsong);
-                    }
-                    var cs = upnext.shift();
-                    lastplayed.push(cs);
-                    request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&a[action]=remove&a[playlistname]=Temp&a[trackpath]='+
-                    cs, function (error, response, body) {if (settings.verbose) {debug("Error removing old song "+cs);debug(body)}});
-                    if (settings.autodj && upnext.length==0) {
-                        if (settings.verbose) debug('Adding song');
-                        addSong();
-                    } else {
-                        if (settings.verbose) debug('upnext.length: '+upnext.length);
-                        if (settings.verbose) debug('upnext: '+JSON.stringify(upnext));
-                    }
-                    if (db.say[body.response.data.status.currentsong+'|event=song']) {
-                        sonia.say('#SonicRadioboom', db.say[body.response.data.status.currentsong+'|event=song']);
-                    }
-                }
-                current = body;
-}
-setTimeout(updateSong, 1000*5);
-});
-}
+
 function addSong() {
-//     getRandomLine('db.txt', function (err, line) {
-//     line=line.trim();
-//     if (settings.notify) sonia.say('#SonicRadioboom', line+' up next!');
-//     request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&a[action]=add&a[playlistname]=Temp&a[trackpath]='
-//     
-//     sonia.say('linaea', "URL: "+'http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&a[action]=add&a[playlistname]=Temp&a[trackpath]='
-//     +line);
-//     sonia.say('linaea', "Body: "+JSON.stringify(body));
-//     setTimeout(addSong, 10);
-//     } else {
-//         upnext.push(line);
-// } })}); // TODO Change the song picker to be non-random
     var song = db.songs[settings.currentSongNum++||0];
     if (db.songs.length-1==settings.currentSongNum) {
         debug('rereading db, out of songs');
@@ -494,23 +452,18 @@ function addSong() {
         settings.currentSongNum = 0;
     } else {
         if (settings.notify) sonia.say('#SonicRadioboom', song+', coming up next!');
-        request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&a[action]=add&a[playlistname]=Temp&a[trackpath]='+song,
-        function (error, response, body) {
+        radioController.addSong(song, function (success, body) {
             body = JSON.parse(body);
-            if (body.type!="success") {
+            if (!success) {
                 debug("There was an error adding '"+song+"' to the playlist.");
                 debug("Server Response: "+JSON.stringify(body));
                 setTimeout(addSong, 1000);
             } else {
-                upnext.push(song);
                 if (settings.verbose) debug("Server Response: "+JSON.stringify(body));
             }
         });
     }
-    // request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&a[action]=deactivate&a[playlistname]=Temp',
-    // function (error, response, body) {
-    request('http://radio.ponyvillelive.com:2199/api.php?xm=server.playlist&f=json&a[username]=Linana&a[password]=yoloswag&a[action]=activate&a[playlistname]=Temp', function (error, response, body) {});
-    // });
+    radioController.activate(null);
 }
 
 function readSongDB(filename) {
@@ -540,23 +493,6 @@ function shuffle(array) {
     return array;
 }
 
-// Modified from solution by FGRibreau
-function getRandomLine(filename, callback) {
-    fs.readFile(filename, function (err, data) {
-    if (err) throw err;
-
-    // Data is a buffer that we need to convert to a string
-    // Improvement: loop over the buffer and stop when the line is reached
-    var lines = data.toString('utf-8').split("\n");
-    var line_no = Math.floor(Math.random() * (lines.length - 1 + 1)) + 1;
-
-    if(+line_no > lines.length){
-        return callback('File end reached without finding line', null);
-    }
-
-    callback(null, lines[+line_no]);
-    });
-}
 // XXXX Hack for calling action handlers.
 sonia.addListener('raw', function (message) {
     if (message.command == 'PING') sonia.send('PONG', 'empty');
@@ -604,7 +540,7 @@ function action(from, to, message) {
             if (!settings.disabled && !matched && !message.match(/\?$/i)) {
                 messagey = messagey+', too';
                 while (messagey.match(/<[^ ]*?>/)) {
-                    console.log(messagey)
+                    debug(messagey);
                     messagey = messagey.replace(/<[^ ]*?>/, settings[messagey.match('<([^ ]*?)>')[1]]);
                 }
             }
