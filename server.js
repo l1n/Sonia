@@ -4,6 +4,7 @@ var moment = require('moment');
 var googleapis = require('googleapis');
 var fs = require('fs');
 var request = require('request');
+var radio = require('./CentovaCast.js');
 RegExp.quote = require('regexp-quote');
 var EventEmitter = require('eventemitter2').EventEmitter2, emitter = new EventEmitter();
 var Triejs = require('triejs'), trie = new Triejs();
@@ -38,15 +39,15 @@ var keys = {
     ggl: 'AIzaSyDPlGenbEo8T-sbeNHx_shvJSRCwOpCESc'
 };
 
-var current, rem, next, djNotified, grom = ['Sonia', 'Sonia'], upnext = [];
+var rem, next, djNotified, grom = ['Sonia', 'Sonia'], upnext = [];
 
 // Create the settings for node-irc
 var settings = {
-    channels: ['#SonicRadioboom', '#SRBTests'],
-    // channels: ['#SRBTests'],
+    // channels: ['#SonicRadioboom', '#SRBTests'],
+    channels: ['#SRBTests'],
+    botName: "SoniaBeta",
+    // botName: "Sonia",
     server: "chrysalis.canternet.org",
-    // botName: "SoniaBeta",
-    botName: "Sonia",
     floodProtection: true,
     notify: false,
     disabled: false,
@@ -58,7 +59,7 @@ var settings = {
 };
 
 // Setup radioController
-var radioController = require('./CentovaCast.js').Centova('radio.ponyvillelive.com', 2199, 'Linana', 'yoloswag',
+var radioController = new radio.CentovaCast('radio.ponyvillelive.com', 2199, 'Linana', 'yoloswag',
 {
     autodj: settings.autodj,
     notfyCallback: settings.notify,
@@ -67,8 +68,9 @@ var radioController = require('./CentovaCast.js').Centova('radio.ponyvillelive.c
 },{
     notify: function (song) {sonia.say('#SonicRadioboom', 'Now Playing: '+song);},
     removeSong:function (song, body) {debug("Error removing old song "+song);debug(body);},
-    newSong:function (song) {if (db.say[song+'|event=song']) {sonia.say('#SonicRadioboom', db.say[song+'|event=song']);}}
-    });
+    newSong:function (song) {if (db.say[song+'|event=song']) {sonia.say('#SonicRadioboom', db.say[song+'|event=song']);}},
+    queueEnd: function () {addSong();}
+});
 
 // Create the bot
 var sonia = new irc.Client(settings.server, settings.botName, {
@@ -79,6 +81,7 @@ var sonia = new irc.Client(settings.server, settings.botName, {
 sonia.addListener('registered', function() {setTimeout(function(){
     sonia.say('NickServ', 'identify yoloswag');
     sonia.say('linaea', 'Started Sonia '+require('./package.json').version);
+    radioController.onStart();
     radioController.updateSong();
     updateNextShow();
     // Register event handlers
@@ -196,10 +199,10 @@ function define(from, to,  message, args) {
         });
 }
 function listeners(from, to, message) {
-    reply(from, to, 'Listeners: '+current.response.data.status.listenercount);
+    reply(from, to, 'Listeners: '+radioController.listeners());
 }
 function song(from, to, message) {
-    reply(from, to, 'Current Song: '+current.response.data.status.currentsong);
+    reply(from, to, 'Current Song: '+radioController.song());
 }
 function help(from, to, message) {
     reply(from, to, 'Help is available, along with rules, at https://docs.google.com/document/d/15u3B8RexqXryPV1tfF9yJHcTbAAd0ltoPB6a9hKKyWc');
@@ -221,26 +224,26 @@ function pm(from, to, message, args) {
     sonia.say(to, args);
 }
 function addMeta(from, to, message, args) {
-    db.song[current.response.data.status.currentsong] = (args.match(/^$|^it/i))?rem:args;
-    reply(from, to, 'I know that '+current.response.data.status.currentsong+' is '+db.song[current.response.data.status.currentsong]);
+    db.song[radioController.song()] = (args.match(/^$|^it/i))?rem:args;
+    reply(from, to, 'I know that '+radioController.song()+' is '+db.song[radioController.song()]);
 }
 function getMeta(from, to, message, args) {
-    var data = db.song[args||current.response.data.status.currentsong];
+    var data = db.song[args||radioController.song()];
     if (!data||data==' ') {
         googleapis.discover('youtube', 'v3').execute(function(err, client, to, from, message, args) {
             var params = {
                 maxResults: 1,
-                q: args||current.response.data.status.currentsong,
+                q: args||radioController.song(),
                 part: 'snippet',
                 };
             client.youtube.search.list(params).withApiKey(keys.ggl).execute(function (err, response, to, from, message, args) {
                 response.items.forEach(function (item,a,b) {
-                    reply(from, to, from+': Does this help? '+current.response.data.status.currentsong+' might be http://www.youtube.com/watch?v='+item.id.videoId);
+                    reply(from, to, from+': Does this help? '+radioController.song()+' might be http://www.youtube.com/watch?v='+item.id.videoId);
                     rem = 'http://www.youtube.com/watch?v='+item.id.videoId;
                     });
             })});
     } else {
-        reply(from, to, from+': '+current.response.data.status.currentsong+' is '+data);
+        reply(from, to, from+': '+radioController.song()+' is '+data);
     }
 }
 function event(from, to, message) {
