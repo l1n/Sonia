@@ -59,7 +59,7 @@ var settings = {
 };
 
 // Setup radioController
-var radioController = new radio.CentovaCast('radio.ponyvillelive.com', 2199, 'Linana', 'yoloswag',
+var radioController = new radio.CentovaCast('radio.ponyvillelive.com', 2199, 'Linana', 'yoloswag', 'Temp',
 {
     autodj: settings.autodj,
     notfyCallback: settings.notify,
@@ -456,6 +456,7 @@ function addSong() {
     } else {
         if (settings.notify) sonia.say('#SonicRadioboom', song+', coming up next!');
         radioController.addSong(song, function (success, body) {
+            // console.log(body);
             body = JSON.parse(body);
             if (!success) {
                 debug("There was an error adding '"+song+"' to the playlist.");
@@ -474,7 +475,7 @@ function readSongDB(filename) {
         if (err) throw err;
         data = data.toString('utf-8').split("\n");
         db.songs = shuffle(data);
-        addSong();
+        if (settings.autodj) addSong();
     });
 }
 
@@ -613,9 +614,9 @@ sonia.addListener('quit', function(channel, nick, message) {
     db.name[nick] = moment();
 });
 sonia.addListener('error', function(message) {
-    debug('error: '+ JSON.stringify(message));
+    console.log('error: '+ JSON.stringify(message));
 });
 process.on('uncaughtException', function(err) {
-  debug('Caught exception: ' + err + err.stack);
+  console.log('Caught exception: ' + err + err.stack);
   // sonia.say('ElectricErger', 'Caught exception: ' + err.stack);
 });
