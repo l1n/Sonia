@@ -31,11 +31,12 @@
         "request": "*",
         "regexp-quote": "*",
         "eventemitter2": "*",
-        "triejs": "*"
+        "triejs": "*",
+        "CentovaCast": "*"
   },
   "devDependencies": {},
   "bundleDependencies": [
-        "CentovaCast": "*"
+        "CentovaCast"
       ],
 
   "private": true,
