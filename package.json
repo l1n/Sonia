@@ -32,7 +32,7 @@
         "regexp-quote": "*",
         "eventemitter2": "*",
         "triejs": "*",
-        "./node_modules/CentovaCast": "*"
+        "centovacast": "*"
   },
   "devDependencies": {},
   "bundleDependencies": [

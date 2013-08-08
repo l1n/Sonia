@@ -4,7 +4,7 @@ var moment = require('moment');
 var googleapis = require('googleapis');
 var fs = require('fs');
 var request = require('request');
-var radio = require('CentovaCast');
+var radio = require('centovacast');
 RegExp.quote = require('regexp-quote');
 var EventEmitter = require('eventemitter2').EventEmitter2, emitter = new EventEmitter();
 var Triejs = require('triejs'), trie = new Triejs();
