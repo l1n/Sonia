@@ -82,7 +82,7 @@ sonia.addListener('registered', function() {setTimeout(function(){
     sonia.say('NickServ', 'identify yoloswag');
     sonia.say('linaea', 'Started Sonia '+require('./package.json').version);
     radioController.onStart();
-    radioController.updateSong();
+    // radioController.updateSong();
     updateNextShow();
     // Register event handlers
     emitter.on('listeners', listeners);
