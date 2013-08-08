@@ -34,7 +34,9 @@
         "triejs": "*"
   },
   "devDependencies": {},
-  "bundleDependencies": [],
+  "bundleDependencies": [
+        "CentovaCast": "*",
+      ],
 
   "private": true,
   "main": "server.js"
