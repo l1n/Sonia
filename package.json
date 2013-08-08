@@ -35,7 +35,7 @@
   },
   "devDependencies": {},
   "bundleDependencies": [
-        "CentovaCast": "*",
+        "CentovaCast": "*"
       ],
 
   "private": true,
