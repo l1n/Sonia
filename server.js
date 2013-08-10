@@ -43,10 +43,10 @@ var rem, next, djNotified, grom = ['Sonia', 'Sonia'], upnext = [];
 
 // Create the settings for node-irc
 var settings = {
-    // channels: ['#SonicRadioboom', '#SRBTests'],
-    channels: ['#SRBTests'],
-    botName: "SoniaBeta",
-    // botName: "Sonia",
+    channels: ['#SonicRadioboom', '#SRBTests'],
+    // channels: ['#SRBTests'],
+    // botName: "SoniaBeta",
+    botName: "Sonia",
     server: "chrysalis.canternet.org",
     floodProtection: true,
     notify: false,
