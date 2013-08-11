@@ -5,6 +5,7 @@ var googleapis = require('googleapis');
 var fs = require('fs');
 var request = require('request');
 var radio = require('centovacast');
+var cast = require('shoutcast');
 RegExp.quote = require('regexp-quote');
 var EventEmitter = require('eventemitter2').EventEmitter2, emitter = new EventEmitter();
 var Triejs = require('triejs'), trie = new Triejs();
@@ -59,18 +60,35 @@ var settings = {
 };
 
 // Setup radioController
-var radioController = new radio.CentovaCast('radio.ponyvillelive.com', 2199, 'Linana', 'yoloswag', 'Temp',
-{
-    autodj: settings.autodj,
-    notfyCallback: settings.notify,
-    removeSongCallback: settings.verbose,
-    newSongCallback: settings.verbose,
-},{
-    notify: function (song) {sonia.say('#SonicRadioboom', 'Now Playing: '+song);},
-    removeSong:function (song, body) {debug("Error removing old song "+song);debug(body);},
-    newSong:function (song) {if (db.say[song+'|event=song']) {sonia.say('#SonicRadioboom', db.say[song+'|event=song']);}},
-    queueEnd: function () {addSong();}
-});
+var radioControllers = [
+    new radio.CentovaCast('radio.ponyvillelive.com', 2199, 'Linana', 'yoloswag', 'Temp',
+    {
+        autodj: settings.autodj,
+        notfyCallback: settings.notify,
+        removeSongCallback: settings.verbose,
+        newSongCallback: settings.verbose,
+    },
+    {
+        notify: function (song) {sonia.say('#SonicRadioboom', 'Now Playing: '+song);},
+        removeSong:function (song, body) {debug("Error removing old song "+song);debug(body);},
+        newSong:function (song) {if (db.say[song+'|event=song']) {sonia.say('#SonicRadioboom', db.say[song+'|event=song']);}},
+        queueEnd: function () {addSong();}
+    }),
+    new cast.Station({
+        name: 'Sonic Radioboom',
+        genre: 'Ponyponypony',
+        url: 'http://sonicradioboom.com/',
+        notice: 'DJ-Sonia, Live!'
+    })
+];
+var radioController = radioControllers[0];
+
+request('http').createServer(function (req, res) {
+      radioControllers[1].connect(res, function() {
+        console.log("Stream ended?");
+      });
+}).listen(7000);
+radioControllers[1].onStart();
 
 // Create the bot
 var sonia = new irc.Client(settings.server, settings.botName, {
@@ -567,6 +585,7 @@ function every() {
 }
 function hour() {
     sonia.say('#SonicRadioboom', db.say['event=hour']);
+    request('http://sonia-linaea.openshift.com/', function (error, response, body) {});
     }
 function minute() {
     sonia.say('#SonicRadioboom', db.say['event=minute']);
