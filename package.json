@@ -32,8 +32,7 @@
         "regexp-quote": "*",
         "eventemitter2": "*",
         "triejs": "*",
-        "centovacast": "0.1.1",
-        "shoutcast": "0.0.2"
+        "centovacast": "0.1.1"
   },
   "devDependencies": {},
   "bundleDependencies": [
