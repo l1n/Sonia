@@ -5,6 +5,7 @@ var googleapis = require('googleapis');
 var fs = require('fs');
 var request = require('request');
 var radio = require('centovacast');
+var http = request('http');
 // var cast = require('shoutcast');
 RegExp.quote = require('regexp-quote');
 var EventEmitter = require('eventemitter2').EventEmitter2, emitter = new EventEmitter();
@@ -83,7 +84,7 @@ var radioControllers = [
 ];
 var radioController = radioControllers[0];
 
-request('http').createServer(function (req, res) {
+http.createServer(function (req, res) {
       // radioControllers[1].connect(res, function() {
       //   console.log("Stream ended?");
       // });
