@@ -81,7 +81,7 @@ var radioControllers = [
     //     notice: 'DJ-Sonia, Live!'
     // })
 ];
-// var radioController = radioControllers[0];
+var radioController = radioControllers[0];
 
 // request('http').createServer(function (req, res) {
 //       radioControllers[1].connect(res, function() {
