@@ -83,11 +83,13 @@ var radioControllers = [
 ];
 var radioController = radioControllers[0];
 
-// request('http').createServer(function (req, res) {
-//       radioControllers[1].connect(res, function() {
-//         console.log("Stream ended?");
-//       });
-// }).listen(7000);
+request('http').createServer(function (req, res) {
+      // radioControllers[1].connect(res, function() {
+      //   console.log("Stream ended?");
+      // });
+    res.writeHead(200, {'Content-Type': 'text/plain'});
+    res.end('Hello World\n');
+}).listen(80);
 // radioControllers[1].onStart();
 
 // Create the bot
@@ -585,7 +587,6 @@ function every() {
 }
 function hour() {
     sonia.say('#SonicRadioboom', db.say['event=hour']);
-    request('http://sonia-linaea.openshift.com/', function (error, response, body) {});
     }
 function minute() {
     sonia.say('#SonicRadioboom', db.say['event=minute']);
