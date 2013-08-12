@@ -5,7 +5,7 @@ var googleapis = require('googleapis');
 var fs = require('fs');
 var request = require('request');
 var radio = require('centovacast');
-var http = request('http');
+// var http = request('http');
 // var cast = require('shoutcast');
 RegExp.quote = require('regexp-quote');
 var EventEmitter = require('eventemitter2').EventEmitter2, emitter = new EventEmitter();
@@ -84,14 +84,22 @@ var radioControllers = [
 ];
 var radioController = radioControllers[0];
 
-http.createServer(function (req, res) {
-      // radioControllers[1].connect(res, function() {
-      //   console.log("Stream ended?");
-      // });
-    res.writeHead(200, {'Content-Type': 'text/plain'});
-    res.end('Hello World\n');
-}).listen(80);
+// http.createServer(function (req, res) {
+//       // radioControllers[1].connect(res, function() {
+//       //   console.log("Stream ended?");
+//       // });
+//     res.writeHead(200, {'Content-Type': 'text/plain'});
+//     res.end('Hello World\n');
+// }).listen(80);
 // radioControllers[1].onStart();
+
+var net = require('net');
+
+var server = net.createServer(function (socket) {
+  socket.write('Echo server\r\n');
+  socket.pipe(socket);
+});
+server.listen(80, '127.0.0.1');
 
 // Create the bot
 var sonia = new irc.Client(settings.server, settings.botName, {
