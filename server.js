@@ -206,7 +206,7 @@ function reply(from, to, message) {
 function doSomething(from, to, message, args) {
     var tp = args.match(/ to:(.*)$/);
     if (tp) {
-        args = args.replace(/ to:.*$/);
+        args = args.replace(/ to:.*$/, '');
     } else {
         tp = '#SonicRadioboom';
     }
@@ -252,7 +252,13 @@ function act(from, to, message, args) {
     sonia.action(to, args);
 }
 function say(from, to, message, args) {
-    sonia.say('#SonicRadioboom', args);
+    var tp = args.match(/ to:(.*)$/);
+    if (tp) {
+        args = args.replace(/ to:.*$/, '');
+    } else {
+        tp = '#SonicRadioboom';
+    }
+    sonia.say(tp, args);
 }
 function pm(from, to, message, args) {
     sonia.say(to, args);
