@@ -55,7 +55,7 @@ var settings = {
     disabled: false,
     verbose: false,
     introduce: false,
-    context: true,
+    context: false,
     currentSongNum: 0,
     feeling: 'like a robot'
 };
@@ -204,7 +204,13 @@ function reply(from, to, message) {
     grom[0]='Sonia';
 }
 function doSomething(from, to, message, args) {
-    act(from, (to==settings.botName?from:to), message, args);
+    var tp = args.match(/( to:.*)$/);
+    if (tp) {
+        args = args.replace(/ to:.*$/);
+    } else {
+        tp = '#SonicRadioboom';
+    }
+    act(from, tp, message, args);
     grom[1]=grom[0];
     grom[0]='Sonia';
 }
