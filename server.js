@@ -382,7 +382,7 @@ sonia.addListener('message', function (from, to, message) {
     });
     if (message.match('getSettings')) sonia.say('linaea', JSON.stringify(settings));
     if (message.match(/^!|^Sonia?[:,]?|,? Sonia?[.! ?]*?$/i)
-    || (grom[0]==settings.botName || to==settings.botName && from!=settings.botName && settings.context)) {
+    || ((grom[0]==settings.botName || to==settings.botName && from!=settings.botName) && settings.context)) {
         var begin = message.match(/^(Sonia?[:,]? |!)/i)
         ?message.match(/^(Sonia?[:,]? |!)/i)[1]
         :message.match(/(,? Sonia?[.! ?]*?)$/i)
@@ -541,7 +541,7 @@ function action(from, to, message) {
     });
     }
     if (message.match(/^!|^Sonia?[:,]?|,? Sonia?[.! ?]*?$/i)
-    || (grom[0]==settings.botName || to==settings.botName && from!=settings.botName && settings.context)) {
+    || ((grom[0]==settings.botName || to==settings.botName && from!=settings.botName) && settings.context)) {
         var begin = message.match(/^(Sonia?[:,]? |!)/i)?message.match(/^(Sonia?[:,]? |!)/i)[1]:message.match(/(,? Sonia?[.! ?]*?)$/i)?message.match(/(,? Sonia?[.! ?]*?)$/i)[1]:'';
         // message = message.replace(begin, '');
         // message = message.replace(/What.?s the /i, '');
