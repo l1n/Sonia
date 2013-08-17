@@ -97,7 +97,7 @@ var radioController = radioControllers[0];
 
 var server = http.createServer(function (req, res) {
     res.writeHead(200, {'Content-Type': 'text/plain'});
-    res.end(JSON.stringify(db));
+    res.end(JSON.stringify(db, null, "\t"));
 }).listen(process.env.OPENSHIFT_INTERNAL_PORT || process.env.OPENSHIFT_NODEJS_PORT || process.argv[2] || 80, process.env.OPENSHIFT_INTERNAL_IP || process.env.OPENSHIFT_NODEJS_IP || process.argv[3] || '127.0.0.1');
 
 // Create the bot
