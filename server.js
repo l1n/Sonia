@@ -5,7 +5,7 @@ var googleapis = require('googleapis');
 var fs = require('fs');
 var request = require('request');
 var radio = require('centovacast');
-// var http = request('http');
+var http = require('http');
 // var cast = require('shoutcast');
 RegExp.quote = require('regexp-quote');
 var EventEmitter = require('eventemitter2').EventEmitter2, emitter = new EventEmitter();
@@ -95,11 +95,10 @@ var radioController = radioControllers[0];
 
 var net = require('net');
 
-var server = net.createServer(function (socket) {
-  socket.write('Echo server\r\n');
-  socket.pipe(socket);
-});
-server.listen(80, '127.0.0.1');
+var server = http.createServer(function (req, res) {
+    res.writeHead(200, {'Content-Type': 'text/json'});
+    res.end(JSON.stringify(db));
+}).listen(80);
 
 // Create the bot
 var sonia = new irc.Client(settings.server, settings.botName, {
