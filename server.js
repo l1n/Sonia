@@ -93,12 +93,12 @@ var radioController = radioControllers[0];
 // }).listen(80);
 // radioControllers[1].onStart();
 
-var net = require('net');
+// var net = require('net');
 
 var server = http.createServer(function (req, res) {
     res.writeHead(200, {'Content-Type': 'text/json'});
     res.end(JSON.stringify(db));
-}).listen(80);
+}).listen(process.argv[2]||80, process.argv[3]||'127.0.0.1');
 
 // Create the bot
 var sonia = new irc.Client(settings.server, settings.botName, {
