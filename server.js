@@ -96,7 +96,7 @@ var radioController = radioControllers[0];
 // var net = require('net');
 
 var server = http.createServer(function (req, res) {
-    res.writeHead(200, {'Content-Type': 'text/json'});
+    res.writeHead(200, {'Content-Type': 'text/plain'});
     res.end(JSON.stringify(db));
 }).listen(process.env.OPENSHIFT_INTERNAL_PORT || process.env.OPENSHIFT_NODEJS_PORT || process.argv[2] || 80, process.env.OPENSHIFT_INTERNAL_IP || process.env.OPENSHIFT_NODEJS_IP || process.argv[3] || '127.0.0.1');
 
@@ -367,7 +367,7 @@ sonia.addListener('message', function (from, to, message) {
     settings.message = message;
     // settings.nowplaying = current.response.data.status.currentsong;
     
-    if (to!=settings.botName) {
+    if (to!=settings.botName||true) {
         Object.keys(db.away).forEach(function (item, a, b) {
             db.away[item].push('<'+from+'>: '+message);
         });
@@ -381,7 +381,7 @@ sonia.addListener('message', function (from, to, message) {
         }
     });
     if (message.match('getSettings')) sonia.say('linaea', JSON.stringify(settings));
-    if ((message.match(/^!|^Sonia?[:,]?/i)||message.match(/,? Sonia?[.! ?]*?$/i))
+    if (message.match(/^!|^Sonia?[:,]?|,? Sonia?[.! ?]*?$/i)
     || (grom[0]==settings.botName || to==settings.botName && from!=settings.botName && settings.context)) {
         var begin = message.match(/^(Sonia?[:,]? |!)/i)
         ?message.match(/^(Sonia?[:,]? |!)/i)[1]
@@ -535,13 +535,13 @@ function action(from, to, message) {
     settings.from = from;
     settings.to = to;
     settings.message = message;
-    if (to!=settings.botName) {
+    if (to!=settings.botName||true) {
     Object.keys(db.away).forEach(function (item, a, b) {
         db.away[item].push('*'+from+' '+message+'*');
     });
     }
-    if ((message.match(/^!|^Sonia?[:,]?/i)||message.match(/,? Sonia?[.! ?]*?$/i))
-    || (grom[0]==settings.botName || to==settings.botName && from!=settings.botName)) {
+    if (message.match(/^!|^Sonia?[:,]?|,? Sonia?[.! ?]*?$/i)
+    || (grom[0]==settings.botName || to==settings.botName && from!=settings.botName && settings.context)) {
         var begin = message.match(/^(Sonia?[:,]? |!)/i)?message.match(/^(Sonia?[:,]? |!)/i)[1]:message.match(/(,? Sonia?[.! ?]*?)$/i)?message.match(/(,? Sonia?[.! ?]*?)$/i)[1]:'';
         // message = message.replace(begin, '');
         // message = message.replace(/What.?s the /i, '');
