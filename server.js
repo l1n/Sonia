@@ -204,7 +204,7 @@ function reply(from, to, message) {
     grom[0]='Sonia';
 }
 function doSomething(from, to, message, args) {
-    var tp = args.match(/( to:.*)$/);
+    var tp = args.match(/ to:(.*)$/);
     if (tp) {
         args = args.replace(/ to:.*$/);
     } else {
