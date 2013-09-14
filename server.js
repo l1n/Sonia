@@ -653,6 +653,9 @@ sonia.addListener('join', function(channel, nick, message) {
 sonia.addListener('quit', function(channel, nick, message) {
     db.name[nick] = moment();
 });
+sonia.addListener('part', function(channel, nick, message) {
+    db.name[nick] = moment();
+});
 sonia.addListener('error', function(message) {
     console.log('error: '+ JSON.stringify(message));
 });
