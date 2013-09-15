@@ -28,9 +28,8 @@ if (!db.act)  db.act  = {};
 if (db.song||true) readSongDB('db.txt');
 if (!db.pp)   db.pp   = {};
 
-if (Object.keys(db.name).indexOf('ElectricErger') <= 0) {
-    db.name['ElectricErger'] = now;
-}
+var creds = JSON.parse(fs.readFileSync('../data/credentials.json', "utf8"));
+
 if (Object.keys(db.name).indexOf('linaea') <= 0) {
     db.name['linaea'] = now;
 }
@@ -62,7 +61,7 @@ var settings = {
 
 // Setup radioController
 var radioControllers = [
-    new radio.CentovaCast('radio.ponyvillelive.com', 2199, 'Linana', 'yoloswag', 'Temp',
+    new radio.CentovaCast('radio.ponyvillelive.com', 2199, creds.user, creds.password, 'Temp',
     {
         autodj: settings.autodj,
         notfyCallback: settings.notify,
@@ -95,7 +94,7 @@ var radioController = radioControllers[0];
 
 // var net = require('net');
 
-var server = http.createServer(function (req, res) {
+http.createServer(function (req, res) {
     res.writeHead(200, {'Content-Type': 'text/plain'});
     res.end(JSON.stringify(db, null, "\t"));
 }).listen(process.env.OPENSHIFT_INTERNAL_PORT || process.env.OPENSHIFT_NODEJS_PORT || process.argv[2] || 80, process.env.OPENSHIFT_INTERNAL_IP || process.env.OPENSHIFT_NODEJS_IP || process.argv[3] || '127.0.0.1');
